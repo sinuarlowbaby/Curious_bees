@@ -10,33 +10,38 @@ if (!fs.existsSync(envPath)) {
 if (!fs.existsSync(envPath)) {
   envPath = path.join(process.cwd(), '../..', '.env');
 }
-
 dotenv.config({ path: envPath });
 
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
+import { ExpressAdapter } from '@nestjs/platform-express';
+import * as express from 'express';
+import { IncomingMessage, ServerResponse } from 'http';
 
-async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+// ─── Shared app bootstrap ────────────────────────────────────────────────────
 
-  // Set global API prefix
+async function createApp(expressInstance?: express.Express) {
+  const app = expressInstance
+    ? await NestFactory.create(AppModule, new ExpressAdapter(expressInstance))
+    : await NestFactory.create(AppModule);
+
+  // Global prefix → all routes become /api/...
   app.setGlobalPrefix('api');
 
-  // Enable validation pipes globally
+  // Validation
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
       transform: true,
-      forbidNonWhitelisted: true
-    })
+      forbidNonWhitelisted: true,
+    }),
   );
 
-  // Enable CORS — supports local dev + Vercel production domains
+  // CORS — supports local dev + all Vercel preview/production deployments
   const allowedOrigins = [
     'http://localhost:3000',
     'http://127.0.0.1:3000',
-    // Production — update these with your actual Vercel frontend URLs
     'https://srm-recollab.vercel.app',
     'https://recollab.vercel.app',
     ...(process.env.ALLOWED_ORIGINS
@@ -46,7 +51,6 @@ async function bootstrap() {
 
   app.enableCors({
     origin: (origin, callback) => {
-      // Allow requests with no origin (curl, Postman, server-to-server)
       if (!origin) return callback(null, true);
       if (allowedOrigins.includes(origin) || origin.endsWith('.vercel.app')) {
         return callback(null, true);
@@ -58,8 +62,39 @@ async function bootstrap() {
     allowedHeaders: 'Content-Type, Accept, Authorization',
   });
 
+  return app;
+}
+
+// ─── Local dev: start HTTP server ────────────────────────────────────────────
+
+async function bootstrap() {
+  const app = await createApp();
   const port = process.env.PORT || 4000;
   await app.listen(port);
-  console.log(`🚀 ReCollab Backend running on: http://localhost:${port}/api`);
+  console.log(`🚀 ReCollab API running on: http://localhost:${port}/api`);
 }
-bootstrap();
+
+// ─── Vercel serverless: export a request handler ─────────────────────────────
+// Vercel calls the default export with (req, res) — it does NOT bind a TCP port.
+
+let serverHandler: ((req: IncomingMessage, res: ServerResponse) => void) | null = null;
+
+export default async function handler(req: IncomingMessage, res: ServerResponse) {
+  if (!serverHandler) {
+    console.log('[ReCollab] Cold start — initialising NestJS...');
+    const expressApp = express();
+    const nestApp = await createApp(expressApp);
+    await nestApp.init(); // init WITHOUT listen
+    serverHandler = expressApp;
+    console.log('[ReCollab] NestJS ready.');
+  }
+  serverHandler(req, res);
+}
+
+// ─── Entry point ─────────────────────────────────────────────────────────────
+// In Vercel, the file is imported and `handler` is used.
+// In local dev / production node process, bootstrap() is called directly.
+
+if (process.env.VERCEL !== '1') {
+  bootstrap();
+}
