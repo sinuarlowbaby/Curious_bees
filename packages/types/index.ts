@@ -1,0 +1,103 @@
+export type UserRole = 'FACULTY' | 'PHD_SCHOLAR';
+
+export interface User {
+  id: string;
+  name: string | null;
+  email: string;
+  image: string | null;
+  role: UserRole;
+  department: string | null;
+  bio: string | null;
+  createdAt: Date | string;
+  interests?: UserInterest[];
+  threads?: Thread[];
+  comments?: Comment[];
+  opportunities?: Opportunity[];
+}
+
+export interface ResearchInterest {
+  id: string;
+  name: string;
+}
+
+export interface UserInterest {
+  userId: string;
+  interestId: string;
+  interest?: ResearchInterest;
+}
+
+export interface Thread {
+  id: string;
+  title: string;
+  content: string;
+  authorId: string;
+  author?: User;
+  tags: string[];
+  comments?: Comment[];
+  _count?: { comments: number };
+  createdAt: Date | string;
+}
+
+export interface Comment {
+  id: string;
+  content: string;
+  threadId: string;
+  thread?: Thread;
+  authorId: string;
+  author?: User;
+  createdAt: Date | string;
+}
+
+export interface Opportunity {
+  id: string;
+  title: string;
+  description: string;
+  department: string;
+  researchDomain: string;
+  authorId: string;
+  author?: User;
+  createdAt: Date | string;
+}
+
+// REST API Request / Response Types
+export interface CreateThreadInput {
+  title: string;
+  content: string;
+  tags: string[];
+}
+
+export interface CreateCommentInput {
+  content: string;
+  threadId: string;
+}
+
+export interface CreateOpportunityInput {
+  title: string;
+  description: string;
+  department: string;
+  researchDomain: string;
+}
+
+export interface UpdateProfileInput {
+  name?: string;
+  role?: UserRole;
+  department?: string;
+  bio?: string;
+  interests?: string[]; // Array of interest names
+}
+
+export interface Event {
+  id: string;
+  event: string;
+  date: string;
+  time: string;
+  venue: string;
+  createdAt?: Date | string;
+}
+
+export interface CreateEventInput {
+  event: string;
+  date: string;
+  time: string;
+  venue: string;
+}
