@@ -201,7 +201,7 @@ The project involves designing multi-agent reinforcement learning (MARL) algorit
 - Exceptional programming skills in Python (PyTorch or TensorFlow).
 - Solid foundation in linear algebra, probability, and control systems.
 
-**Funding:** Monthly stipend of ₹38,000 + HRA as per SRM Institute norms for the first 2 years, upgradable to SRF in the 3rd year.`,
+**Funding:** Monthly stipend of ₹38,000 + HRA as per institutional norms for the first 2 years, upgradable to SRF in the 3rd year.`,
       department: 'Electrical & Electronics Engineering (EEE)',
       researchDomain: 'Reinforcement Learning',
       authorId: createdUsers['dr.anand@srmist.edu.in'].id

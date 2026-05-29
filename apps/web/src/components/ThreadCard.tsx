@@ -18,8 +18,8 @@ export default function ThreadCard({ thread }: ThreadCardProps) {
 
   const getRoleBadge = (role: string) => {
     return role === 'FACULTY' 
-      ? 'bg-srm-crimson/10 text-srm-crimson border-srm-crimson/20 dark:bg-red-950/40 dark:text-red-400 dark:border-red-900/30'
-      : 'bg-srm-blue/10 text-srm-blue border-srm-blue/20 dark:bg-blue-950/40 dark:text-blue-400 dark:border-blue-900/30';
+      ? 'bg-recollab-crimson/10 text-recollab-crimson border-recollab-crimson/20 dark:bg-red-950/40 dark:text-red-400 dark:border-red-900/30'
+      : 'bg-recollab-blue/10 text-recollab-blue border-recollab-blue/20 dark:bg-blue-950/40 dark:text-blue-400 dark:border-blue-900/30';
   };
 
   return (
@@ -40,7 +40,7 @@ export default function ThreadCard({ thread }: ThreadCardProps) {
             />
             <div>
               <div className="flex items-center space-x-2.5">
-                <span className="text-xs font-bold text-slate-850 dark:text-slate-200 group-hover:text-srm-crimson dark:group-hover:text-srm-gold transition-colors leading-none">
+                <span className="text-xs font-bold text-slate-855 dark:text-slate-200 group-hover:text-recollab-crimson dark:group-hover:text-recollab-gold transition-colors leading-none">
                   {thread.author?.name || 'Academic Scholar'}
                 </span>
                 <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-black uppercase border leading-none ${getRoleBadge(thread.author?.role || '')}`}>
@@ -58,12 +58,12 @@ export default function ThreadCard({ thread }: ThreadCardProps) {
                 </span>
               </div>
               <p className="text-[10px] text-slate-450 dark:text-slate-500 font-bold uppercase tracking-tight mt-1.5 leading-none">
-                {thread.author?.department?.split('(')[0].trim() || 'SRM Institute'}
+                {thread.author?.department?.split('(')[0].trim() || 'ReCollab Portal'}
               </p>
             </div>
           </div>
           
-          <div className="flex items-center text-[10px] text-slate-450 dark:text-slate-500 font-bold uppercase tracking-wider space-x-1 shrink-0 self-start sm:self-center">
+          <div className="flex items-center text-[10px] text-slate-455 dark:text-slate-500 font-bold uppercase tracking-wider space-x-1 shrink-0 self-start sm:self-center">
             <Calendar className="w-3.5 h-3.5" />
             <span>{formatDate(thread.createdAt)}</span>
           </div>
@@ -71,7 +71,7 @@ export default function ThreadCard({ thread }: ThreadCardProps) {
 
         {/* Thread Info Content */}
         <Link href={`/threads/${thread.id}`} className="block focus:outline-none mb-4 space-y-2">
-          <h3 className="font-display font-black text-base text-slate-900 dark:text-white group-hover:text-srm-crimson dark:group-hover:text-srm-gold leading-snug transition-colors">
+          <h3 className="font-display font-black text-base text-slate-900 dark:text-white group-hover:text-recollab-crimson dark:group-hover:text-recollab-gold leading-snug transition-colors">
             {thread.title}
           </h3>
           <p className="text-slate-500 dark:text-slate-400 text-xs line-clamp-2 leading-relaxed font-semibold">
@@ -96,14 +96,14 @@ export default function ThreadCard({ thread }: ThreadCardProps) {
 
         {/* Action Button & Comment Count */}
         <div className="flex items-center space-x-4">
-          <div className="flex items-center text-xs text-slate-500 dark:text-slate-450 font-bold space-x-1.5">
+          <div className="flex items-center text-xs text-slate-500 dark:text-slate-455 font-bold space-x-1.5">
             <MessageSquare className="w-3.5 h-3.5 text-slate-400 shrink-0" />
             <span>{thread.comments?.length || thread._count?.comments || 0} comments</span>
           </div>
 
           <Link 
             href={`/threads/${thread.id}`} 
-            className="flex items-center text-xs font-black uppercase text-srm-crimson dark:text-srm-gold hover:underline group-hover:translate-x-0.5 transition-all"
+            className="flex items-center text-xs font-black uppercase text-recollab-crimson dark:text-recollab-gold hover:underline group-hover:translate-x-0.5 transition-all"
           >
             <span>View Thread</span>
             <ChevronRight className="w-3.5 h-3.5 ml-0.5" />

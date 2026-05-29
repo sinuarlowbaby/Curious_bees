@@ -48,15 +48,10 @@ export default function Sidebar() {
           {/* Logo Header */}
           <div className="h-16 flex items-center px-6 border-b border-slate-100 dark:border-slate-800/60">
             <Link href="/dashboard" className="flex items-center space-x-2.5">
-              <div className="w-7 h-7 rounded-lg srm-gradient flex items-center justify-center font-bold text-white shadow-md shadow-srm-crimson/15 text-xs">
-                SR
-              </div>
+              <img src="/logo.png" className="w-8 h-8 object-contain shrink-0" alt="ReCollab" />
               <div className="flex items-baseline">
                 <span className="font-display font-black text-base tracking-tight text-slate-800 dark:text-slate-100">
-                  SRM
-                </span>
-                <span className="font-display font-medium text-xs tracking-wide text-srm-gold ml-1">
-                  RECOLLAB
+                  ReCollab
                 </span>
               </div>
             </Link>
@@ -68,7 +63,7 @@ export default function Sidebar() {
               <img 
                 src={currentUser?.image || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150'} 
                 alt={currentUser?.name || 'User'} 
-                className="w-9 h-9 rounded-full border border-srm-gold/30 object-cover shadow-sm shrink-0"
+                className="w-9 h-9 rounded-full border border-recollab-gold/30 object-cover shadow-sm shrink-0"
               />
               <div className="flex-1 min-w-0">
                 <p className="text-xs font-bold text-slate-800 dark:text-slate-200 truncate">
@@ -76,12 +71,12 @@ export default function Sidebar() {
                 </p>
                 <div className="flex items-center mt-0.5">
                   {roleOverride === 'FACULTY' ? (
-                    <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[9px] font-bold bg-srm-crimson/10 text-srm-crimson border border-srm-crimson/20 dark:bg-red-950/40 dark:text-red-400 dark:border-red-900/30">
+                    <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[9px] font-bold bg-recollab-crimson/10 text-recollab-crimson border border-recollab-crimson/20 dark:bg-red-950/40 dark:text-red-400 dark:border-red-900/30">
                       <GraduationCap className="w-2.5 h-2.5 mr-0.5" />
                       Faculty
                     </span>
                   ) : (
-                    <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[9px] font-bold bg-srm-blue/10 text-srm-blue border border-srm-blue/20 dark:bg-blue-950/40 dark:text-blue-400 dark:border-blue-900/30">
+                    <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[9px] font-bold bg-recollab-blue/10 text-recollab-blue border border-recollab-blue/20 dark:bg-blue-950/40 dark:text-blue-400 dark:border-blue-900/30">
                       <UserSquare className="w-2.5 h-2.5 mr-0.5" />
                       PhD Scholar
                     </span>
@@ -106,17 +101,17 @@ export default function Sidebar() {
                     className={`
                       flex items-center space-x-3 px-3 py-2.5 rounded-xl text-xs font-semibold tracking-tight transition-all duration-200 group relative
                       ${isActive 
-                        ? 'bg-slate-100 dark:bg-slate-900/60 text-slate-950 dark:text-slate-100 border-l-2 border-srm-crimson dark:border-srm-gold pl-2.5' 
+                        ? 'bg-slate-100 dark:bg-slate-900/60 text-slate-950 dark:text-slate-100 border-l-2 border-recollab-crimson dark:border-recollab-gold pl-2.5' 
                         : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-900/20'
                       }
                     `}
                   >
-                    <item.icon className={`w-4 h-4 shrink-0 transition-colors ${isActive ? 'text-srm-crimson dark:text-srm-gold' : 'text-slate-450 dark:text-slate-500 group-hover:text-slate-700 dark:group-hover:text-slate-300'}`} />
+                    <item.icon className={`w-4 h-4 shrink-0 transition-colors ${isActive ? 'text-recollab-crimson dark:text-recollab-gold' : 'text-slate-450 dark:text-slate-500 group-hover:text-slate-700 dark:group-hover:text-slate-300'}`} />
                     <span>{item.name}</span>
                     {isActive && (
                       <motion.div 
                         layoutId="active-indicator-desktop"
-                        className="absolute inset-0 bg-srm-crimson/5 dark:bg-srm-gold/5 rounded-xl -z-10 pointer-events-none" 
+                        className="absolute inset-0 bg-recollab-crimson/5 dark:bg-recollab-gold/5 rounded-xl -z-10 pointer-events-none" 
                         transition={{ type: 'spring', stiffness: 380, damping: 30 }}
                       />
                     )}
@@ -141,12 +136,12 @@ export default function Sidebar() {
                     className={`
                       flex items-center space-x-3 px-3 py-2.5 rounded-xl text-xs font-semibold tracking-tight transition-all duration-200 group relative
                       ${isActive 
-                        ? 'bg-slate-100 dark:bg-slate-900/60 text-slate-950 dark:text-slate-100 border-l-2 border-srm-crimson dark:border-srm-gold pl-2.5' 
+                        ? 'bg-slate-100 dark:bg-slate-900/60 text-slate-950 dark:text-slate-100 border-l-2 border-recollab-crimson dark:border-recollab-gold pl-2.5' 
                         : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-900/20'
                       }
                     `}
                   >
-                    <item.icon className={`w-4 h-4 shrink-0 transition-colors ${isActive ? 'text-srm-crimson dark:text-srm-gold' : 'text-slate-450 dark:text-slate-500 group-hover:text-slate-700 dark:group-hover:text-slate-300'}`} />
+                    <item.icon className={`w-4 h-4 shrink-0 transition-colors ${isActive ? 'text-recollab-crimson dark:text-recollab-gold' : 'text-slate-450 dark:text-slate-500 group-hover:text-slate-700 dark:group-hover:text-slate-300'}`} />
                     <span>{item.name}</span>
                   </Link>
                 );
@@ -160,12 +155,12 @@ export default function Sidebar() {
           {/* Developer Sandbox Card */}
           <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-900/40 border border-slate-100 dark:border-slate-850">
             <div className="flex items-center space-x-1.5 text-[9px] font-black text-slate-400 dark:text-slate-500 tracking-wider mb-2 uppercase">
-              <ShieldAlert className="w-3 h-3 text-srm-crimson dark:text-srm-gold animate-pulse shrink-0" />
+              <ShieldAlert className="w-3 h-3 text-recollab-crimson dark:text-recollab-gold animate-pulse shrink-0" />
               <span>Developer Sandbox</span>
             </div>
             <button 
               onClick={toggleRoleOverride}
-              className="w-full text-center py-2 px-2.5 rounded-lg text-[10px] font-black uppercase tracking-wider bg-slate-900 dark:bg-slate-800 text-white hover:bg-srm-crimson dark:hover:bg-srm-gold hover:text-white transition-all duration-200 shadow-sm active:scale-[0.98] cursor-pointer"
+              className="w-full text-center py-2 px-2.5 rounded-lg text-[10px] font-black uppercase tracking-wider bg-slate-900 dark:bg-slate-800 text-white hover:bg-recollab-crimson dark:hover:bg-recollab-gold hover:text-white transition-all duration-200 shadow-sm active:scale-[0.98] cursor-pointer"
             >
               Toggle to {roleOverride === 'FACULTY' ? 'PhD Scholar' : 'Faculty'}
             </button>
@@ -189,7 +184,7 @@ export default function Sidebar() {
             <Link
               key={item.href}
               href={item.href}
-              className={`flex flex-col items-center space-y-0.5 py-1 px-3 rounded-xl transition duration-200 ${isActive ? 'text-srm-crimson dark:text-srm-gold' : 'text-slate-450 dark:text-slate-400'}`}
+              className={`flex flex-col items-center space-y-0.5 py-1 px-3 rounded-xl transition duration-200 ${isActive ? 'text-recollab-crimson dark:text-recollab-gold' : 'text-slate-450 dark:text-slate-400'}`}
             >
               <item.icon className="w-5 h-5 shrink-0" />
               <span className="text-[9px] font-bold tracking-tight">{item.name.replace('Research ', '')}</span>
@@ -200,7 +195,7 @@ export default function Sidebar() {
         {/* "More" Trigger for mobile */}
         <button
           onClick={() => setShowMobileMore(true)}
-          className={`flex flex-col items-center space-y-0.5 py-1 px-3 rounded-xl transition duration-200 ${showMobileMore ? 'text-srm-crimson dark:text-srm-gold' : 'text-slate-450 dark:text-slate-400'}`}
+          className={`flex flex-col items-center space-y-0.5 py-1 px-3 rounded-xl transition duration-200 ${showMobileMore ? 'text-recollab-crimson dark:text-recollab-gold' : 'text-slate-450 dark:text-slate-400'}`}
         >
           <MoreHorizontal className="w-5 h-5 shrink-0" />
           <span className="text-[9px] font-bold tracking-tight">More</span>
@@ -233,11 +228,11 @@ export default function Sidebar() {
                   <img 
                     src={currentUser?.image || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150'} 
                     alt={currentUser?.name || 'User'} 
-                    className="w-8 h-8 rounded-full border border-srm-gold/30 object-cover"
+                    className="w-8 h-8 rounded-full border border-recollab-gold/30 object-cover"
                   />
                   <div>
                     <h3 className="text-xs font-bold text-slate-850 dark:text-white leading-tight">{currentUser?.name}</h3>
-                    <p className="text-[9px] font-bold text-srm-gold uppercase mt-0.5 tracking-wider">{roleOverride.replace('_', ' ')}</p>
+                    <p className="text-[9px] font-bold text-recollab-gold uppercase mt-0.5 tracking-wider">{roleOverride.replace('_', ' ')}</p>
                   </div>
                 </div>
                 <button 
@@ -255,7 +250,7 @@ export default function Sidebar() {
                   onClick={() => setShowMobileMore(false)}
                   className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-900/35 border border-slate-100 dark:border-slate-850 flex flex-col items-center space-y-2 text-center"
                 >
-                  <CalendarIcon className="w-6 h-6 text-srm-gold" />
+                  <CalendarIcon className="w-6 h-6 text-recollab-gold" />
                   <span className="text-xs font-bold text-slate-700 dark:text-slate-350">Events Hub</span>
                 </Link>
 
@@ -264,7 +259,7 @@ export default function Sidebar() {
                   onClick={() => setShowMobileMore(false)}
                   className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-900/35 border border-slate-100 dark:border-slate-850 flex flex-col items-center space-y-2 text-center"
                 >
-                  <User className="w-6 h-6 text-srm-crimson" />
+                  <User className="w-6 h-6 text-recollab-crimson" />
                   <span className="text-xs font-bold text-slate-700 dark:text-slate-350">My Profile</span>
                 </Link>
               </div>
@@ -272,7 +267,7 @@ export default function Sidebar() {
               {/* Dev Controls inside Mobile Drawer */}
               <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-900/40 border border-slate-100 dark:border-slate-850 space-y-3">
                 <div className="flex items-center space-x-2 text-[10px] font-black text-slate-450 dark:text-slate-500 uppercase tracking-widest">
-                  <ShieldAlert className="w-3.5 h-3.5 text-srm-gold animate-pulse shrink-0" />
+                  <ShieldAlert className="w-3.5 h-3.5 text-recollab-gold animate-pulse shrink-0" />
                   <span>Sandbox Environment Settings</span>
                 </div>
                 <button

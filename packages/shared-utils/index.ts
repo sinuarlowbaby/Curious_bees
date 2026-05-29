@@ -12,7 +12,7 @@ export const SRM_DEPARTMENTS = [
   'Physics & Nanotechnology',
   'Chemistry & Materials Science',
   'Mathematics & Actuarial Science',
-  'School of Management (SRM SOM)',
+  'School of Management (SOM)',
   'Health Sciences & Research'
 ] as const;
 
@@ -61,7 +61,7 @@ export const CreateOpportunitySchema = z.object({
     .min(15, 'Description must be at least 15 characters'),
   department: z.string().refine((val) => {
     return SRM_DEPARTMENTS.includes(val as any);
-  }, 'Please select a valid SRM department'),
+  }, 'Please select a valid department'),
   researchDomain: z
     .string()
     .min(3, 'Research domain/topic must be at least 3 characters')
@@ -80,7 +80,7 @@ export const UpdateProfileSchema = z.object({
   }).optional(),
   department: z.string().refine((val) => {
     return !val || SRM_DEPARTMENTS.includes(val as any);
-  }, 'Please select a valid SRM department').optional(),
+  }, 'Please select a valid department').optional(),
   bio: z
     .string()
     .max(250, 'Bio cannot exceed 250 characters')

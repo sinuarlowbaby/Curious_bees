@@ -72,8 +72,8 @@ export default function ResearchersDiscoveryPage() {
 
   const getRoleBadge = (role: string) => {
     return role === 'FACULTY' 
-      ? 'bg-srm-crimson/10 text-srm-crimson border-srm-crimson/20 dark:bg-red-950/40 dark:text-red-400 dark:border-red-900/30'
-      : 'bg-srm-blue/10 text-srm-blue border-srm-blue/20 dark:bg-blue-950/40 dark:text-blue-400 dark:border-blue-900/30';
+      ? 'bg-recollab-crimson/10 text-recollab-crimson border-recollab-crimson/20 dark:bg-red-950/40 dark:text-red-400 dark:border-red-900/30'
+      : 'bg-recollab-blue/10 text-recollab-blue border-recollab-blue/20 dark:bg-blue-950/40 dark:text-blue-400 dark:border-blue-900/30';
   };
 
   const handleSendInvite = (e: React.FormEvent) => {
@@ -89,9 +89,9 @@ export default function ResearchersDiscoveryPage() {
       {/* Upper Title Row */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6 border-b border-slate-100 dark:border-slate-850 pb-5 text-left">
         <div>
-          <span className="text-[10px] font-black text-srm-crimson dark:text-srm-gold uppercase tracking-widest flex items-center gap-1.5">
-            <Compass className="w-4.5 h-4.5 text-srm-crimson dark:text-srm-gold" />
-            <span>SRM ResearchGate Network</span>
+          <span className="text-[10px] font-black text-recollab-crimson dark:text-recollab-gold uppercase tracking-widest flex items-center gap-1.5">
+            <Compass className="w-4.5 h-4.5 text-recollab-crimson dark:text-recollab-gold" />
+            <span>ReCollab Academic Network</span>
           </span>
           <h2 className="font-display font-extrabold text-xl sm:text-2xl text-slate-905 dark:text-white mt-1.5">
             Expert Collaborators Directory
@@ -128,7 +128,7 @@ export default function ResearchersDiscoveryPage() {
             onChange={(e) => setSelectedDept(e.target.value)}
             className="w-full px-4 py-2.5 rounded-xl glass-input text-xs font-semibold cursor-pointer text-slate-700 dark:text-slate-350"
           >
-            <option value="" className="bg-slate-50 dark:bg-slate-950 text-slate-450 dark:text-slate-500">All SRM Departments</option>
+            <option value="" className="bg-slate-50 dark:bg-slate-950 text-slate-450 dark:text-slate-500">All Departments</option>
             {SRM_DEPARTMENTS.map((dept) => (
               <option key={dept} value={dept} className="bg-white dark:bg-slate-950 text-slate-850 dark:text-slate-200">{dept.split('(')[0]}</option>
             ))}
@@ -169,7 +169,7 @@ export default function ResearchersDiscoveryPage() {
               </p>
               <button
                 onClick={() => { setSearchQuery(''); setSelectedDept(''); setSelectedInterest(''); }}
-                className="mt-5 text-[10px] font-black uppercase tracking-wider text-srm-crimson dark:text-srm-gold border border-srm-crimson/25 dark:border-srm-gold/25 hover:border-srm-crimson dark:hover:border-srm-gold bg-srm-crimson/5 dark:bg-srm-gold/5 px-4 py-2 rounded-xl transition-all cursor-pointer"
+                className="mt-5 text-[10px] font-black uppercase tracking-wider text-recollab-crimson dark:text-recollab-gold border border-recollab-crimson/25 dark:border-recollab-gold/25 hover:border-recollab-crimson dark:hover:border-recollab-gold bg-recollab-crimson/5 dark:bg-recollab-gold/5 px-4 py-2 rounded-xl transition-all cursor-pointer"
               >
                 Reset Filters
               </button>
@@ -218,9 +218,9 @@ export default function ResearchersDiscoveryPage() {
 
                         {/* Semantic compatibility badge */}
                         <div className="text-right shrink-0">
-                          <div className="px-2 py-1 bg-srm-crimson/5 dark:bg-srm-gold/5 border border-srm-crimson/15 dark:border-srm-gold/20 rounded-lg text-center">
+                          <div className="px-2 py-1 bg-recollab-crimson/5 dark:bg-recollab-gold/5 border border-recollab-crimson/15 dark:border-recollab-gold/20 rounded-lg text-center">
                             <span className="text-[7px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest block leading-none mb-0.5">synergy match</span>
-                            <span className="text-xs font-black text-srm-crimson dark:text-srm-gold leading-none">{compatibilityScore}%</span>
+                            <span className="text-xs font-black text-recollab-crimson dark:text-recollab-gold leading-none">{compatibilityScore}%</span>
                           </div>
                         </div>
                       </div>
@@ -253,7 +253,7 @@ export default function ResearchersDiscoveryPage() {
 
                       <button
                         onClick={() => setInvitee(researcher)}
-                        className="py-1.5 px-3 rounded-lg text-[9px] font-black uppercase tracking-wider text-srm-crimson dark:text-srm-gold border border-srm-crimson/25 dark:border-srm-gold/20 bg-srm-crimson/5 dark:bg-srm-gold/5 hover:bg-srm-crimson dark:hover:bg-srm-gold hover:text-white transition active:scale-[0.98] shrink-0 self-end cursor-pointer shadow-sm shadow-black/[0.01]"
+                        className="py-1.5 px-3 rounded-lg text-[9px] font-black uppercase tracking-wider text-recollab-crimson dark:text-recollab-gold border border-recollab-crimson/25 dark:border-recollab-gold/20 bg-recollab-crimson/5 dark:bg-recollab-gold/5 hover:bg-recollab-crimson dark:hover:bg-recollab-gold hover:text-white transition active:scale-[0.98] shrink-0 self-end cursor-pointer shadow-sm shadow-black/[0.01]"
                       >
                         Invite to Workspace
                       </button>
@@ -288,7 +288,7 @@ export default function ResearchersDiscoveryPage() {
             >
               <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
                 <div className="flex items-center space-x-2">
-                  <div className="w-8 h-8 rounded-lg bg-srm-crimson/5 dark:bg-srm-gold/5 border border-srm-crimson/15 dark:border-srm-gold/15 flex items-center justify-center text-srm-crimson dark:text-srm-gold">
+                  <div className="w-8 h-8 rounded-lg bg-recollab-crimson/5 dark:bg-recollab-gold/5 border border-recollab-crimson/15 dark:border-recollab-gold/15 flex items-center justify-center text-recollab-crimson dark:text-recollab-gold">
                     <Compass className="w-4.5 h-4.5" />
                   </div>
                   <div>
@@ -333,7 +333,7 @@ export default function ResearchersDiscoveryPage() {
                   </button>
                   <button
                     type="submit"
-                    className="px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider text-white srm-gradient hover:opacity-95 shadow active:scale-[0.98] transition flex items-center space-x-1.5 cursor-pointer"
+                    className="px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider text-white recollab-gradient hover:opacity-95 shadow active:scale-[0.98] transition flex items-center space-x-1.5 cursor-pointer"
                   >
                     <UserCheck className="w-4 h-4 shrink-0" />
                     <span>Send Synergy Invite</span>

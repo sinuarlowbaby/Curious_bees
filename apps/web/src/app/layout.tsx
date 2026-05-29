@@ -2,8 +2,8 @@ import type { Metadata } from 'next';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'SRM Recollab — AI-powered Academic Collaboration Portal',
-  description: 'A dedicated intranet collaboration space for SRM Institute of Science and Technology Faculty and PhD Scholars.',
+  title: 'ReCollab — AI-powered Academic Collaboration Portal',
+  description: 'A dedicated intranet collaboration space for ReCollab Academic Portal Faculty and PhD Scholars.',
 };
 
 export default function RootLayout({

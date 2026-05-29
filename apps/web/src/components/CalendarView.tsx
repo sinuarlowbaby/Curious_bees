@@ -134,19 +134,19 @@ export default function CalendarView({
     
     // Brand compliant color schemes
     let gradientClass = 'from-slate-100 to-slate-200/60 dark:from-[#0b0f19] dark:to-[#070a13]';
-    let borderClass = 'border-srm-gold';
+    let borderClass = 'border-recollab-gold';
     let textClass = 'text-slate-805 dark:text-white';
     let badgeText = 'Academic Event';
 
     if (titleLower.includes('phd') || titleLower.includes('viva') || titleLower.includes('defense') || titleLower.includes('thesis')) {
-      gradientClass = 'from-srm-blue/15 to-srm-blue/5 dark:from-srm-blue/40 dark:to-slate-900/60';
-      borderClass = 'border-srm-gold';
-      textClass = 'text-srm-blue dark:text-white';
+      gradientClass = 'from-recollab-blue/15 to-recollab-blue/5 dark:from-recollab-blue/40 dark:to-slate-900/60';
+      borderClass = 'border-recollab-gold';
+      textClass = 'text-recollab-blue dark:text-white';
       badgeText = 'PhD Event';
     } else if (titleLower.includes('seminar') || titleLower.includes('colloquium') || titleLower.includes('symposium') || titleLower.includes('workshop')) {
-      gradientClass = 'from-srm-crimson/10 to-srm-crimson/5 dark:from-srm-crimson/40 dark:to-slate-900/60';
-      borderClass = 'border-srm-crimson dark:border-srm-gold';
-      textClass = 'text-srm-crimson dark:text-white';
+      gradientClass = 'from-recollab-crimson/10 to-recollab-crimson/5 dark:from-recollab-crimson/40 dark:to-slate-900/60';
+      borderClass = 'border-recollab-crimson dark:border-recollab-gold';
+      textClass = 'text-recollab-crimson dark:text-white';
       badgeText = 'Colloquium';
     } else if (titleLower.includes('meeting') || titleLower.includes('session') || titleLower.includes('board') || titleLower.includes('committee')) {
       gradientClass = 'from-slate-200/50 to-slate-100/50 dark:from-slate-800/40 dark:to-slate-900/60';
@@ -417,11 +417,11 @@ export default function CalendarView({
 
             {/* HEADER */}
             <div className="flex items-center space-x-3 mb-4 text-left">
-              <div className="bg-srm-crimson/5 dark:bg-srm-gold/5 p-2.5 rounded-xl text-srm-crimson dark:text-srm-gold shrink-0 border border-srm-crimson/10 dark:border-srm-gold/15">
+              <div className="bg-recollab-crimson/5 dark:bg-recollab-gold/5 p-2.5 rounded-xl text-recollab-crimson dark:text-recollab-gold shrink-0 border border-recollab-crimson/10 dark:border-recollab-gold/15">
                 <CalendarIcon className="w-5 h-5 shrink-0" />
               </div>
               <div className="min-w-0">
-                <span className="text-[9px] font-black text-srm-crimson dark:text-srm-gold uppercase tracking-widest bg-srm-crimson/10 dark:bg-srm-gold/10 border border-srm-crimson/20 dark:border-srm-gold/20 px-2 py-0.5 rounded-md leading-none block w-fit">
+                <span className="text-[9px] font-black text-recollab-crimson dark:text-recollab-gold uppercase tracking-widest bg-recollab-crimson/10 dark:bg-recollab-gold/10 border border-recollab-crimson/20 dark:border-recollab-gold/20 px-2 py-0.5 rounded-md leading-none block w-fit">
                   {isEditing ? 'Reschedule Event' : 'Event Details'}
                 </span>
                 <h3 className="text-sm font-black text-slate-850 dark:text-white tracking-tight leading-snug mt-1.5 truncate max-w-[180px]">
@@ -480,16 +480,16 @@ export default function CalendarView({
                   >
                     <option value="" disabled className="bg-slate-50 dark:bg-slate-950">Select Venue...</option>
                     {CAMPUS_VENUES.map(v => (
-                      <option key={v} value={v} className="bg-white dark:bg-slate-950 text-slate-805 dark:text-white">{v}</option>
+                      <option key={v} value={v} className="bg-white dark:bg-slate-955 text-slate-805 dark:text-white">{v}</option>
                     ))}
-                    <option value="custom" className="bg-white dark:bg-slate-950 text-srm-crimson dark:text-srm-gold">✍️ Add Custom Venue...</option>
+                    <option value="custom" className="bg-white dark:bg-slate-950 text-recollab-crimson dark:text-recollab-gold">✍️ Add Custom Venue...</option>
                   </select>
                 </div>
 
                 {/* Custom Venue Input Area (animates in when selected) */}
                 {selectedEditVenue === 'custom' && (
                   <div className="space-y-1 animate-fadeIn">
-                    <label className="text-[9px] font-black text-srm-crimson dark:text-srm-gold uppercase tracking-wider block">
+                    <label className="text-[9px] font-black text-recollab-crimson dark:text-recollab-gold uppercase tracking-wider block">
                       Specify Custom Venue / Room
                     </label>
                     <input
@@ -505,10 +505,10 @@ export default function CalendarView({
                 {/* Target Audience Dynamic Role Notifications Selection */}
                 <div className="bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800 rounded-2xl p-3 space-y-2">
                   <div className="flex items-center justify-between">
-                    <span className="text-[9px] font-black text-srm-crimson dark:text-srm-gold uppercase tracking-widest block">
+                    <span className="text-[9px] font-black text-recollab-crimson dark:text-recollab-gold uppercase tracking-widest block">
                       🔔 Targeted Alerts Target
                     </span>
-                    <span className="text-[8px] text-white bg-srm-crimson px-1.5 py-0.5 rounded font-black uppercase tracking-wider leading-none">
+                    <span className="text-[8px] text-white bg-recollab-crimson px-1.5 py-0.5 rounded font-black uppercase tracking-wider leading-none">
                       targeted
                     </span>
                   </div>
@@ -521,7 +521,7 @@ export default function CalendarView({
                         type="checkbox"
                         checked={notifyRescheduleStudents}
                         onChange={(e) => setNotifyRescheduleStudents(e.target.checked)}
-                        className="w-3.5 h-3.5 rounded text-srm-blue bg-white dark:bg-slate-950 border-slate-300 dark:border-slate-800 focus:ring-srm-blue focus:ring-2 transition"
+                        className="w-3.5 h-3.5 rounded text-recollab-blue bg-white dark:bg-slate-950 border-slate-300 dark:border-slate-800 focus:ring-recollab-blue focus:ring-2 transition"
                       />
                       <span className="text-[10px] text-slate-655 dark:text-slate-400 font-semibold">Students (@srmist.edu.in)</span>
                     </label>
@@ -531,7 +531,7 @@ export default function CalendarView({
                         type="checkbox"
                         checked={notifyRescheduleFaculty}
                         onChange={(e) => setNotifyRescheduleFaculty(e.target.checked)}
-                        className="w-3.5 h-3.5 rounded text-srm-blue bg-white dark:bg-slate-950 border-slate-300 dark:border-slate-800 focus:ring-srm-blue focus:ring-2 transition"
+                        className="w-3.5 h-3.5 rounded text-recollab-blue bg-white dark:bg-slate-950 border-slate-300 dark:border-slate-800 focus:ring-recollab-blue focus:ring-2 transition"
                       />
                       <span className="text-[10px] text-slate-655 dark:text-slate-400 font-semibold">Faculty (@srmist.edu.in)</span>
                     </label>
@@ -541,7 +541,7 @@ export default function CalendarView({
                         type="checkbox"
                         checked={notifyRescheduleScholars}
                         onChange={(e) => setNotifyRescheduleScholars(e.target.checked)}
-                        className="w-3.5 h-3.5 rounded text-srm-blue bg-white dark:bg-slate-950 border-slate-300 dark:border-slate-800 focus:ring-srm-blue focus:ring-2 transition"
+                        className="w-3.5 h-3.5 rounded text-recollab-blue bg-white dark:bg-slate-950 border-slate-300 dark:border-slate-800 focus:ring-recollab-blue focus:ring-2 transition"
                       />
                       <span className="text-[10px] text-slate-655 dark:text-slate-400 font-semibold">PhD Scholars (@srmist.edu.in)</span>
                     </label>
@@ -560,7 +560,7 @@ export default function CalendarView({
                   <button
                     type="submit"
                     disabled={loading}
-                    className="flex-1 py-2 srm-gradient text-white rounded-xl font-black text-xs uppercase tracking-wider shadow flex items-center justify-center space-x-1 cursor-pointer disabled:opacity-50"
+                    className="flex-1 py-2 recollab-gradient text-white rounded-xl font-black text-xs uppercase tracking-wider shadow flex items-center justify-center space-x-1 cursor-pointer disabled:opacity-50"
                   >
                     <Save className="w-3.5 h-3.5 shrink-0" />
                     <span>{loading ? 'Saving...' : 'Save'}</span>
@@ -572,7 +572,7 @@ export default function CalendarView({
               <div className="space-y-3.5 border-t border-slate-100 dark:border-slate-850 pt-4 text-left">
                 {/* Date */}
                 <div className="flex items-center space-x-3 text-slate-600 dark:text-slate-400">
-                  <div className="text-srm-crimson dark:text-srm-gold shrink-0">
+                  <div className="text-recollab-crimson dark:text-recollab-gold shrink-0">
                     <CalendarIcon className="w-4.5 h-4.5 shrink-0" />
                   </div>
                   <div className="text-xs truncate">
@@ -583,7 +583,7 @@ export default function CalendarView({
 
                 {/* Time */}
                 <div className="flex items-center space-x-3 text-slate-600 dark:text-slate-400">
-                  <div className="text-srm-crimson dark:text-srm-gold shrink-0">
+                  <div className="text-recollab-crimson dark:text-recollab-gold shrink-0">
                     <Clock className="w-4.5 h-4.5 shrink-0" />
                   </div>
                   <div className="text-xs truncate">
@@ -594,7 +594,7 @@ export default function CalendarView({
 
                 {/* Venue */}
                 <div className="flex items-center space-x-3 text-slate-600 dark:text-slate-400">
-                  <div className="text-srm-crimson dark:text-srm-gold shrink-0">
+                  <div className="text-recollab-crimson dark:text-recollab-gold shrink-0">
                     <MapPin className="w-4.5 h-4.5 shrink-0" />
                   </div>
                   <div className="text-xs truncate">
@@ -607,7 +607,7 @@ export default function CalendarView({
                 <div className="flex space-x-2 mt-6 pt-2 border-t border-slate-100 dark:border-slate-850/50">
                   <button
                     onClick={closeModal}
-                    className="flex-1 py-2 bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-slate-305 text-slate-500 dark:text-slate-400 hover:text-slate-950 dark:hover:text-white rounded-xl font-bold text-xs transition cursor-pointer shadow-sm"
+                    className="flex-1 py-2 bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-slate-305 text-slate-500 dark:text-slate-400 hover:text-slate-955 dark:hover:text-white rounded-xl font-bold text-xs transition cursor-pointer shadow-sm"
                   >
                     Close
                   </button>
@@ -621,7 +621,7 @@ export default function CalendarView({
                   </button>
                   <button
                     onClick={() => setIsEditing(true)}
-                    className="flex-1 py-2 srm-gradient text-white rounded-xl font-bold text-xs shadow flex items-center justify-center space-x-1 cursor-pointer"
+                    className="flex-1 py-2 recollab-gradient text-white rounded-xl font-bold text-xs shadow flex items-center justify-center space-x-1 cursor-pointer"
                   >
                     <Edit className="w-3.5 h-3.5 shrink-0" />
                     <span>Update</span>

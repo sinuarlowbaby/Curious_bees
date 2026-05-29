@@ -35,7 +35,7 @@ export default function PortalLayout({
     return (
       <div className="min-h-screen bg-slate-50 dark:bg-[#070a13] flex items-center justify-center text-slate-500 dark:text-slate-400">
         <div className="flex flex-col items-center space-y-3">
-          <div className="w-8 h-8 rounded-full border-2 border-srm-gold border-t-transparent animate-spin" />
+          <div className="w-8 h-8 rounded-full border-2 border-recollab-gold border-t-transparent animate-spin" />
           <p className="text-xs font-semibold uppercase tracking-wider">Verifying Intranet Security Credentials...</p>
         </div>
       </div>

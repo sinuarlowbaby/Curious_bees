@@ -429,7 +429,7 @@ export default function EventsHubPage() {
   }).length;
 
   return (
-    <div className="space-y-8 relative selection:bg-srm-gold selection:text-black select-none text-left">
+    <div className="space-y-8 relative selection:bg-recollab-gold selection:text-black select-none text-left">
       
       {/* 🚀 Toast Notifications */}
       <AnimatePresence>
@@ -440,11 +440,11 @@ export default function EventsHubPage() {
             exit={{ opacity: 0, x: 50 }}
             className="fixed top-24 right-6 z-50 max-w-sm w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-800 dark:text-white rounded-2xl shadow-2xl p-4 flex items-start space-x-3"
           >
-            <div className="bg-srm-crimson dark:bg-srm-gold p-2 rounded-xl text-white dark:text-black mt-0.5 animate-pulse shrink-0">
+            <div className="bg-recollab-crimson dark:bg-recollab-gold p-2 rounded-xl text-white dark:text-black mt-0.5 animate-pulse shrink-0">
               <Sparkles className="w-4 h-4" />
             </div>
             <div className="flex-1 text-xs text-left">
-              <p className="font-black text-srm-crimson dark:text-srm-gold uppercase tracking-widest text-[9px] mb-0.5 animate-pulse">SRM Bulletin</p>
+              <p className="font-black text-recollab-crimson dark:text-recollab-gold uppercase tracking-widest text-[9px] mb-0.5 animate-pulse">ReCollab Bulletin</p>
               <p className="font-semibold text-slate-700 dark:text-slate-100 leading-snug">{activeToast}</p>
             </div>
             <button 
@@ -460,9 +460,9 @@ export default function EventsHubPage() {
       {/* Dynamic Header row */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6 border-b border-slate-100 dark:border-slate-855 pb-5 text-left">
         <div>
-          <span className="text-[10px] font-black text-srm-crimson dark:text-srm-gold uppercase tracking-widest flex items-center gap-1.5">
-            <School className="w-4 h-4 text-srm-crimson dark:text-srm-gold" />
-            <span>SRM University Collaborative Intellect</span>
+          <span className="text-[10px] font-black text-recollab-crimson dark:text-recollab-gold uppercase tracking-widest flex items-center gap-1.5">
+            <School className="w-4 h-4 text-recollab-crimson dark:text-recollab-gold" />
+            <span>ReCollab Academic Portal</span>
           </span>
           <h2 className="font-display font-extrabold text-xl sm:text-2xl text-slate-905 dark:text-white mt-1.5">
             Research Nexus Events Hub
@@ -488,11 +488,11 @@ export default function EventsHubPage() {
                 setShowBellDropdown(!showBellDropdown);
                 handleMarkAllRead();
               }}
-              className={`p-2.5 bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white rounded-xl transition relative cursor-pointer ${showBellDropdown ? 'bg-srm-crimson/5 dark:bg-srm-gold/5 border-srm-crimson/30 dark:border-srm-gold/30 text-srm-crimson dark:text-srm-gold shadow-inner' : ''}`}
+              className={`p-2.5 bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white rounded-xl transition relative cursor-pointer ${showBellDropdown ? 'bg-recollab-crimson/5 dark:bg-recollab-gold/5 border-recollab-crimson/30 dark:border-recollab-gold/30 text-recollab-crimson dark:text-recollab-gold shadow-inner' : ''}`}
             >
               <Bell className="w-4.5 h-4.5" />
               {unreadCount > 0 && (
-                <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-srm-crimson dark:bg-srm-gold rounded-full border border-white dark:border-slate-950 animate-pulse"></span>
+                <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-recollab-crimson dark:bg-recollab-gold rounded-full border border-white dark:border-slate-950 animate-pulse"></span>
               )}
             </button>
 
@@ -507,10 +507,10 @@ export default function EventsHubPage() {
                 >
                   <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-850 pb-2 mb-3">
                     <span className="text-xs font-bold text-slate-800 dark:text-slate-200 tracking-tight flex items-center space-x-1">
-                      <Bell className="w-3.5 h-3.5 text-srm-crimson dark:text-srm-gold mr-1" />
+                      <Bell className="w-3.5 h-3.5 text-recollab-crimson dark:text-recollab-gold mr-1" />
                       <span>Activity Log</span>
                       {unreadCount > 0 && (
-                        <span className="text-[9px] bg-srm-crimson/10 text-srm-crimson dark:bg-srm-gold/10 dark:text-srm-gold px-1.5 py-0.5 rounded-full font-bold ml-1">
+                        <span className="text-[9px] bg-recollab-crimson/10 text-recollab-crimson dark:bg-recollab-gold/10 dark:text-recollab-gold px-1.5 py-0.5 rounded-full font-bold ml-1">
                           {unreadCount} new
                         </span>
                       )}
@@ -536,9 +536,9 @@ export default function EventsHubPage() {
                       notifications.map(noti => (
                         <div 
                           key={noti.id} 
-                          className={`p-2.5 rounded-xl text-[11px] flex items-start space-x-2 border transition ${noti.read ? 'bg-slate-50/50 dark:bg-slate-950/20 border-slate-150 dark:border-slate-900' : 'bg-srm-crimson/5 dark:bg-srm-gold/5 border-srm-crimson/10 dark:border-srm-gold/15 font-medium'}`}
+                          className={`p-2.5 rounded-xl text-[11px] flex items-start space-x-2 border transition ${noti.read ? 'bg-slate-50/50 dark:bg-slate-950/20 border-slate-150 dark:border-slate-900' : 'bg-recollab-crimson/5 dark:bg-recollab-gold/5 border-recollab-crimson/10 dark:border-recollab-gold/15 font-medium'}`}
                         >
-                          <div className={`p-1.5 rounded-lg mt-0.5 shrink-0 ${noti.type === 'add' ? 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400' : 'bg-srm-crimson/5 dark:bg-srm-blue/20 text-srm-crimson dark:text-srm-gold'}`}>
+                          <div className={`p-1.5 rounded-lg mt-0.5 shrink-0 ${noti.type === 'add' ? 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400' : 'bg-recollab-crimson/5 dark:bg-recollab-blue/20 text-recollab-crimson dark:text-recollab-gold'}`}>
                             {noti.type === 'add' ? <Sparkles className="w-3.5 h-3.5" /> : <RefreshCw className="w-3.5 h-3.5" />}
                           </div>
                           <div className="flex-1 leading-normal text-left">
@@ -557,12 +557,12 @@ export default function EventsHubPage() {
       </div>
 
       {/* Statistics Banner */}
-      <div className="p-6 sm:p-8 bg-white dark:bg-slate-900/15 border border-slate-200 dark:border-slate-800 rounded-3xl relative overflow-hidden flex flex-col md:flex-row justify-between items-start md:items-center border-l-4 border-srm-crimson dark:border-srm-gold gap-6 shadow-sm">
-        <div className="absolute inset-0 bg-gradient-to-r from-srm-blue/[0.01] to-transparent -z-10" />
+      <div className="p-6 sm:p-8 bg-white dark:bg-slate-900/15 border border-slate-200 dark:border-slate-800 rounded-3xl relative overflow-hidden flex flex-col md:flex-row justify-between items-start md:items-center border-l-4 border-recollab-crimson dark:border-recollab-gold gap-6 shadow-sm">
+        <div className="absolute inset-0 bg-gradient-to-r from-recollab-blue/[0.01] to-transparent -z-10" />
         <div className="text-left space-y-2">
           <div className="flex items-center space-x-2">
-            <span className="text-[9px] bg-srm-crimson/10 text-srm-crimson dark:bg-srm-gold/10 dark:text-srm-gold font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider border border-srm-crimson/20 dark:border-srm-gold/20 leading-none">
-              SRM Intranet Node
+            <span className="text-[9px] bg-recollab-crimson/10 text-recollab-crimson dark:bg-recollab-gold/10 dark:text-recollab-gold font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider border border-recollab-crimson/20 dark:border-recollab-gold/20 leading-none">
+              Intranet Collaborative Node
             </span>
             <span className="text-[9px] bg-slate-100 dark:bg-white/5 text-slate-500 dark:text-slate-400 font-bold px-2.5 py-0.5 rounded-full uppercase tracking-wider leading-none">
               Verification Active
@@ -576,11 +576,11 @@ export default function EventsHubPage() {
 
         <div className="flex space-x-4 shrink-0 w-full sm:w-auto">
           <div className="text-center p-3.5 bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-850 rounded-2xl flex-1 sm:flex-initial min-w-[80px]">
-            <p className="text-lg font-black text-srm-crimson dark:text-srm-gold">{phdCount}</p>
+            <p className="text-lg font-black text-recollab-crimson dark:text-recollab-gold">{phdCount}</p>
             <p className="text-[8px] font-black text-slate-450 dark:text-slate-500 uppercase tracking-widest mt-1.5">PhD Defense</p>
           </div>
           <div className="text-center p-3.5 bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-850 rounded-2xl flex-1 sm:flex-initial min-w-[80px]">
-            <p className="text-lg font-black text-srm-crimson dark:text-srm-gold">{seminarCount}</p>
+            <p className="text-lg font-black text-recollab-crimson dark:text-recollab-gold">{seminarCount}</p>
             <p className="text-[8px] font-black text-slate-450 dark:text-slate-500 uppercase tracking-widest mt-1.5">Colloquiums</p>
           </div>
           <div className="text-center p-3.5 bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-850 rounded-2xl flex-1 sm:flex-initial min-w-[80px]">
@@ -596,7 +596,7 @@ export default function EventsHubPage() {
         {/* Header row */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 dark:border-slate-850 pb-4">
           <div className="flex items-center space-x-3 text-slate-905 dark:text-white">
-            <div className="bg-srm-crimson/5 dark:bg-srm-gold/5 p-2 rounded-xl text-srm-crimson dark:text-srm-gold border border-srm-crimson/10 dark:border-srm-gold/15 shrink-0 animate-pulse">
+            <div className="bg-recollab-crimson/5 dark:bg-recollab-gold/5 p-2 rounded-xl text-recollab-crimson dark:text-recollab-gold border border-recollab-crimson/10 dark:border-recollab-gold/15 shrink-0 animate-pulse">
               <Mail className="w-5 h-5" />
             </div>
             <div>
@@ -612,7 +612,7 @@ export default function EventsHubPage() {
           
           <div className="flex items-center space-x-2 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-850 px-3 py-1.5 rounded-xl">
             <span className="text-[8px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest leading-none">AI Agent Status:</span>
-            <span className={`text-[8px] font-black uppercase px-2 py-0.5 rounded-md leading-none ${isAgentRunning ? 'bg-srm-blue/10 text-srm-blue animate-pulse' : 'bg-emerald-100 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400'}`}>
+            <span className={`text-[8px] font-black uppercase px-2 py-0.5 rounded-md leading-none ${isAgentRunning ? 'bg-recollab-blue/10 text-recollab-blue animate-pulse' : 'bg-emerald-100 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400'}`}>
               {isAgentRunning ? 'Processing Request...' : 'Online & Idling'}
             </span>
           </div>
@@ -624,7 +624,7 @@ export default function EventsHubPage() {
           {/* Column 1: Compose Simulator (lg:col-span-4) */}
           <div className="lg:col-span-4 flex flex-col justify-between bg-slate-50/40 dark:bg-slate-950/20 border border-slate-200 dark:border-slate-850/60 p-4 rounded-2xl space-y-4">
             <div>
-              <span className="text-[9px] font-black text-srm-crimson dark:text-srm-gold uppercase tracking-wider block mb-2">
+              <span className="text-[9px] font-black text-recollab-crimson dark:text-recollab-gold uppercase tracking-wider block mb-2">
                 ✉️ Dispatch Mock Request to recollab@srmist.edu.in
               </span>
               <p className="text-[10px] text-slate-450 dark:text-slate-500 font-semibold mb-3 leading-relaxed">
@@ -655,7 +655,7 @@ export default function EventsHubPage() {
                     placeholder="hod@srmist.edu.in"
                     value={emailCompose.sender}
                     onChange={(e) => setEmailCompose({ ...emailCompose, sender: e.target.value })}
-                    className="w-full px-2.5 py-1.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-805 text-[10px] font-semibold rounded-lg focus:outline-none focus:border-srm-crimson dark:focus:border-srm-gold"
+                    className="w-full px-2.5 py-1.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-805 text-[10px] font-semibold rounded-lg focus:outline-none focus:border-recollab-crimson dark:focus:border-recollab-gold"
                   />
                 </div>
 
@@ -667,7 +667,7 @@ export default function EventsHubPage() {
                     placeholder="Event Title"
                     value={emailCompose.subject}
                     onChange={(e) => setEmailCompose({ ...emailCompose, subject: e.target.value })}
-                    className="w-full px-2.5 py-1.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-805 text-[10px] font-semibold rounded-lg focus:outline-none focus:border-srm-crimson dark:focus:border-srm-gold"
+                    className="w-full px-2.5 py-1.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-805 text-[10px] font-semibold rounded-lg focus:outline-none focus:border-recollab-crimson dark:focus:border-recollab-gold"
                   />
                 </div>
 
@@ -679,7 +679,7 @@ export default function EventsHubPage() {
                     placeholder="Describe dates, times, and venues here..."
                     value={emailCompose.body}
                     onChange={(e) => setEmailCompose({ ...emailCompose, body: e.target.value })}
-                    className="w-full px-2.5 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-805 text-[10px] font-semibold rounded-lg focus:outline-none focus:border-srm-crimson dark:focus:border-srm-gold leading-relaxed font-sans"
+                    className="w-full px-2.5 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-805 text-[10px] font-semibold rounded-lg focus:outline-none focus:border-recollab-crimson dark:focus:border-recollab-gold leading-relaxed font-sans"
                   />
                 </div>
               </div>
@@ -687,7 +687,7 @@ export default function EventsHubPage() {
 
             <button
               onClick={handleSendMockEmail}
-              className="w-full py-2.5 srm-gradient text-white rounded-xl font-black text-[9px] uppercase tracking-wider shadow hover:opacity-95 active:scale-[0.98] transition cursor-pointer flex items-center justify-center space-x-1.5"
+              className="w-full py-2.5 recollab-gradient text-white rounded-xl font-black text-[9px] uppercase tracking-wider shadow hover:opacity-95 active:scale-[0.98] transition cursor-pointer flex items-center justify-center space-x-1.5"
             >
               <Send className="w-3.5 h-3.5 shrink-0" />
               <span>Dispatch Mock Email</span>
@@ -697,7 +697,7 @@ export default function EventsHubPage() {
           {/* Column 2: Inbox Feed (lg:col-span-4) */}
           <div className="lg:col-span-4 bg-slate-50/40 dark:bg-slate-950/20 border border-slate-200 dark:border-slate-855 p-4 rounded-2xl flex flex-col justify-between space-y-4">
             <div className="flex-1 flex flex-col">
-              <span className="text-[9px] font-black text-srm-crimson dark:text-srm-gold uppercase tracking-wider block mb-2 flex items-center justify-between">
+              <span className="text-[9px] font-black text-recollab-crimson dark:text-recollab-gold uppercase tracking-wider block mb-2 flex items-center justify-between">
                 <span>📬 Intranet Inbox recollab@srmist.edu.in</span>
                 <span className="text-[8px] bg-slate-200 dark:bg-slate-850 text-slate-505 dark:text-slate-400 px-1.5 py-0.5 rounded font-black">{emails.length} Messages</span>
               </span>
@@ -714,7 +714,7 @@ export default function EventsHubPage() {
                           setAgentLogs([`[recollab-agent@srmist:~$] Selected email: "${email.subject}". Ready to process.`]);
                         }
                       }}
-                      className={`p-3 rounded-xl border text-left cursor-pointer transition duration-150 ${isSelected ? 'bg-white dark:bg-slate-900 border-srm-crimson dark:border-srm-gold shadow-sm' : 'bg-white/50 dark:bg-slate-900/30 border-slate-200 dark:border-slate-850 hover:bg-white dark:hover:bg-slate-900'}`}
+                      className={`p-3 rounded-xl border text-left cursor-pointer transition duration-150 ${isSelected ? 'bg-white dark:bg-slate-900 border-recollab-crimson dark:border-recollab-gold shadow-sm' : 'bg-white/50 dark:bg-slate-900/30 border-slate-200 dark:border-slate-850 hover:bg-white dark:hover:bg-slate-900'}`}
                     >
                       <div className="flex justify-between items-start gap-2 mb-1.5">
                         <span className="text-[8px] font-bold text-slate-450 dark:text-slate-550 truncate max-w-[120px]">{email.sender}</span>
@@ -738,7 +738,7 @@ export default function EventsHubPage() {
                               handleProcessEmailWithAI(email.id);
                             }}
                             disabled={isAgentRunning}
-                            className="px-2 py-1 bg-srm-crimson/5 dark:bg-srm-gold/5 border border-srm-crimson/25 dark:border-srm-gold/25 hover:bg-srm-crimson dark:hover:bg-srm-gold text-srm-crimson dark:text-srm-gold hover:text-white rounded text-[8px] font-black uppercase tracking-wider transition cursor-pointer disabled:opacity-50"
+                            className="px-2 py-1 bg-recollab-crimson/5 dark:bg-recollab-gold/5 border border-recollab-crimson/25 dark:border-recollab-gold/25 hover:bg-recollab-crimson dark:hover:bg-recollab-gold text-recollab-crimson dark:text-recollab-gold hover:text-white rounded text-[8px] font-black uppercase tracking-wider transition cursor-pointer disabled:opacity-50"
                           >
                             Run AI Agent
                           </button>
@@ -818,7 +818,7 @@ export default function EventsHubPage() {
           <div className="glass-card rounded-3xl p-5 border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/15 space-y-4">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 dark:border-slate-850 pb-3">
               <div className="flex items-center space-x-2 text-slate-900 dark:text-white">
-                <div className="bg-srm-crimson/5 dark:bg-srm-gold/5 p-2 rounded-xl text-srm-crimson dark:text-srm-gold shrink-0 border border-srm-crimson/10 dark:border-srm-gold/15">
+                <div className="bg-recollab-crimson/5 dark:bg-recollab-gold/5 p-2 rounded-xl text-recollab-crimson dark:text-recollab-gold shrink-0 border border-recollab-crimson/10 dark:border-recollab-gold/15">
                   <School className="w-4 h-4" />
                 </div>
                 <div>
@@ -832,7 +832,7 @@ export default function EventsHubPage() {
                 placeholder="Filter room..."
                 value={venueSearchQuery}
                 onChange={(e) => setVenueSearchQuery(e.target.value)}
-                className="px-2.5 py-1.5 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-850 focus:border-srm-crimson dark:focus:border-srm-gold text-[9px] font-semibold rounded-lg w-full sm:w-28 focus:outline-none placeholder-slate-450 dark:placeholder-slate-600 text-slate-700 dark:text-slate-350"
+                className="px-2.5 py-1.5 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-850 focus:border-recollab-crimson dark:focus:border-recollab-gold text-[9px] font-semibold rounded-lg w-full sm:w-28 focus:outline-none placeholder-slate-450 dark:placeholder-slate-600 text-slate-700 dark:text-slate-350"
               />
             </div>
 
@@ -874,7 +874,7 @@ export default function EventsHubPage() {
           <div className="glass-card rounded-3xl p-5 border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/15 space-y-4">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 dark:border-slate-850 pb-3">
               <div className="flex items-center space-x-2 text-slate-905 dark:text-white">
-                <div className="bg-srm-blue/10 dark:bg-srm-blue/20 p-2 rounded-xl text-srm-crimson dark:text-srm-gold shrink-0 border border-slate-200 dark:border-srm-blue/40">
+                <div className="bg-recollab-blue/10 dark:bg-recollab-blue/20 p-2 rounded-xl text-recollab-crimson dark:text-recollab-gold shrink-0 border border-slate-200 dark:border-recollab-blue/40">
                   <Users className="w-4.5 h-4.5" />
                 </div>
                 <div>
@@ -888,13 +888,13 @@ export default function EventsHubPage() {
                 placeholder="Filter email..."
                 value={userSearchQuery}
                 onChange={(e) => setUserSearchQuery(e.target.value)}
-                className="px-2.5 py-1.5 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-850 focus:border-srm-crimson dark:focus:border-srm-gold text-[9px] font-semibold rounded-lg w-full sm:w-28 focus:outline-none placeholder-slate-450 dark:placeholder-slate-600 text-slate-700 dark:text-slate-350"
+                className="px-2.5 py-1.5 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-850 focus:border-recollab-crimson dark:focus:border-recollab-gold text-[9px] font-semibold rounded-lg w-full sm:w-28 focus:outline-none placeholder-slate-450 dark:placeholder-slate-600 text-slate-700 dark:text-slate-350"
               />
             </div>
 
             {/* Signup Form */}
             <form onSubmit={handleUserRegister} className="bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-850 rounded-2xl p-4 space-y-3">
-              <span className="text-[9px] font-black text-srm-crimson dark:text-srm-gold uppercase tracking-wider block">
+              <span className="text-[9px] font-black text-recollab-crimson dark:text-recollab-gold uppercase tracking-wider block">
                 🔒 Register Member Mock
               </span>
               
@@ -939,7 +939,7 @@ export default function EventsHubPage() {
               <button
                 type="submit"
                 disabled={usersLoading}
-                className="w-full py-2 srm-gradient text-white rounded-lg font-black text-[9px] uppercase tracking-wider shadow-sm hover:shadow active:scale-[0.98] transition cursor-pointer disabled:opacity-50"
+                className="w-full py-2 recollab-gradient text-white rounded-lg font-black text-[9px] uppercase tracking-wider shadow-sm hover:shadow active:scale-[0.98] transition cursor-pointer disabled:opacity-50"
               >
                 {usersLoading ? 'Signing up...' : 'Add simulated user'}
               </button>
@@ -958,7 +958,7 @@ export default function EventsHubPage() {
                   >
                     <div className="truncate min-w-0 text-left">
                       <p className="font-bold text-slate-800 dark:text-slate-300 text-[10px] leading-tight truncate">{u.name}</p>
-                      <p className="text-[9px] text-srm-crimson dark:text-srm-gold font-bold truncate mt-0.5">{u.email}</p>
+                      <p className="text-[9px] text-recollab-crimson dark:text-recollab-gold font-bold truncate mt-0.5">{u.email}</p>
                     </div>
                     <span className="text-[8px] font-black uppercase px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-950 text-slate-500 dark:text-slate-400 shrink-0">
                       {u.role === 'Research Scholar' ? 'Scholar' : u.role}
@@ -984,7 +984,7 @@ export default function EventsHubPage() {
           <div className="glass-card rounded-3xl p-6 border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/15">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 border-b border-slate-100 dark:border-slate-850 pb-4">
               <div className="flex items-center space-x-2 text-slate-905 dark:text-white">
-                <div className="bg-srm-crimson/5 dark:bg-srm-gold/5 p-2 rounded-xl text-srm-crimson dark:text-srm-gold border border-srm-crimson/10 dark:border-srm-gold/15 shrink-0">
+                <div className="bg-recollab-crimson/5 dark:bg-recollab-gold/5 p-2 rounded-xl text-recollab-crimson dark:text-recollab-gold border border-recollab-crimson/10 dark:border-recollab-gold/15 shrink-0">
                   <GraduationCap className="w-5 h-5" />
                 </div>
                 <div className="text-left">
@@ -1014,7 +1014,7 @@ export default function EventsHubPage() {
                   onClick={() => setSelectedFilter(filter)}
                   className={`px-3 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-wider transition cursor-pointer ${
                     selectedFilter === filter
-                      ? 'bg-srm-crimson/10 text-srm-crimson border border-srm-crimson/25 dark:bg-srm-gold/10 dark:text-srm-gold dark:border-srm-gold/30'
+                      ? 'bg-recollab-crimson/10 text-recollab-crimson border border-recollab-crimson/25 dark:bg-recollab-gold/10 dark:text-recollab-gold dark:border-recollab-gold/30'
                       : 'bg-slate-50 dark:bg-slate-900 text-slate-500 dark:text-slate-450 border border-slate-200 dark:border-slate-850 hover:text-slate-900 dark:hover:text-white'
                   }`}
                 >
@@ -1032,13 +1032,13 @@ export default function EventsHubPage() {
                     key={ev.id}
                     className={`flex justify-between items-center text-xs p-4 rounded-xl border transition-all duration-200 hover:scale-[1.01] ${
                       isPhD 
-                        ? 'bg-srm-crimson/5 border-srm-crimson/15 dark:bg-srm-crimson/[0.02] dark:border-srm-crimson/20 hover:border-srm-crimson' 
+                        ? 'bg-recollab-crimson/5 border-recollab-crimson/15 dark:bg-recollab-crimson/[0.02] dark:border-recollab-crimson/20 hover:border-recollab-crimson' 
                         : 'bg-slate-50/40 dark:bg-slate-900/40 border-slate-200 dark:border-slate-800 hover:border-slate-350 dark:hover:border-slate-700'
                     }`}
                   >
                     <div className="truncate pr-3 flex-1 min-w-0 text-left">
                       <span className={`inline-block text-[8px] font-black uppercase px-2 py-0.5 rounded mb-2 ${
-                        isPhD ? 'bg-srm-crimson/10 text-srm-crimson dark:text-red-400 border border-srm-crimson/20' : 'bg-srm-blue/10 text-srm-blue dark:bg-srm-blue/20 dark:text-slate-350 border border-srm-blue/20 dark:border-srm-blue/40'
+                        isPhD ? 'bg-recollab-crimson/10 text-recollab-crimson dark:text-red-400 border border-recollab-crimson/20' : 'bg-recollab-blue/10 text-recollab-blue dark:bg-recollab-blue/20 dark:text-slate-350 border border-recollab-blue/20 dark:border-recollab-blue/40'
                       }`}>
                         {isPhD ? 'PhD Event' : 'Colloquium'}
                       </span>
@@ -1061,7 +1061,7 @@ export default function EventsHubPage() {
 
                     <button
                       onClick={() => setSelectedEventForRescheduling(ev)}
-                      className="text-[9px] font-black uppercase text-srm-crimson dark:text-srm-gold hover:text-white border border-srm-crimson/20 dark:border-srm-gold/20 bg-srm-crimson/5 dark:bg-srm-gold/5 hover:bg-srm-crimson dark:hover:bg-srm-gold px-3 py-1.5 rounded-lg transition shrink-0 self-end cursor-pointer shadow-sm shadow-black/[0.02]"
+                      className="text-[9px] font-black uppercase text-recollab-crimson dark:text-recollab-gold hover:text-white border border-recollab-crimson/20 dark:border-recollab-gold/20 bg-recollab-crimson/5 dark:bg-recollab-gold/5 hover:bg-recollab-crimson dark:hover:bg-recollab-gold px-3 py-1.5 rounded-lg transition shrink-0 self-end cursor-pointer shadow-sm shadow-black/[0.02]"
                     >
                       Reschedule
                     </button>

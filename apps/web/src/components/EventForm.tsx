@@ -14,7 +14,7 @@ export const CAMPUS_VENUES = [
   "Prof. G.N. Ramachandran Hall",
   "G.D. Naidu Hall",
   "Sir Vishveshvaraya Hall",
-  "SRM Medical Auditorium",
+  "Medical Center Auditorium",
   "Hippocrates Auditorium"
 ];
 
@@ -125,13 +125,13 @@ export default function EventForm({ onEventAdded }: EventFormProps) {
   };
 
   return (
-    <div className="glass-card rounded-3xl p-6 border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/15 shadow-sm text-left">
+    <div className="glass-card rounded-3xl p-6 border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900/15 shadow-sm text-left">
       <div className="flex items-center space-x-2.5 mb-6 border-b border-slate-100 dark:border-slate-850 pb-4">
-        <div className="w-10 h-10 rounded-xl bg-srm-crimson/5 dark:bg-srm-gold/5 border border-srm-crimson/15 dark:border-srm-gold/15 flex items-center justify-center text-srm-crimson dark:text-srm-gold shrink-0 animate-pulse">
+        <div className="w-10 h-10 rounded-xl bg-recollab-crimson/5 dark:bg-recollab-gold/5 border border-recollab-crimson/15 dark:border-recollab-gold/15 flex items-center justify-center text-recollab-crimson dark:text-recollab-gold shrink-0 animate-pulse">
           <PlusCircle className="w-5 h-5 shrink-0" />
         </div>
         <div>
-          <h2 className="text-xs font-bold text-slate-850 dark:text-white uppercase tracking-wider">Create New Event</h2>
+          <h2 className="text-xs font-bold text-slate-855 dark:text-white uppercase tracking-wider">Create New Event</h2>
           <p className="text-[9px] text-slate-450 dark:text-slate-500 font-bold uppercase mt-1 leading-none">Schedule a new session in seconds</p>
         </div>
       </div>
@@ -214,7 +214,7 @@ export default function EventForm({ onEventAdded }: EventFormProps) {
             Venue
           </label>
           <div className="relative">
-            <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-srm-crimson dark:text-srm-gold">
+            <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-recollab-crimson dark:text-recollab-gold">
               <MapPin className="w-4 h-4" />
             </div>
             <select
@@ -222,11 +222,11 @@ export default function EventForm({ onEventAdded }: EventFormProps) {
               onChange={(e) => setSelectedVenue(e.target.value)}
               className="w-full pl-9 pr-10 py-2.5 glass-input text-xs font-semibold rounded-xl cursor-pointer appearance-none text-slate-700 dark:text-slate-350"
             >
-              <option value="" disabled className="bg-slate-50 dark:bg-slate-950 text-slate-450 dark:text-slate-500">Select Venue...</option>
+              <option value="" disabled className="bg-slate-50 dark:bg-slate-955 text-slate-450 dark:text-slate-500">Select Venue...</option>
               {CAMPUS_VENUES.map(v => (
                 <option key={v} value={v} className="bg-white dark:bg-slate-950 text-slate-800 dark:text-white">{v}</option>
               ))}
-              <option value="custom" className="bg-white dark:bg-slate-950 text-srm-crimson dark:text-srm-gold">✍️ Add Custom Venue...</option>
+              <option value="custom" className="bg-white dark:bg-slate-950 text-recollab-crimson dark:text-recollab-gold">✍️ Add Custom Venue...</option>
             </select>
           </div>
         </div>
@@ -234,7 +234,7 @@ export default function EventForm({ onEventAdded }: EventFormProps) {
         {/* Custom Venue Input Area (animates in when selected) */}
         {selectedVenue === 'custom' && (
           <div className="space-y-2 animate-fadeIn text-left">
-            <label className="text-[9px] font-black text-srm-crimson dark:text-srm-gold uppercase tracking-wider block">
+            <label className="text-[9px] font-black text-recollab-crimson dark:text-recollab-gold uppercase tracking-wider block">
               Specify Custom Venue / Room
             </label>
             <div className="relative">
@@ -255,15 +255,15 @@ export default function EventForm({ onEventAdded }: EventFormProps) {
         {/* Targeted Alerts check */}
         <div className="bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-850 rounded-2xl p-4 space-y-3">
           <div className="flex items-center justify-between">
-            <span className="text-[10px] font-black text-srm-crimson dark:text-srm-gold uppercase tracking-widest block">
+            <span className="text-[10px] font-black text-recollab-crimson dark:text-recollab-gold uppercase tracking-widest block">
               🔔 Targeted Alerts Target
             </span>
-            <span className="text-[8px] text-white bg-srm-crimson px-1.5 py-0.5 rounded font-black uppercase tracking-wider leading-none">
-              SRM Domain
+            <span className="text-[8px] text-white bg-recollab-crimson px-1.5 py-0.5 rounded font-black uppercase tracking-wider leading-none">
+              Intranet Domain
             </span>
           </div>
           <p className="text-[9px] text-slate-450 dark:text-slate-550 font-bold leading-normal">
-            Choose registered groups to target alerts (SRM Domain):
+            Choose registered groups to target alerts (Intranet Domain):
           </p>
           <div className="grid grid-cols-1 gap-2 pt-1 text-left">
             <label className="flex items-center space-x-2.5 bg-white dark:bg-slate-900/40 border border-slate-200 dark:border-slate-850 rounded-xl p-2 hover:border-slate-350 dark:hover:border-slate-750 transition cursor-pointer select-none">
@@ -271,7 +271,7 @@ export default function EventForm({ onEventAdded }: EventFormProps) {
                 type="checkbox"
                 checked={notifyStudents}
                 onChange={(e) => setNotifyStudents(e.target.checked)}
-                className="w-4 h-4 rounded text-srm-blue bg-white dark:bg-slate-950 border-slate-300 dark:border-slate-800 focus:ring-srm-blue focus:ring-2 transition"
+                className="w-4 h-4 rounded text-recollab-blue bg-white dark:bg-slate-950 border-slate-300 dark:border-slate-800 focus:ring-recollab-blue focus:ring-2 transition"
               />
               <span className="text-xs text-slate-655 dark:text-slate-400 font-semibold flex items-center justify-between w-full">
                 <span>Notify Registered Students</span>
@@ -284,11 +284,11 @@ export default function EventForm({ onEventAdded }: EventFormProps) {
                 type="checkbox"
                 checked={notifyFaculty}
                 onChange={(e) => setNotifyFaculty(e.target.checked)}
-                className="w-4 h-4 rounded text-srm-blue bg-white dark:bg-slate-950 border-slate-300 dark:border-slate-800 focus:ring-srm-blue focus:ring-2 transition"
+                className="w-4 h-4 rounded text-recollab-blue bg-white dark:bg-slate-950 border-slate-300 dark:border-slate-800 focus:ring-recollab-blue focus:ring-2 transition"
               />
               <span className="text-xs text-slate-655 dark:text-slate-400 font-semibold flex items-center justify-between w-full">
                 <span>Notify Registered Faculty</span>
-                <span className="text-[9px] bg-slate-105 dark:bg-slate-950 text-srm-blue px-1.5 py-0.5 rounded font-black">Faculty</span>
+                <span className="text-[9px] bg-slate-105 dark:bg-slate-950 text-recollab-blue px-1.5 py-0.5 rounded font-black">Faculty</span>
               </span>
             </label>
 
@@ -297,11 +297,11 @@ export default function EventForm({ onEventAdded }: EventFormProps) {
                 type="checkbox"
                 checked={notifyScholars}
                 onChange={(e) => setNotifyScholars(e.target.checked)}
-                className="w-4 h-4 rounded text-srm-blue bg-white dark:bg-slate-950 border-slate-300 dark:border-slate-800 focus:ring-srm-blue focus:ring-2 transition"
+                className="w-4 h-4 rounded text-recollab-blue bg-white dark:bg-slate-950 border-slate-300 dark:border-slate-800 focus:ring-recollab-blue focus:ring-2 transition"
               />
               <span className="text-xs text-slate-655 dark:text-slate-400 font-semibold flex items-center justify-between w-full">
                 <span>Notify PhD Scholars</span>
-                <span className="text-[9px] bg-slate-105 dark:bg-slate-950 text-srm-gold px-1.5 py-0.5 rounded font-black">Scholar</span>
+                <span className="text-[9px] bg-slate-105 dark:bg-slate-950 text-recollab-gold px-1.5 py-0.5 rounded font-black">Scholar</span>
               </span>
             </label>
           </div>
@@ -311,7 +311,7 @@ export default function EventForm({ onEventAdded }: EventFormProps) {
         <button
           type="submit"
           disabled={loading}
-          className="w-full flex items-center justify-center space-x-2 py-3 srm-gradient text-white rounded-xl font-black text-xs uppercase tracking-wider shadow hover:opacity-95 active:scale-[0.98] transition-all disabled:opacity-50 cursor-pointer"
+          className="w-full flex items-center justify-center space-x-2 py-3 recollab-gradient text-white rounded-xl font-black text-xs uppercase tracking-wider shadow hover:opacity-95 active:scale-[0.98] transition-all disabled:opacity-50 cursor-pointer"
         >
           {loading ? (
             <>

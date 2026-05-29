@@ -117,15 +117,10 @@ export default function LandingPage() {
       {/* 🚀 1. STICKY TOP NAVBAR */}
       <header className="sticky top-0 z-50 w-full bg-white/70 dark:bg-[#07090e]/70 backdrop-blur-md border-b border-slate-200/80 dark:border-slate-800/80 px-6 md:px-12 h-16 flex items-center justify-between transition-colors">
         <div className="flex items-center space-x-2.5">
-          <div className="w-8 h-8 rounded-lg srm-gradient flex items-center justify-center font-bold text-white shadow-md shadow-srm-crimson/15 text-xs">
-            SR
-          </div>
+          <img src="/logo.png" className="w-8 h-8 object-contain shrink-0" alt="ReCollab" />
           <div className="flex items-baseline">
             <span className="font-display font-black text-sm tracking-tight text-slate-900 dark:text-white">
-              SRM
-            </span>
-            <span className="font-display font-medium text-xs tracking-wide text-srm-gold ml-1">
-              RECOLLAB
+              ReCollab
             </span>
           </div>
         </div>
@@ -137,7 +132,7 @@ export default function LandingPage() {
             className="p-2 rounded-lg bg-slate-100 dark:bg-slate-900 border border-slate-250 dark:border-slate-800 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition cursor-pointer"
             title="Switch theme"
           >
-            {theme === 'dark' ? <Sun className="w-4 h-4 text-srm-gold" /> : <Moon className="w-4 h-4 text-srm-crimson" />}
+            {theme === 'dark' ? <Sun className="w-4 h-4 text-recollab-gold" /> : <Moon className="w-4 h-4 text-recollab-crimson" />}
           </button>
           
           <Link 
@@ -149,7 +144,7 @@ export default function LandingPage() {
           
           <Link 
             href="/login" 
-            className="text-xs font-black uppercase tracking-wider text-white bg-slate-900 dark:bg-white dark:text-slate-950 hover:bg-srm-crimson dark:hover:bg-srm-gold dark:hover:text-black px-5 py-2.5 rounded-xl shadow-sm hover:shadow active:scale-95 transition-all duration-200"
+            className="text-xs font-black uppercase tracking-wider text-white bg-slate-900 dark:bg-white dark:text-slate-950 hover:bg-recollab-crimson dark:hover:bg-recollab-gold dark:hover:text-black px-5 py-2.5 rounded-xl shadow-sm hover:shadow active:scale-95 transition-all duration-200"
           >
             Launch MVP
           </Link>
@@ -165,10 +160,10 @@ export default function LandingPage() {
             <motion.div 
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
-              className="inline-flex items-center space-x-1.5 bg-srm-crimson/5 dark:bg-srm-crimson/10 border border-srm-crimson/20 dark:border-srm-crimson/30 px-3.5 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest text-srm-crimson dark:text-red-400 shadow-sm"
+              className="inline-flex items-center space-x-1.5 bg-recollab-crimson/5 dark:bg-recollab-crimson/10 border border-recollab-crimson/20 dark:border-recollab-crimson/30 px-3.5 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest text-recollab-crimson dark:text-red-400 shadow-sm"
             >
-              <Cpu className="w-3.5 h-3.5 text-srm-crimson dark:text-red-400" />
-              <span>SRMIST Intranet Research Operating System</span>
+              <Cpu className="w-3.5 h-3.5 text-recollab-crimson dark:text-red-400" />
+              <span>ReCollab Intranet Research Operating System</span>
             </motion.div>
 
             {/* Main title */}
@@ -179,8 +174,8 @@ export default function LandingPage() {
               className="font-display font-black text-4xl sm:text-6xl tracking-tight leading-tight max-w-4xl mx-auto"
             >
               The Collaborative Core for <br />
-              <span className="bg-gradient-to-r from-srm-crimson via-srm-crimson to-srm-gold dark:from-white dark:via-white dark:to-srm-gold bg-clip-text text-transparent">
-                SRM Research Excellence
+              <span className="bg-gradient-to-r from-recollab-crimson via-recollab-crimson to-recollab-gold dark:from-white dark:via-white dark:to-recollab-gold bg-clip-text text-transparent">
+                Research Excellence
               </span>
             </motion.h1>
 
@@ -191,7 +186,7 @@ export default function LandingPage() {
               transition={{ delay: 0.2 }}
               className="text-slate-500 dark:text-slate-400 text-sm sm:text-base max-w-2xl mx-auto leading-relaxed"
             >
-              Discover matching research domains, coordinate DST-SERB grant applications, and recruit high-caliber PhD scholars. A highly secure, enterprise collaboration hub designed exclusively for <strong>SRM Faculty, Mentors, and PhD Candidates</strong>.
+              Discover matching research domains, coordinate DST-SERB grant applications, and recruit high-caliber PhD scholars. A highly secure, enterprise collaboration hub designed exclusively for <strong>Verified Faculty, Mentors, and PhD Candidates</strong>.
             </motion.p>
 
             {/* Action buttons */}
@@ -203,7 +198,7 @@ export default function LandingPage() {
             >
               <Link
                 href="/login"
-                className="w-full sm:w-auto px-7 py-3.5 rounded-xl text-xs font-black uppercase tracking-wider text-white bg-slate-900 dark:bg-slate-100 dark:text-slate-950 hover:bg-srm-crimson dark:hover:bg-srm-gold dark:hover:text-black shadow-lg shadow-slate-900/10 dark:shadow-srm-gold/5 transition-all duration-200 flex items-center justify-center space-x-2 group cursor-pointer"
+                className="w-full sm:w-auto px-7 py-3.5 rounded-xl text-xs font-black uppercase tracking-wider text-white bg-slate-900 dark:bg-slate-100 dark:text-slate-955 hover:bg-recollab-crimson dark:hover:bg-recollab-gold dark:hover:text-black shadow-lg shadow-slate-900/10 dark:shadow-recollab-gold/5 transition-all duration-200 flex items-center justify-center space-x-2 group cursor-pointer"
               >
                 <span>Access with Google Workspace</span>
                 <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
@@ -227,18 +222,18 @@ export default function LandingPage() {
               viewport={{ once: true }}
               className="flex-1 space-y-5 text-left"
             >
-              <span className="text-[10px] font-black text-srm-crimson dark:text-srm-gold uppercase tracking-widest flex items-center space-x-1">
-                <Compass className="w-4 h-4 mr-1 text-srm-crimson dark:text-srm-gold" />
+              <span className="text-[10px] font-black text-recollab-crimson dark:text-recollab-gold uppercase tracking-widest flex items-center space-x-1">
+                <Compass className="w-4 h-4 mr-1 text-recollab-crimson dark:text-recollab-gold" />
                 Interdisciplinary Synergy
               </span>
               <h2 className="font-display font-extrabold text-2xl sm:text-3xl text-slate-900 dark:text-white leading-tight">
-                Aligning Academic Talents, Unifying SRM's Knowledge Core
+                Aligning Academic Talents, Unifying the Knowledge Core
               </h2>
               <p className="text-slate-500 dark:text-slate-400 text-xs sm:text-sm leading-relaxed">
                 Modern academic breakthroughs occur at the boundaries of disciplines. Computational intelligence intersects biotechnology; optical semiconductor components power high-speed neural network decoders.
               </p>
               <p className="text-slate-500 dark:text-slate-400 text-xs sm:text-sm leading-relaxed">
-                <strong>SRM_Recollab</strong> acts as the central digital synapse, indexing academic interests, providing a collaborative sandbox, and allowing scholars to easily identify grant co-authors across departments in clicks.
+                <strong>ReCollab</strong> acts as the central digital synapse, indexing academic interests, providing a collaborative sandbox, and allowing scholars to easily identify grant co-authors across departments in clicks.
               </p>
               
               <div className="grid grid-cols-2 gap-4 pt-2">
@@ -250,7 +245,7 @@ export default function LandingPage() {
                   </div>
                 </div>
                 <div className="flex items-start space-x-2">
-                  <TrendingUp className="w-4.5 h-4.5 text-srm-gold shrink-0 mt-0.5" />
+                  <TrendingUp className="w-4.5 h-4.5 text-recollab-gold shrink-0 mt-0.5" />
                   <div>
                     <h4 className="text-xs font-bold text-slate-800 dark:text-white">High-Impact Synergy</h4>
                     <p className="text-[10px] text-slate-450 dark:text-slate-500">Shared GPU clusters, joint papers, and speed.</p>
@@ -269,7 +264,7 @@ export default function LandingPage() {
               <div className="glass-card rounded-2xl p-5 border border-slate-200 dark:border-slate-800 text-left bg-white dark:bg-slate-900/10 shadow-xl overflow-hidden space-y-4">
                 <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
                   <div className="flex items-center space-x-2.5">
-                    <span className="text-[9px] font-black uppercase px-2 py-0.5 rounded bg-srm-crimson/10 text-srm-crimson border border-srm-crimson/25">DST proposal</span>
+                    <span className="text-[9px] font-black uppercase px-2 py-0.5 rounded bg-recollab-crimson/10 text-recollab-crimson border border-recollab-crimson/25">DST proposal</span>
                     <span className="text-xs font-extrabold text-slate-800 dark:text-slate-200">Nanophotonics sequencing</span>
                   </div>
                   <span className="text-[9px] text-slate-400 font-bold uppercase">Biotech + ECE</span>
@@ -281,10 +276,10 @@ export default function LandingPage() {
 
                 <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-950/80 border border-slate-100 dark:border-slate-850 flex items-center justify-between">
                   <div className="flex items-center space-x-2">
-                    <div className="w-6 h-6 rounded-full bg-srm-crimson/20 flex items-center justify-center font-bold text-[9px] text-srm-crimson">Dr</div>
+                    <div className="w-6 h-6 rounded-full bg-recollab-crimson/20 flex items-center justify-center font-bold text-[9px] text-recollab-crimson">Dr</div>
                     <span className="text-[10px] font-bold text-slate-700 dark:text-slate-350">Dr. Priya Subramanian</span>
                   </div>
-                  <Link href="/login" className="text-[10px] font-black text-srm-gold hover:text-srm-crimson flex items-center gap-0.5">
+                  <Link href="/login" className="text-[10px] font-black text-recollab-gold hover:text-recollab-crimson flex items-center gap-0.5">
                     <span>Propose Synergy</span>
                     <ChevronRight className="w-3.5 h-3.5" />
                   </Link>
@@ -297,12 +292,12 @@ export default function LandingPage() {
         {/* 🚀 4. AI-POWERED WORKFLOWS MATCHING GRAPH (SIMULATED) */}
         <section className="py-20 border-t border-slate-250/60 dark:border-slate-850 px-6 max-w-5xl mx-auto text-center space-y-12">
           <div>
-            <span className="text-[10px] font-black text-srm-crimson dark:text-srm-gold tracking-widest uppercase">SYNERGY CONNECTOR MAP</span>
-            <h2 className="font-display font-extrabold text-2xl sm:text-3xl text-slate-950 dark:text-white mt-2">
+            <span className="text-[10px] font-black text-recollab-crimson dark:text-recollab-gold tracking-widest uppercase">SYNERGY CONNECTOR MAP</span>
+            <h2 className="font-display font-extrabold text-2xl sm:text-3xl text-slate-955 dark:text-white mt-2">
               Automated Institutional Matching Flow
             </h2>
             <p className="text-slate-500 dark:text-slate-400 text-xs sm:text-sm max-w-lg mx-auto mt-2">
-              How SRM Recollab seamlessly translates department barriers into unified research pipelines.
+              How ReCollab seamlessly translates department barriers into unified research pipelines.
             </p>
           </div>
 
@@ -311,7 +306,7 @@ export default function LandingPage() {
             
             {/* Node 1 */}
             <div className="p-4 rounded-2xl bg-white dark:bg-slate-900/25 border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col items-center space-y-2">
-              <div className="w-8 h-8 rounded-lg bg-srm-crimson/10 text-srm-crimson flex items-center justify-center font-black text-xs">CSE</div>
+              <div className="w-8 h-8 rounded-lg bg-recollab-crimson/10 text-recollab-crimson flex items-center justify-center font-black text-xs">CSE</div>
               <h4 className="text-xs font-bold text-slate-800 dark:text-white">Computing Lab</h4>
               <p className="text-[9px] text-slate-450 dark:text-slate-500">Fine-tuning large language models</p>
             </div>
@@ -323,10 +318,10 @@ export default function LandingPage() {
 
             {/* Node 2 - The AI Bridge */}
             <div className="p-5 rounded-2xl bg-slate-900 text-white dark:bg-white dark:text-slate-950 border border-slate-800 dark:border-slate-100 shadow-md flex flex-col items-center space-y-2.5 relative">
-              <div className="w-9 h-9 rounded-full bg-srm-gold/20 dark:bg-srm-gold/10 text-srm-gold flex items-center justify-center font-bold">
+              <div className="w-9 h-9 rounded-full bg-recollab-gold/20 dark:bg-recollab-gold/10 text-recollab-gold flex items-center justify-center font-bold">
                 <Sparkles className="w-4.5 h-4.5 animate-spin" style={{ animationDuration: '4s' }} />
               </div>
-              <h4 className="text-xs font-black uppercase tracking-wider text-srm-gold">Matching Engine</h4>
+              <h4 className="text-xs font-black uppercase tracking-wider text-recollab-gold">Matching Engine</h4>
               <p className="text-[9px] text-slate-350 dark:text-slate-500 font-semibold">Semantic Co-Author Alignment</p>
             </div>
 
@@ -337,7 +332,7 @@ export default function LandingPage() {
 
             {/* Node 3 */}
             <div className="p-4 rounded-2xl bg-white dark:bg-slate-900/25 border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col items-center space-y-2">
-              <div className="w-8 h-8 rounded-lg bg-srm-blue/10 text-srm-blue flex items-center justify-center font-black text-xs">BIO</div>
+              <div className="w-8 h-8 rounded-lg bg-recollab-blue/10 text-recollab-blue flex items-center justify-center font-black text-xs">BIO</div>
               <h4 className="text-xs font-bold text-slate-800 dark:text-white">Biotech Division</h4>
               <p className="text-[9px] text-slate-450 dark:text-slate-500">Executing complex protein sequence grids</p>
             </div>
@@ -354,17 +349,17 @@ export default function LandingPage() {
               viewport={{ once: true }}
               className="space-y-6 text-left"
             >
-              <span className="text-[10px] font-black text-srm-crimson dark:text-srm-gold uppercase tracking-widest">Synergy Roles</span>
+              <span className="text-[10px] font-black text-recollab-crimson dark:text-recollab-gold uppercase tracking-widest">Synergy Roles</span>
               <h2 className="font-display font-extrabold text-2xl sm:text-3xl text-slate-950 dark:text-white leading-tight">
                 Designed to Power Faculty and PhD Relations
               </h2>
               <p className="text-slate-500 dark:text-slate-400 text-xs sm:text-sm leading-relaxed">
-                SRM Recollab supports discrete permission scopes to protect administrative credentials while supporting rapid interdisciplinary synergy:
+                ReCollab supports discrete permission scopes to protect administrative credentials while supporting rapid interdisciplinary synergy:
               </p>
               
               <div className="space-y-3.5">
-                <div className="p-3 bg-white dark:bg-slate-950/45 rounded-xl border border-slate-200 dark:border-slate-850/50 flex space-x-3">
-                  <div className="w-7 h-7 rounded bg-srm-crimson/10 text-srm-crimson flex items-center justify-center shrink-0">
+                <div className="p-3 bg-white dark:bg-slate-950/45 rounded-xl border border-slate-200 dark:border-slate-855 flex space-x-3">
+                  <div className="w-7 h-7 rounded bg-recollab-crimson/10 text-recollab-crimson flex items-center justify-center shrink-0">
                     <GraduationCap className="w-4.5 h-4.5" />
                   </div>
                   <div>
@@ -373,8 +368,8 @@ export default function LandingPage() {
                   </div>
                 </div>
                 
-                <div className="p-3 bg-white dark:bg-slate-950/45 rounded-xl border border-slate-200 dark:border-slate-850/50 flex space-x-3">
-                  <div className="w-7 h-7 rounded bg-srm-blue/10 text-srm-blue flex items-center justify-center shrink-0">
+                <div className="p-3 bg-white dark:bg-slate-950/45 rounded-xl border border-slate-200 dark:border-slate-855 flex space-x-3">
+                  <div className="w-7 h-7 rounded bg-recollab-blue/10 text-recollab-blue flex items-center justify-center shrink-0">
                     <Users className="w-4.5 h-4.5" />
                   </div>
                   <div>
@@ -387,7 +382,7 @@ export default function LandingPage() {
 
             {/* Roster Sandbox card preview */}
             <div className="glass-card rounded-2xl p-5 border border-slate-200 dark:border-slate-800 text-left bg-white dark:bg-slate-900/10 shadow-lg space-y-4">
-              <span className="text-[9px] font-black text-srm-gold uppercase tracking-wider block">🛡️ Sandbox Role Switch Demo</span>
+              <span className="text-[9px] font-black text-recollab-gold uppercase tracking-wider block">🛡️ Sandbox Role Switch Demo</span>
               <p className="text-slate-500 dark:text-slate-400 text-[11px] leading-relaxed">
                 Test the platform under either role inside the dashboard sidebar simulator. Feel the exact custom filters, opportunities restriction alerts, and tailored dashboards immediate response.
               </p>
@@ -407,9 +402,9 @@ export default function LandingPage() {
         {/* 🚀 6. RESEARCH DISCOVERY ECOSYSTEM (INTERACTIVE GRID) */}
         <section className="py-20 border-t border-slate-200/60 dark:border-slate-850 px-6 max-w-5xl mx-auto text-center space-y-8">
           <div>
-            <span className="text-[10px] font-black text-srm-crimson dark:text-srm-gold tracking-widest uppercase">indexed study nodes</span>
+            <span className="text-[10px] font-black text-recollab-crimson dark:text-recollab-gold tracking-widest uppercase">indexed study nodes</span>
             <h2 className="font-display font-extrabold text-2xl sm:text-3xl text-slate-900 dark:text-white mt-2">
-              Browse SRM Research Sub-Systems
+              Browse Research Sub-Systems
             </h2>
             <p className="text-slate-500 dark:text-slate-400 text-xs sm:text-sm max-w-lg mx-auto mt-2">
               Seamlessly locate peer collaborators indexing similar keyphrase study domains.
@@ -421,7 +416,7 @@ export default function LandingPage() {
               <Link 
                 key={topic} 
                 href="/login" 
-                className="p-3 bg-white dark:bg-slate-900/25 border border-slate-200 dark:border-slate-800 rounded-xl hover:border-srm-gold dark:hover:border-srm-gold transition text-xs font-bold text-slate-700 dark:text-slate-300"
+                className="p-3 bg-white dark:bg-slate-900/25 border border-slate-200 dark:border-slate-800 rounded-xl hover:border-recollab-gold dark:hover:border-recollab-gold transition text-xs font-bold text-slate-700 dark:text-slate-300"
               >
                 #{topic}
               </Link>
@@ -433,8 +428,8 @@ export default function LandingPage() {
         <section className="py-20 border-t border-slate-200/60 dark:border-slate-850 px-6 bg-slate-50/40 dark:bg-slate-900/10">
           <div className="max-w-6xl mx-auto">
             <div className="text-center mb-12">
-              <span className="text-[10px] font-black text-srm-crimson dark:text-srm-gold uppercase tracking-widest">Portal Features</span>
-              <h2 className="font-display font-extrabold text-2xl sm:text-3xl text-slate-950 dark:text-white mt-1">
+              <span className="text-[10px] font-black text-recollab-crimson dark:text-recollab-gold uppercase tracking-widest">Portal Features</span>
+              <h2 className="font-display font-extrabold text-2xl sm:text-3xl text-slate-955 dark:text-white mt-1">
                 Engineered Features for Academic Scale
               </h2>
               <p className="text-slate-500 dark:text-slate-400 text-xs max-w-md mx-auto mt-2">
@@ -455,10 +450,10 @@ export default function LandingPage() {
                   key={feature.title} 
                   className="p-6 bg-white dark:bg-slate-900/25 border border-slate-200 dark:border-slate-800 rounded-2xl hover:shadow-lg transition-all duration-300 relative text-left"
                 >
-                  <div className="w-9 h-9 rounded-lg bg-srm-crimson/5 dark:bg-srm-gold/5 border border-srm-crimson/15 dark:border-srm-gold/15 flex items-center justify-center text-srm-crimson dark:text-srm-gold mb-5">
+                  <div className="w-9 h-9 rounded-lg bg-recollab-crimson/5 dark:bg-recollab-gold/5 border border-recollab-crimson/15 dark:border-recollab-gold/15 flex items-center justify-center text-recollab-crimson dark:text-recollab-gold mb-5">
                     <feature.icon className="w-4.5 h-4.5" />
                   </div>
-                  <span className="text-[9px] font-black uppercase text-srm-gold tracking-wider">{feature.badge}</span>
+                  <span className="text-[9px] font-black uppercase text-recollab-gold tracking-wider">{feature.badge}</span>
                   <h3 className="font-display font-bold text-base text-slate-900 dark:text-white mt-2 mb-2">{feature.title}</h3>
                   <p className="text-slate-500 dark:text-slate-400 text-xs leading-relaxed">{feature.description}</p>
                 </motion.div>
@@ -472,7 +467,7 @@ export default function LandingPage() {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6 items-center">
             {statistics.map((stat) => (
               <div key={stat.label} className="text-center p-4 bg-white dark:bg-slate-900/25 border border-slate-200 dark:border-slate-800 rounded-2xl">
-                <div className="inline-flex p-1.5 bg-srm-gold/15 text-srm-gold rounded-lg mb-2">
+                <div className="inline-flex p-1.5 bg-recollab-gold/15 text-recollab-gold rounded-lg mb-2">
                   <Award className="w-4.5 h-4.5" />
                 </div>
                 <p className="font-display font-black text-2xl text-slate-900 dark:text-white leading-none">{stat.number}</p>
@@ -485,17 +480,17 @@ export default function LandingPage() {
         {/* 🚀 9. FINAL GOOGLE SIGN-IN CTA */}
         <section className="py-20 border-t border-slate-250/60 dark:border-slate-850 px-6">
           <div className="max-w-4xl mx-auto bg-slate-900 dark:bg-slate-950/60 text-white rounded-3xl p-10 sm:p-14 border border-slate-850 text-center relative overflow-hidden shadow-2xl">
-            <div className="absolute inset-0 bg-gradient-to-r from-srm-blue/10 to-srm-crimson/10 -z-10 animate-pulse" />
-            <span className="text-[10px] font-black text-srm-gold tracking-widest uppercase">SRM INTRANET AUTHORIZED ACCESS ONLY</span>
+            <div className="absolute inset-0 bg-gradient-to-r from-recollab-blue/10 to-recollab-crimson/10 -z-10 animate-pulse" />
+            <span className="text-[10px] font-black text-recollab-gold tracking-widest uppercase">INTRANET AUTHORIZED ACCESS ONLY</span>
             <h2 className="font-display font-extrabold text-2xl sm:text-4xl text-white mt-3 mb-4 leading-tight">
               Ready to Accelerate Your Academic Synergy?
             </h2>
             <p className="text-slate-400 text-xs sm:text-sm max-w-md mx-auto leading-relaxed mb-8 font-medium">
-              Only Google Sign-In ending with <strong className="text-srm-gold">@srmist.edu.in</strong> is authorized. Unauthorized logins are automatically redirected.
+              Only Google Sign-In ending with <strong className="text-recollab-gold">@srmist.edu.in</strong> is authorized. Unauthorized logins are automatically redirected.
             </p>
             <Link 
               href="/login" 
-              className="inline-flex items-center px-7 py-3.5 rounded-xl text-xs font-black uppercase tracking-wider text-slate-950 bg-white hover:bg-srm-gold hover:text-black transition-all duration-200 space-x-2 shadow-sm"
+              className="inline-flex items-center px-7 py-3.5 rounded-xl text-xs font-black uppercase tracking-wider text-slate-950 bg-white hover:bg-recollab-gold hover:text-black transition-all duration-200 space-x-2 shadow-sm"
             >
               <span>Connect Google Account</span>
               <ArrowRight className="w-4 h-4" />
@@ -509,16 +504,16 @@ export default function LandingPage() {
       <footer className="border-t border-slate-200/80 dark:border-slate-850 bg-white dark:bg-[#05070a] py-8 px-6 transition-colors">
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="flex items-center space-x-2">
-            <div className="w-6 h-6 rounded-lg srm-gradient flex items-center justify-center font-bold text-white text-[10px]">
-              SR
+            <div className="w-6 h-6 rounded-lg recollab-gradient flex items-center justify-center font-bold text-white text-[10px]">
+              RC
             </div>
             <span className="font-display font-bold text-xs text-slate-700 dark:text-slate-350">
-              SRM Recollab <span className="font-light text-slate-500 font-sans text-[11px] ml-1">Phase 1</span>
+              ReCollab <span className="font-light text-slate-500 font-sans text-[11px] ml-1">Phase 1</span>
             </span>
           </div>
           
-          <p className="text-[10px] text-slate-400 dark:text-slate-500 font-bold uppercase tracking-wider">
-            © {new Date().getFullYear()} SRM Institute of Science and Technology. All Research Systems Protected.
+          <p className="text-[10px] text-slate-450 dark:text-slate-500 font-bold uppercase tracking-wider">
+            © {new Date().getFullYear()} ReCollab Academic Portal. All Research Systems Protected.
           </p>
         </div>
       </footer>

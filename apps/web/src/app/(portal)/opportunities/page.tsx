@@ -64,7 +64,7 @@ export default function OpportunitiesFeedPage() {
 
   const handleOpenDrawer = () => {
     if (roleOverride !== 'FACULTY') {
-      alert('🔒 Access Restricted! Only verified SRM Faculty Principal Investigators (PIs) are authorized to publish funded research opportunities. Toggle role in sandbox at sidebar bottom to test!');
+      alert('🔒 Access Restricted! Only verified Verified Faculty Principal Investigators (PIs) are authorized to publish funded research opportunities. Toggle role in sandbox at sidebar bottom to test!');
       return;
     }
     setIsDrawerOpen(true);
@@ -76,21 +76,21 @@ export default function OpportunitiesFeedPage() {
       {/* Upper Title Row */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6 border-b border-slate-100 dark:border-slate-850 pb-5 text-left">
         <div>
-          <span className="text-[10px] font-black text-srm-crimson dark:text-srm-gold uppercase tracking-widest flex items-center gap-1">
-            <Briefcase className="w-4 h-4 text-srm-crimson dark:text-srm-gold" />
+          <span className="text-[10px] font-black text-recollab-crimson dark:text-recollab-gold uppercase tracking-widest flex items-center gap-1">
+            <Briefcase className="w-4 h-4 text-recollab-crimson dark:text-recollab-gold" />
             <span>Academic Portal Vacancies</span>
           </span>
           <h2 className="font-display font-extrabold text-xl sm:text-2xl text-slate-900 dark:text-white mt-1.5">
             Faculty Research Openings
           </h2>
           <p className="text-slate-500 dark:text-slate-400 text-xs mt-1 leading-relaxed">
-            Explore funded PhD positions, research assistant slots, and interdisciplinary vacancies published by SRM Principal Investigators.
+            Explore funded PhD positions, research assistant slots, and interdisciplinary vacancies published by Principal Investigators.
           </p>
         </div>
 
         <button
           onClick={handleOpenDrawer}
-          className="px-5 py-3 rounded-xl text-xs font-black uppercase tracking-wider text-white srm-gradient hover:opacity-95 shadow transition-all duration-200 active:scale-95 flex items-center justify-center space-x-1.5 shrink-0 cursor-pointer"
+          className="px-5 py-3 rounded-xl text-xs font-black uppercase tracking-wider text-white recollab-gradient hover:opacity-95 shadow transition-all duration-200 active:scale-95 flex items-center justify-center space-x-1.5 shrink-0 cursor-pointer"
         >
           <Plus className="w-4.5 h-4.5" />
           <span>Publish Opportunity</span>
@@ -108,7 +108,7 @@ export default function OpportunitiesFeedPage() {
             onChange={(e) => setSelectedDept(e.target.value)}
             className="w-full px-4 py-2.5 rounded-xl glass-input text-xs font-semibold cursor-pointer text-slate-700 dark:text-slate-350"
           >
-            <option value="" className="bg-slate-50 dark:bg-slate-950 text-slate-450 dark:text-slate-500">All SRM Departments</option>
+            <option value="" className="bg-slate-50 dark:bg-slate-950 text-slate-450 dark:text-slate-500">All Departments</option>
             {SRM_DEPARTMENTS.map((dept) => (
               <option key={dept} value={dept} className="bg-white dark:bg-slate-950 text-slate-800 dark:text-slate-200">{dept.split('(')[0]}</option>
             ))}
@@ -181,7 +181,7 @@ export default function OpportunitiesFeedPage() {
                 {/* Header */}
                 <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-4 mb-6">
                   <div className="flex items-center space-x-2">
-                    <div className="w-8 h-8 rounded-lg bg-srm-crimson/5 dark:bg-srm-gold/5 border border-srm-crimson/15 dark:border-srm-gold/15 flex items-center justify-center text-srm-crimson dark:text-srm-gold">
+                    <div className="w-8 h-8 rounded-lg bg-recollab-crimson/5 dark:bg-recollab-gold/5 border border-recollab-crimson/15 dark:border-recollab-gold/15 flex items-center justify-center text-recollab-crimson dark:text-recollab-gold">
                       <GraduationCap className="w-5 h-5" />
                     </div>
                     <div>
@@ -230,7 +230,7 @@ export default function OpportunitiesFeedPage() {
                       {...register('department')}
                       className="w-full px-4 py-3 rounded-xl glass-input text-xs font-semibold text-slate-700 dark:text-slate-350 cursor-pointer"
                     >
-                      <option value="" className="bg-slate-50 dark:bg-slate-950 text-slate-450 dark:text-slate-500">Select SRM Department</option>
+                      <option value="" className="bg-slate-50 dark:bg-slate-950 text-slate-450 dark:text-slate-500">Select Department</option>
                       {SRM_DEPARTMENTS.map((dept) => (
                         <option key={dept} value={dept} className="bg-white dark:bg-slate-950 text-slate-800 dark:text-slate-200">{dept}</option>
                       ))}
@@ -262,7 +262,7 @@ export default function OpportunitiesFeedPage() {
                     <button
                       type="submit"
                       disabled={isSubmitting}
-                      className="px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider text-white srm-gradient hover:opacity-95 shadow transition-all duration-200 active:scale-95 flex items-center space-x-1.5 cursor-pointer"
+                      className="px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider text-white recollab-gradient hover:opacity-95 shadow transition-all duration-200 active:scale-95 flex items-center space-x-1.5 cursor-pointer"
                     >
                       {isSubmitting ? (
                         <span className="w-4 h-4 border-2 border-white border-t-transparent animate-spin rounded-full" />
@@ -280,7 +280,7 @@ export default function OpportunitiesFeedPage() {
 
               {/* Dev notice footer */}
               <div className="mt-8 bg-slate-50 dark:bg-slate-900/50 border border-slate-150 dark:border-slate-850 p-3 rounded-xl flex items-center space-x-2 text-[9px] text-slate-500 uppercase font-black">
-                <ShieldAlert className="w-4 h-4 text-srm-gold shrink-0 animate-pulse" />
+                <ShieldAlert className="w-4 h-4 text-recollab-gold shrink-0 animate-pulse" />
                 <span>Only Faculty can invoke this service.</span>
               </div>
 

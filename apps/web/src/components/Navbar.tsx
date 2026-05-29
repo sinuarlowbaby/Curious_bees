@@ -17,7 +17,7 @@ export default function Navbar() {
     if (pathname.startsWith('/events')) return 'Events Hub';
     if (pathname.startsWith('/profile')) return 'Academic Portfolio';
     if (pathname.startsWith('/researchers')) return 'Researcher Discovery';
-    return 'SRM Recollab';
+    return 'ReCollab';
   };
 
   return (
@@ -58,16 +58,16 @@ export default function Navbar() {
           title={`Switch to ${theme === 'dark' ? 'Light' : 'Dark'} Mode`}
         >
           {theme === 'dark' ? (
-            <Sun className="w-4 h-4 text-srm-gold" />
+            <Sun className="w-4 h-4 text-recollab-gold" />
           ) : (
-            <Moon className="w-4 h-4 text-srm-crimson" />
+            <Moon className="w-4 h-4 text-recollab-crimson" />
           )}
         </button>
 
         {/* Notifications Button */}
         <button className="p-2 rounded-lg bg-slate-100 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors relative">
           <Bell className="w-4 h-4" />
-          <span className="w-1.5 h-1.5 bg-srm-crimson dark:bg-srm-gold rounded-full absolute top-1.5 right-1.5" />
+          <span className="w-1.5 h-1.5 bg-recollab-crimson dark:bg-recollab-gold rounded-full absolute top-1.5 right-1.5" />
         </button>
 
         {/* Divider */}
@@ -78,14 +78,14 @@ export default function Navbar() {
           <img
             src={currentUser?.image || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150'}
             alt="User avatar"
-            className="w-8 h-8 rounded-full object-cover border border-slate-200 dark:border-slate-700 group-hover:border-srm-crimson dark:group-hover:border-srm-gold transition-colors"
+            className="w-8 h-8 rounded-full object-cover border border-slate-200 dark:border-slate-700 group-hover:border-recollab-crimson dark:group-hover:border-recollab-gold transition-colors"
           />
           <div className="text-left hidden lg:block">
-            <p className="text-[11px] font-bold text-slate-800 dark:text-white group-hover:text-srm-crimson dark:group-hover:text-srm-gold transition-colors leading-none">
+            <p className="text-[11px] font-bold text-slate-850 dark:text-white group-hover:text-recollab-crimson dark:group-hover:text-recollab-gold transition-colors leading-none">
               {currentUser?.name || 'Academic Scholar'}
             </p>
             <p className="text-[9px] text-slate-400 dark:text-slate-500 font-bold mt-1 uppercase tracking-tight">
-              {currentUser?.department?.split('(')[0].trim() || 'SRM Institute'}
+              {currentUser?.department?.split('(')[0].trim() || 'Collaborator'}
             </p>
           </div>
         </Link>

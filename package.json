@@ -2,7 +2,7 @@
   "name": "srm-recollab-monorepo",
   "version": "1.0.0",
   "private": true,
-  "description": "SRM_Recollab — AI-powered Academic Collaboration Platform for SRM Institute of Science and Technology",
+  "description": "ReCollab — AI-powered Academic Collaboration Platform",
   "workspaces": [
     "apps/*",
     "packages/*"

@@ -9,6 +9,13 @@ module.exports = {
   theme: {
     extend: {
       colors: {
+        recollab: {
+          blue: "#0d3c61",
+          gold: "#d4af37",
+          crimson: "#800020",
+          navy: "#0a192f",
+          accent: "#1e3a8a",
+        },
         srm: {
           blue: "#0d3c61",
           gold: "#d4af37",

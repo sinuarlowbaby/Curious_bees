@@ -162,6 +162,10 @@ h1, h2, h3, h4, h5, h6 {
   -webkit-text-fill-color: transparent;
 }
 
+.recollab-gradient {
+  background: linear-gradient(135deg, #0d3c61 0%, #800020 100%);
+}
+
 .srm-gradient {
   background: linear-gradient(135deg, #0d3c61 0%, #800020 100%);
 }

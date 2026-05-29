@@ -47,7 +47,7 @@ export class OpportunitiesService {
     });
 
     if (!author || author.role !== 'FACULTY') {
-      throw new BadRequestException('Only SRM faculty members are authorized to post research opportunities.');
+      throw new BadRequestException('Only verified faculty members are authorized to post research opportunities.');
     }
 
     return this.prisma.opportunity.create({
