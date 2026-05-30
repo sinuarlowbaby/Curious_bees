@@ -1,10 +1,10 @@
 import { Controller, Get, UseGuards, Req } from '@nestjs/common';
-import { AuthGuard } from './auth.guard';
+import { FirebaseAuthGuard } from './firebase.guard';
 
 @Controller('auth')
 export class AuthController {
   @Get('me')
-  @UseGuards(AuthGuard)
+  @UseGuards(FirebaseAuthGuard)
   getMe(@Req() req: any) {
     return {
       success: true,
@@ -12,3 +12,4 @@ export class AuthController {
     };
   }
 }
+

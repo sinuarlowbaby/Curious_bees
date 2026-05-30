@@ -1,10 +1,10 @@
 import { Controller, Get, Put, Body, Query, UseGuards, Req } from '@nestjs/common';
-import { AuthGuard } from '../auth/auth.guard';
+import { FirebaseAuthGuard } from '../auth/firebase.guard';
 import { UsersService } from './users.service';
 import { UpdateProfileInput } from '@srm-recollab/types';
 
 @Controller('users')
-@UseGuards(AuthGuard)
+@UseGuards(FirebaseAuthGuard)
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 

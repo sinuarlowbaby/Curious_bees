@@ -14,7 +14,7 @@ export default function Navbar() {
     if (pathname.startsWith('/dashboard')) return 'Research Dashboard';
     if (pathname.startsWith('/threads')) return 'Research Feed';
     if (pathname.startsWith('/opportunities')) return 'Recruitment Board';
-    if (pathname.startsWith('/events')) return 'Events Hub';
+    if (pathname.startsWith('/events')) return 'Events';
     if (pathname.startsWith('/profile')) return 'Academic Portfolio';
     if (pathname.startsWith('/researchers')) return 'Researcher Discovery';
     return 'ReCollab';

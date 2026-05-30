@@ -137,16 +137,9 @@ export default function LandingPage() {
           
           <Link 
             href="/login" 
-            className="text-xs font-bold text-slate-600 dark:text-slate-350 hover:text-slate-900 dark:hover:text-white px-4 py-2 transition"
-          >
-            Portal Sign In
-          </Link>
-          
-          <Link 
-            href="/login" 
             className="text-xs font-black uppercase tracking-wider text-white bg-slate-900 dark:bg-white dark:text-slate-950 hover:bg-recollab-crimson dark:hover:bg-recollab-gold dark:hover:text-black px-5 py-2.5 rounded-xl shadow-sm hover:shadow active:scale-95 transition-all duration-200"
           >
-            Launch MVP
+            Access Portal
           </Link>
         </div>
       </header>
@@ -233,7 +226,7 @@ export default function LandingPage() {
                 Modern academic breakthroughs occur at the boundaries of disciplines. Computational intelligence intersects biotechnology; optical semiconductor components power high-speed neural network decoders.
               </p>
               <p className="text-slate-500 dark:text-slate-400 text-xs sm:text-sm leading-relaxed">
-                <strong>ReCollab</strong> acts as the central digital synapse, indexing academic interests, providing a collaborative sandbox, and allowing scholars to easily identify grant co-authors across departments in clicks.
+                <strong>ReCollab</strong> acts as the central digital synapse, indexing academic interests, providing a secure collaboration space, and allowing scholars to easily identify grant co-authors across departments in clicks.
               </p>
               
               <div className="grid grid-cols-2 gap-4 pt-2">
@@ -380,20 +373,26 @@ export default function LandingPage() {
               </div>
             </motion.div>
 
-            {/* Roster Sandbox card preview */}
+            {/* Verified Intranet Gateway */}
             <div className="glass-card rounded-2xl p-5 border border-slate-200 dark:border-slate-800 text-left bg-white dark:bg-slate-900/10 shadow-lg space-y-4">
-              <span className="text-[9px] font-black text-recollab-gold uppercase tracking-wider block">🛡️ Sandbox Role Switch Demo</span>
+              <span className="text-[9px] font-black text-recollab-gold uppercase tracking-wider block">🛡️ Verified Intranet Gateway</span>
               <p className="text-slate-500 dark:text-slate-400 text-[11px] leading-relaxed">
-                Test the platform under either role inside the dashboard sidebar simulator. Feel the exact custom filters, opportunities restriction alerts, and tailored dashboards immediate response.
+                ReCollab maintains dynamic data encryption and secure role boundaries. Access is strictly mapped to active university faculty rosters and PhD candidate research listings.
               </p>
               
-              <div className="pt-2 border-t border-slate-100 dark:border-slate-800 flex justify-between gap-3">
-                <Link href="/login" className="flex-1 py-2 px-3 rounded-lg bg-slate-900 text-white dark:bg-white dark:text-slate-950 text-center font-bold text-[10px] uppercase shadow-sm">
-                  Test as Faculty PI
-                </Link>
-                <Link href="/login" className="flex-1 py-2 px-3 rounded-lg border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-350 text-center font-bold text-[10px] uppercase">
-                  Test as PhD Scholar
-                </Link>
+              <div className="pt-2 border-t border-slate-100 dark:border-slate-800 space-y-2">
+                <div className="flex justify-between items-center text-[10px] text-slate-550 dark:text-slate-400 font-semibold">
+                  <span>Domain Restrictions</span>
+                  <span className="font-bold text-slate-700 dark:text-slate-250">@srmist.edu.in ONLY</span>
+                </div>
+                <div className="flex justify-between items-center text-[10px] text-slate-550 dark:text-slate-400 font-semibold">
+                  <span>Authorized Personnel</span>
+                  <span className="font-bold text-recollab-crimson dark:text-recollab-gold">Faculty & PhD Scholars</span>
+                </div>
+                <div className="flex justify-between items-center text-[10px] text-slate-550 dark:text-slate-400 font-semibold">
+                  <span>Student Accounts</span>
+                  <span className="font-bold text-red-650 dark:text-red-400">Strictly Restricted</span>
+                </div>
               </div>
             </div>
           </div>

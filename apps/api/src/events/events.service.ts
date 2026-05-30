@@ -10,85 +10,58 @@ export class EventsService {
   async getEvents() {
     try {
       return await this.prisma.event.findMany({
+        where: { approvalStatus: 'PUBLISHED' },
         orderBy: { date: 'asc' }
       });
     } catch (e: any) {
       this.logger.warn('Failed to query database events. Returning fallback mock data.');
-      // Return beautiful mock data if database is disconnected
-      return [
-        {
-          id: 'mock-e1',
-          event: 'PhD Viva Defense: GPGPU Virtualization & LLM Tuning',
-          date: new Date().toISOString().split('T')[0],
-          time: '10:00 AM',
-          venue: 'ECE Seminar Hall (PG Block)'
-        },
-        {
-          id: 'mock-e2',
-          event: 'Seminar: DNA-functionalized Silicon Photonics Ring Resonators',
-          date: new Date(Date.now() + 86400000).toISOString().split('T')[0],
-          time: '02:30 PM',
-          venue: 'Biotech Conference Room'
-        },
-        {
-          id: 'mock-e3',
-          event: 'Workshop: DST-SERB Proposal Drafting & Grant Compliance',
-          date: new Date(Date.now() + 172800000).toISOString().split('T')[0],
-          time: '11:15 AM',
-          venue: 'Main Auditorium (Administrative Block)'
-        }
-      ];
+      return [];
     }
   }
 
-  async createEvent(input: { event: string; date: string; time: string; venue: string }) {
-    const { event, date, time, venue } = input;
-    if (!event || !date || !time || !venue) {
+  async getAiLogs() {
+    return await this.prisma.aIProcessingLog.findMany({
+      take: 20,
+      orderBy: { createdAt: 'desc' }
+    });
+  }
+
+  async createEvent(input: { title: string; date: string; time: string; venue: string; description?: string }) {
+    const { title, date, time, venue, description } = input;
+    if (!title || !date || !time || !venue) {
       throw new BadRequestException('Event details are incomplete.');
     }
 
     try {
       return await this.prisma.event.create({
-        data: { event, date, time, venue }
+        data: { 
+          title, 
+          date: new Date(date), 
+          time, 
+          venue, 
+          description,
+          createdByAi: false 
+        }
       });
     } catch (e) {
-      // Mock Fallback return for disconnected dev preview
-      return {
-        id: `mock-e-${Date.now()}`,
-        event,
-        date,
-        time,
-        venue
-      };
+      this.logger.error('Failed to create event', e);
+      throw new BadRequestException('Could not create event');
     }
   }
 
-  async updateEvent(input: { id: string; event: string; date: string; time: string; venue: string }) {
-    const { id, event, date, time, venue } = input;
+  async updateEvent(input: { id: string; title: string; date: string; time: string; venue: string }) {
+    const { id, title, date, time, venue } = input;
     if (!id) {
       throw new BadRequestException('Event identifier is required.');
     }
 
     try {
-      // Verify exists
-      const exists = await this.prisma.event.findUnique({ where: { id } });
-      if (!exists) {
-        throw new NotFoundException('Event not found.');
-      }
-
       return await this.prisma.event.update({
         where: { id },
-        data: { event, date, time, venue }
+        data: { title, date: new Date(date), time, venue }
       });
     } catch (e) {
-      // Mock Fallback return for disconnected dev preview
-      return {
-        id,
-        event,
-        date,
-        time,
-        venue
-      };
+      throw new NotFoundException('Event not found.');
     }
   }
 
@@ -98,23 +71,11 @@ export class EventsService {
     }
 
     try {
-      const exists = await this.prisma.event.findUnique({ where: { id } });
-      if (!exists) {
-        throw new NotFoundException('Event not found.');
-      }
-
       return await this.prisma.event.delete({
         where: { id }
       });
     } catch (e) {
-      // Mock Fallback return for disconnected dev preview
-      return {
-        id,
-        event: 'Deleted Event',
-        date: '',
-        time: '',
-        venue: ''
-      };
+      throw new NotFoundException('Event not found.');
     }
   }
 }

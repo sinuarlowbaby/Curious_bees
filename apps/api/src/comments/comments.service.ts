@@ -2,10 +2,14 @@ import { Injectable, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateCommentInput } from '@srm-recollab/types';
 import { CreateCommentSchema } from '@srm-recollab/shared-utils';
+import { NotificationsService } from '../notifications/notifications.service';
 
 @Injectable()
 export class CommentsService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private notifications: NotificationsService
+  ) {}
 
   async createComment(authorId: string, input: CreateCommentInput) {
     const parsed = CreateCommentSchema.safeParse(input);
@@ -23,7 +27,7 @@ export class CommentsService {
       throw new BadRequestException('The thread does not exist.');
     }
 
-    return this.prisma.comment.create({
+    const newComment = await this.prisma.comment.create({
       data: {
         content,
         threadId,
@@ -42,5 +46,18 @@ export class CommentsService {
         }
       }
     });
+
+    // Securely dispatch FCM Push Alert to the thread author asynchronously
+    if (threadExists.authorId !== authorId) {
+      const replierName = newComment.author?.name || 'A research colleague';
+      const bodySnippet = content.substring(0, 60) + (content.length > 60 ? '...' : '');
+      this.notifications.sendPushToUser(threadExists.authorId, {
+        title: 'New Discussion Reply! 💬',
+        body: `${replierName} commented: "${bodySnippet}"`,
+        url: `/threads/${threadId}`
+      }).catch(e => console.error('FCM Dispatch Failed:', e));
+    }
+
+    return newComment;
   }
 }

@@ -1,10 +1,10 @@
 import { Controller, Get, Post, Body, Query, Param, UseGuards, Req } from '@nestjs/common';
-import { AuthGuard } from '../auth/auth.guard';
+import { FirebaseAuthGuard } from '../auth/firebase.guard';
 import { ThreadsService } from './threads.service';
 import { CreateThreadInput } from '@srm-recollab/types';
 
 @Controller('threads')
-@UseGuards(AuthGuard)
+@UseGuards(FirebaseAuthGuard)
 export class ThreadsController {
   constructor(private readonly threadsService: ThreadsService) {}
 

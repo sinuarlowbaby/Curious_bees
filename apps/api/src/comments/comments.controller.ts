@@ -1,10 +1,10 @@
 import { Controller, Post, Body, UseGuards, Req } from '@nestjs/common';
-import { AuthGuard } from '../auth/auth.guard';
+import { FirebaseAuthGuard } from '../auth/firebase.guard';
 import { CommentsService } from './comments.service';
 import { CreateCommentInput } from '@srm-recollab/types';
 
 @Controller('comments')
-@UseGuards(AuthGuard)
+@UseGuards(FirebaseAuthGuard)
 export class CommentsController {
   constructor(private readonly commentsService: CommentsService) {}
 

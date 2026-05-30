@@ -20,15 +20,22 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
+import { useEffect } from 'react';
+
 export default function ResearchersDiscoveryPage() {
-  const { allUsers, currentUser } = useStore();
+  const { collaborators, currentUser, fetchCollaborators } = useStore();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedDept, setSelectedDept] = useState('');
   const [selectedInterest, setSelectedInterest] = useState('');
   const [invitee, setInvitee] = useState<any | null>(null);
 
-  // Pick all users except the current logged-in user
-  const researchers = Object.values(allUsers).filter((u: any) => u.email !== currentUser?.email);
+  // Query live collaborators directory dynamically from database on search / dept filter changes
+  useEffect(() => {
+    fetchCollaborators(searchQuery, selectedDept);
+  }, [searchQuery, selectedDept, fetchCollaborators]);
+
+  // Pick all query results except current user
+  const researchers = collaborators.filter((u: any) => u.email !== currentUser?.email);
 
   // Extract all unique research focus areas from all users to populate filter suggestions
   const allUniqueInterests = Array.from(

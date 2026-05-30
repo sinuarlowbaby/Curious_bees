@@ -19,9 +19,17 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
+import { format } from 'date-fns';
+import { useEffect } from 'react';
 
 export default function DashboardPage() {
-  const { currentUser, threads, opportunities, roleOverride, allUsers, events } = useStore();
+  const { currentUser, threads, opportunities, roleOverride, collaborators, events, fetchCollaborators, fetchData } = useStore();
+
+  // Fetch live threads, opportunities, and collaborators on mount
+  useEffect(() => {
+    fetchData();
+    fetchCollaborators();
+  }, [fetchData, fetchCollaborators]);
 
   // Pick suitable greeting based on local time
   const getGreeting = () => {
@@ -30,9 +38,6 @@ export default function DashboardPage() {
     if (hrs < 17) return 'Good afternoon';
     return 'Good evening';
   };
-
-  // Get recommended collaborators (Filter current logged user out)
-  const collaborators = Object.values(allUsers).filter(u => u.email !== currentUser?.email);
 
   const stats = [
     { name: 'Active Opportunities', value: opportunities.length, icon: Briefcase, color: 'text-amber-500 bg-amber-500/10 dark:text-amber-400 dark:bg-amber-950/20' },
@@ -228,13 +233,13 @@ export default function DashboardPage() {
                   className="p-4 bg-white dark:bg-slate-900/15 border border-slate-200 dark:border-slate-800 rounded-2xl flex flex-col space-y-2 text-left"
                 >
                   <div className="flex justify-between items-start gap-2">
-                    <h4 className="text-xs font-bold text-slate-800 dark:text-white leading-tight line-clamp-1">{ev.event}</h4>
+                    <h4 className="text-xs font-bold text-slate-800 dark:text-white leading-tight line-clamp-1">{ev.title}</h4>
                     <span className="text-[8px] font-black uppercase bg-slate-100 dark:bg-slate-950 px-2 py-0.5 rounded text-slate-550 dark:text-slate-450 shrink-0">Campus viva</span>
                   </div>
                   <div className="space-y-1 text-[10px] text-slate-500 dark:text-slate-400 font-semibold">
                     <div className="flex items-center">
                       <Clock className="w-3 h-3 mr-1 text-slate-400 shrink-0" />
-                      <span>{ev.date} at {ev.time}</span>
+                      <span>{format(new Date(ev.date), 'MMM dd, yyyy')} at {ev.time}</span>
                     </div>
                     <div className="flex items-center">
                       <MapPin className="w-3 h-3 mr-1 text-slate-400 shrink-0" />

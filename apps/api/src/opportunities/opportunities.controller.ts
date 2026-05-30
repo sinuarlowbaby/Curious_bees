@@ -1,10 +1,10 @@
 import { Controller, Get, Post, Body, Query, UseGuards, Req } from '@nestjs/common';
-import { AuthGuard } from '../auth/auth.guard';
+import { FirebaseAuthGuard } from '../auth/firebase.guard';
 import { OpportunitiesService } from './opportunities.service';
 import { CreateOpportunityInput } from '@srm-recollab/types';
 
 @Controller('opportunities')
-@UseGuards(AuthGuard)
+@UseGuards(FirebaseAuthGuard)
 export class OpportunitiesController {
   constructor(private readonly opportunitiesService: OpportunitiesService) {}
 

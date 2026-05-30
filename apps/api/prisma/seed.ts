@@ -236,28 +236,31 @@ The project involves designing multi-agent reinforcement learning (MARL) algorit
 
   await prisma.event.create({
     data: {
-      event: 'PhD Viva Defense: GPGPU Virtualization & LLM Tuning',
-      date: today,
+      title: 'PhD Viva Defense: GPGPU Virtualization & LLM Tuning',
+      date: new Date(today),
       time: '10:00 AM',
-      venue: 'ECE Seminar Hall (PG Block)'
+      venue: 'ECE Seminar Hall (PG Block)',
+      approvalStatus: 'PUBLISHED'
     }
   });
 
   await prisma.event.create({
     data: {
-      event: 'Seminar: DNA-functionalized Silicon Photonics Ring Resonators',
-      date: tomorrow,
+      title: 'Seminar: DNA-functionalized Silicon Photonics Ring Resonators',
+      date: new Date(tomorrow),
       time: '02:30 PM',
-      venue: 'Biotech Conference Room'
+      venue: 'Biotech Conference Room',
+      approvalStatus: 'PUBLISHED'
     }
   });
 
   await prisma.event.create({
     data: {
-      event: 'Workshop: DST-SERB Proposal Drafting & Grant Compliance',
-      date: dayAfter,
+      title: 'Workshop: DST-SERB Proposal Drafting & Grant Compliance',
+      date: new Date(dayAfter),
       time: '11:15 AM',
-      venue: 'Main Auditorium (Administrative Block)'
+      venue: 'Main Auditorium (Administrative Block)',
+      approvalStatus: 'PUBLISHED'
     }
   });
 

@@ -32,6 +32,8 @@ model User {
   threads       Thread[]
   comments      Comment[]
   opportunities Opportunity[]
+  deviceTokens  DeviceToken[]
+  notifications Notification[]
 }
 
 // NextAuth v5 standard tables
@@ -127,12 +129,91 @@ model Opportunity {
   updatedAt      DateTime @updatedAt
 }
 
-model Event {
-  id        String   @id @default(cuid())
-  event     String
-  date      String
-  time      String
-  venue     String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+enum ApprovalStatus {
+  PENDING
+  PUBLISHED
+  REJECTED
+  NEEDS_INFO
 }
+
+enum ProcessingStatus {
+  PENDING
+  FILTERED
+  QUEUED
+  PROCESSING
+  AI_PROCESSING
+  EXTRACTED
+  IGNORED
+  FAILED
+  SUCCESS
+}
+
+model Event {
+  id                String         @id @default(cuid())
+  title             String
+  description       String?        @db.Text
+  department        String?
+  venue             String
+  date              DateTime
+  time              String
+  category          String?
+  organizerEmail    String?
+  posterUrl         String?
+  registrationLink  String?
+  createdByAi       Boolean        @default(true)
+  approvalStatus    ApprovalStatus @default(PUBLISHED)
+  tags              String[]
+
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime       @updatedAt
+
+  notifications     Notification[]
+}
+
+model Notification {
+  id            String   @id @default(cuid())
+  userId        String
+  eventId       String?
+  title         String
+  body          String
+  sentStatus    Boolean  @default(false)
+  openedStatus  Boolean  @default(false)
+  
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  event         Event?   @relation(fields: [eventId], references: [id], onDelete: SetNull)
+
+  createdAt     DateTime @default(now())
+}
+
+model AIProcessingLog {
+  id               String           @id @default(cuid())
+  senderEmail      String
+  subject          String
+  rawEmailBody     String           @db.Text
+  extractedJson    Json?
+  confidenceScore  Float?
+  status           ProcessingStatus @default(PENDING)
+  errorReason      String?          @db.Text
+  retryCount       Int              @default(0)
+
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+}
+
+model DeviceToken {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+}
+
+model GmailCredentials {
+  id           String   @id @default("singleton")
+  accessToken  String   @db.Text
+  refreshToken String   @db.Text
+  expiresAt    DateTime
+  updatedAt    DateTime @updatedAt
+}
+
+

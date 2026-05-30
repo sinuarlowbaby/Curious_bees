@@ -10,6 +10,12 @@ if (!fs.existsSync(envPath)) {
 if (!fs.existsSync(envPath)) {
   envPath = path.join(process.cwd(), '../..', '.env');
 }
+if (!fs.existsSync(envPath)) {
+  envPath = path.join(process.cwd(), '../web/.env');
+}
+if (!fs.existsSync(envPath)) {
+  envPath = path.join(process.cwd(), '../../apps/web/.env');
+}
 dotenv.config({ path: envPath });
 
 import { NestFactory } from '@nestjs/core';

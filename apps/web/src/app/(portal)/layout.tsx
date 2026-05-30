@@ -22,12 +22,24 @@ export default function PortalLayout({
     }
   }, [setTheme]);
 
-  // Client-side authentication guard simulation:
+  // Client-side authentication guard:
   useEffect(() => {
     if (!currentUser) {
       router.push('/login');
     } else {
-      fetchData(); // Trigger initial simulated API fetch
+      fetchData(); // Trigger initial live API fetch
+      
+      // Register device for FCM Push Notifications (dynamically loaded to bypass SSR constraints)
+      import('@/lib/fcm').then(async ({ requestFcmToken, sendTokenToBackend }) => {
+        try {
+          const token = await requestFcmToken();
+          if (token) {
+            await sendTokenToBackend(token);
+          }
+        } catch (err) {
+          console.error('FCM Registration hook failed:', err);
+        }
+      });
     }
   }, [currentUser, router, fetchData]);
  

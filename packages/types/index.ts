@@ -88,11 +88,20 @@ export interface UpdateProfileInput {
 
 export interface Event {
   id: string;
-  event: string;
+  title: string;
+  description?: string;
+  department?: string;
+  venue: string;
   date: string;
   time: string;
-  venue: string;
-  createdAt?: Date | string;
+  category?: string;
+  organizerEmail?: string;
+  posterUrl?: string;
+  registrationLink?: string;
+  createdByAi?: boolean;
+  approvalStatus?: 'PENDING' | 'PUBLISHED' | 'REJECTED' | 'NEEDS_INFO';
+  tags?: string[];
+  createdAt?: string;
 }
 
 export interface CreateEventInput {

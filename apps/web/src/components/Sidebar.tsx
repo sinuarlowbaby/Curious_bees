@@ -25,7 +25,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 export default function Sidebar() {
   const pathname = usePathname();
-  const { currentUser, roleOverride, toggleRoleOverride, setMobileSidebar, showMobileSidebar } = useStore();
+  const { currentUser, roleOverride, setMobileSidebar, showMobileSidebar, logout } = useStore();
   const [showMobileMore, setShowMobileMore] = useState(false);
 
   const menuItems = [
@@ -33,7 +33,7 @@ export default function Sidebar() {
     { name: 'Research Feed', href: '/threads', icon: MessageSquare },
     { name: 'Researchers', href: '/researchers', icon: Users },
     { name: 'Opportunities', href: '/opportunities', icon: Briefcase },
-    { name: 'Events Hub', href: '/events', icon: CalendarIcon },
+    { name: 'Events', href: '/events', icon: CalendarIcon },
   ];
 
   const moreItems = [
@@ -152,27 +152,14 @@ export default function Sidebar() {
 
         {/* Footer controls & Developer Mode Switcher */}
         <div className="p-4 border-t border-slate-100 dark:border-slate-850 space-y-3">
-          {/* Developer Sandbox Card */}
-          <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-900/40 border border-slate-100 dark:border-slate-850">
-            <div className="flex items-center space-x-1.5 text-[9px] font-black text-slate-400 dark:text-slate-500 tracking-wider mb-2 uppercase">
-              <ShieldAlert className="w-3 h-3 text-recollab-crimson dark:text-recollab-gold animate-pulse shrink-0" />
-              <span>Developer Sandbox</span>
-            </div>
-            <button 
-              onClick={toggleRoleOverride}
-              className="w-full text-center py-2 px-2.5 rounded-lg text-[10px] font-black uppercase tracking-wider bg-slate-900 dark:bg-slate-800 text-white hover:bg-recollab-crimson dark:hover:bg-recollab-gold hover:text-white transition-all duration-200 shadow-sm active:scale-[0.98] cursor-pointer"
-            >
-              Toggle to {roleOverride === 'FACULTY' ? 'PhD Scholar' : 'Faculty'}
-            </button>
-          </div>
 
-          <Link 
-            href="/" 
-            className="flex items-center space-x-3 px-3 py-2 rounded-xl text-xs font-semibold text-slate-500 dark:text-slate-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/15 transition-all"
+          <button 
+            onClick={() => logout()}
+            className="w-full flex items-center space-x-3 px-3 py-2 rounded-xl text-xs font-semibold text-slate-500 dark:text-slate-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/15 transition-all cursor-pointer text-left"
           >
             <LogOut className="w-4 h-4 shrink-0" />
             <span>Exit Platform</span>
-          </Link>
+          </button>
         </div>
       </aside>
 
@@ -251,7 +238,7 @@ export default function Sidebar() {
                   className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-900/35 border border-slate-100 dark:border-slate-850 flex flex-col items-center space-y-2 text-center"
                 >
                   <CalendarIcon className="w-6 h-6 text-recollab-gold" />
-                  <span className="text-xs font-bold text-slate-700 dark:text-slate-350">Events Hub</span>
+                  <span className="text-xs font-bold text-slate-700 dark:text-slate-350">Events</span>
                 </Link>
 
                 <Link
@@ -264,33 +251,19 @@ export default function Sidebar() {
                 </Link>
               </div>
 
-              {/* Dev Controls inside Mobile Drawer */}
-              <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-900/40 border border-slate-100 dark:border-slate-850 space-y-3">
-                <div className="flex items-center space-x-2 text-[10px] font-black text-slate-450 dark:text-slate-500 uppercase tracking-widest">
-                  <ShieldAlert className="w-3.5 h-3.5 text-recollab-gold animate-pulse shrink-0" />
-                  <span>Sandbox Environment Settings</span>
-                </div>
-                <button
-                  onClick={() => {
-                    toggleRoleOverride();
-                    setShowMobileMore(false);
-                  }}
-                  className="w-full text-center py-2.5 px-4 rounded-xl text-xs font-black uppercase tracking-wider bg-slate-900 dark:bg-slate-800 text-white shadow hover:opacity-90 active:scale-[0.98] transition cursor-pointer"
-                >
-                  Switch Role Override
-                </button>
-              </div>
 
               {/* Exit */}
               <div className="border-t border-slate-100 dark:border-slate-800 pt-4 flex flex-col">
-                <Link
-                  href="/"
-                  onClick={() => setShowMobileMore(false)}
-                  className="w-full flex items-center justify-center space-x-2 py-3 rounded-xl border border-red-200 dark:border-red-900/30 text-xs font-bold text-red-650 dark:text-red-400 bg-red-50/20 dark:bg-red-950/10 hover:bg-red-50 dark:hover:bg-red-950/25 transition"
+                <button
+                  onClick={() => {
+                    logout();
+                    setShowMobileMore(false);
+                  }}
+                  className="w-full flex items-center justify-center space-x-2 py-3 rounded-xl border border-red-200 dark:border-red-900/30 text-xs font-bold text-red-650 dark:text-red-400 bg-red-50/20 dark:bg-red-950/10 hover:bg-red-50 dark:hover:bg-red-950/25 transition cursor-pointer"
                 >
                   <LogOut className="w-4 h-4" />
                   <span>Logout and Exit Portal</span>
-                </Link>
+                </button>
               </div>
             </motion.div>
           </>
