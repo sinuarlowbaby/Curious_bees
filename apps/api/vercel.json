@@ -1,5 +1,7 @@
 {
-  "version": 2,
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "installCommand": "cd ../.. && npm install",
+  "buildCommand": "cd ../.. && npm run vercel-build --workspace=apps/api",
   "builds": [
     {
       "src": "dist/src/main.js",
