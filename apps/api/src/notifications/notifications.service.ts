@@ -1,12 +1,25 @@
 import { Injectable, Logger, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { Queue } from 'bullmq';
+import { InjectQueue } from '@nestjs/bullmq';
+import { Event as PrismaEvent } from '@prisma/client';
 import * as admin from 'firebase-admin';
+
+export interface NotificationJobData {
+  eventId: string;
+  userIds: string[];
+  title: string;
+  body: string;
+}
 
 @Injectable()
 export class NotificationsService {
   private readonly logger = new Logger(NotificationsService.name);
 
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    @InjectQueue('event-notifications') private notificationQueue: Queue
+  ) {}
 
   /**
    * Registers a unique FCM token to a User
@@ -17,7 +30,6 @@ export class NotificationsService {
     }
 
     try {
-      // Upsert: Save or update the active device token to the database
       return await this.prisma.deviceToken.upsert({
         where: { token },
         update: { userId },
@@ -30,100 +42,124 @@ export class NotificationsService {
   }
 
   /**
-   * Dispatches a push notification to all active devices of a target User
+   * Fetch User Preferences
+   */
+  async getPreferences(userId: string) {
+    return await this.prisma.userPreference.upsert({
+      where: { userId },
+      update: {},
+      create: { userId }
+    });
+  }
+
+  /**
+   * Update User Preferences
+   */
+  async updatePreferences(userId: string, data: any) {
+    return await this.prisma.userPreference.upsert({
+      where: { userId },
+      update: data,
+      create: { userId, ...data }
+    });
+  }
+
+  /**
+   * Dispatches a push notification directly to a user's registered devices.
+   * Used for low-volume, targeted pushes (e.g. comment alerts).
    */
   async sendPushToUser(userId: string, payload: { title: string; body: string; url?: string }) {
     try {
-      // 1. Fetch all registered device tokens for the user
-      const devices = await this.prisma.deviceToken.findMany({
-        where: { userId }
-      });
-
+      const devices = await this.prisma.deviceToken.findMany({ where: { userId } });
       if (devices.length === 0) {
-        this.logger.log(`ℹ️ User ${userId} has 0 registered device tokens. Skipping push.`);
+        this.logger.log(`User ${userId} has no registered devices. Skipping push.`);
         return;
       }
-
       const tokens = devices.map(d => d.token);
-
-      // 2. Build multi-cast notification payload
-      const message: admin.messaging.MulticastMessage = {
+      const message: any = {
         tokens,
-        notification: {
-          title: payload.title,
-          body: payload.body,
-        },
-        data: {
-          ...(payload.url && { url: payload.url })
-        },
-        webpush: {
-          notification: {
-            icon: '/logo.png', // Main assets icon
-            click_action: payload.url || '/',
-          }
-        }
+        notification: { title: payload.title, body: payload.body },
+        data: payload.url ? { url: payload.url } : {},
+        webpush: { notification: { icon: '/logo.png', click_action: payload.url || '/' } }
       };
-
-      // 3. Dispatch to Firebase cloud gateway
       const response = await admin.messaging().sendEachForMulticast(message);
-      
-      this.logger.log(`🎉 Push dispatched: ${response.successCount} succeeded, ${response.failureCount} failed.`);
-      
-      // Cleanup broken/expired tokens from database
-      if (response.failureCount > 0) {
-        const tokensToRemove: string[] = [];
-        response.responses.forEach((res, idx) => {
-          if (!res.success && res.error) {
-            const code = res.error.code;
-            if (
-              code === 'messaging/invalid-registration-token' ||
-              code === 'messaging/registration-token-not-registered'
-            ) {
-              tokensToRemove.push(tokens[idx]);
-            }
+      this.logger.log(`Direct push: ${response.successCount} succeeded, ${response.failureCount} failed.`);
+      // Cleanup expired tokens
+      const expiredTokens: string[] = [];
+      response.responses.forEach((res: any, idx: number) => {
+        if (!res.success && res.error) {
+          const code = res.error.code;
+          if (code === 'messaging/invalid-registration-token' || code === 'messaging/registration-token-not-registered') {
+            expiredTokens.push(tokens[idx]);
           }
-        });
-
-        if (tokensToRemove.length > 0) {
-          await this.prisma.deviceToken.deleteMany({
-            where: { token: { in: tokensToRemove } }
-          });
-          this.logger.log(`🧹 Cleaned up ${tokensToRemove.length} expired FCM registration tokens.`);
         }
+      });
+      if (expiredTokens.length > 0) {
+        await this.prisma.deviceToken.deleteMany({ where: { token: { in: expiredTokens } } });
       }
     } catch (e: any) {
-      this.logger.error(`❌ Failed to execute multi-cast FCM dispatch: ${e.message}`);
+      this.logger.error(`sendPushToUser failed: ${e.message}`);
     }
   }
 
   /**
-   * Broadcasts a new event to a list of matched users and saves to the Notification table
+   * The Smart Routing Engine: Determines who should receive a notification for an event,
+   * then pushes the job to BullMQ for async delivery.
    */
-  async sendEventNotifications(users: { id: string }[], event: any) {
-    if (users.length === 0) return;
-    
-    this.logger.log(`Dispatching AI event notifications to ${users.length} matched users.`);
-    const payload = {
-      title: '📅 New Event Recommendation!',
-      body: `AI suggested an event for you: ${event.title} at ${event.venue}`,
-      url: `/events`
-    };
+  async routeEvent(event: PrismaEvent) {
+    this.logger.log(`Routing newly published event: ${event.title}`);
 
-    // 1. Send FCM push to all users concurrently
-    await Promise.all(users.map(user => this.sendPushToUser(user.id, payload)));
+    // Fetch all users with their preferences
+    const preferences = await this.prisma.userPreference.findMany({
+      where: { notificationsEnabled: true },
+      include: { user: true }
+    });
 
-    // 2. Save notifications to the database for analytics and in-app display
-    const notificationData = users.map(user => ({
-      userId: user.id,
+    // Match users
+    const matchedUserIds = new Set<string>();
+
+    for (const pref of preferences) {
+      // 1. Department match
+      const departmentMatch = pref.department === event.department;
+      
+      // 2. Tag match (if event shares any tags with user preferences)
+      const tagMatch = event.tags.some(tag => pref.tags.includes(tag));
+      
+      // 3. Event Type match
+      const typeMatch = pref.eventType === event.eventType;
+
+      // 4. Default broad delivery for CRITICAL and HIGH priority events to their department
+      const priorityMatch = 
+        (event.priority === 'CRITICAL') || 
+        (event.priority === 'HIGH' && pref.user.department === event.department);
+
+      if (departmentMatch || tagMatch || typeMatch || priorityMatch) {
+        matchedUserIds.add(pref.userId);
+      }
+    }
+
+    const recipients = Array.from(matchedUserIds);
+    if (recipients.length === 0) {
+      this.logger.log(`No matching recipients found for event ${event.id}`);
+      return;
+    }
+
+    this.logger.log(`Smart routing engine matched ${recipients.length} users for event ${event.id}`);
+
+    // Create Notification Template
+    const title = `📅 New Event: ${event.eventType}`;
+    const body = `${event.title} is happening at ${event.venue} on ${new Date(event.date).toLocaleDateString()}`;
+
+    // Push to Queue for Async Delivery
+    await this.notificationQueue.add('send-event-push', {
       eventId: event.id,
-      title: payload.title,
-      body: payload.body,
-      sentStatus: true
-    }));
-
-    await this.prisma.notification.createMany({
-      data: notificationData,
-      skipDuplicates: true
+      userIds: recipients,
+      title,
+      body,
+    }, {
+      attempts: 3,
+      backoff: { type: 'exponential', delay: 2000 }, // Exponential backoff for network transient errors
+      removeOnComplete: true,
+      removeOnFail: false
     });
   }
 }

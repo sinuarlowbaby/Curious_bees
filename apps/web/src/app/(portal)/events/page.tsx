@@ -1,289 +1,308 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
-import dynamic from 'next/dynamic';
-import { useStore } from '@/store/useStore';
-import { 
-  School,
-  RefreshCw, 
-  Terminal,
-  Clock,
-  MapPin,
-  Bot,
-  Mail,
-  Zap,
-  TrendingUp,
-  AlertCircle
-} from 'lucide-react';
-import { format, formatDistanceToNow } from 'date-fns';
+import React, { useState, useEffect } from 'react';
+import { Bot, Mail, Sparkles, CheckCircle, AlertTriangle, Link2Off, Loader2 } from 'lucide-react';
+import { useQuery } from '@tanstack/react-query';
+import PipelineStats from '@/components/events/PipelineStats';
+import EventCalendar from '@/components/events/EventCalendar';
+import LiveEventFeed from '@/components/events/LiveEventFeed';
+import ReviewQueue from '@/components/events/ReviewQueue';
+import EventDetailModal from '@/components/events/EventDetailModal';
+import GlowButton from '@/components/GlowButton';
+import { auth } from '@/lib/firebase';
+import { Event } from '@srm-recollab/types';
 
-const CalendarView = dynamic(() => import('@/components/CalendarView'), {
-  ssr: false,
-  loading: () => <div className="animate-pulse bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl h-[450px] w-full flex items-center justify-center text-slate-400 dark:text-slate-500 font-bold text-xs uppercase tracking-wider">Loading Calendar...</div>,
-});
+// Extend local type
+type PrismaEvent = Event & {
+  status: 'DRAFT' | 'PUBLISHED' | 'REVIEW_REQUIRED' | 'FAILED';
+  confidence: number;
+  aiModel: string;
+  aiProvider: string;
+};
 
 export default function EventsPage() {
-  const { events, fetchEvents, aiLogs, fetchAiLogs, isLoading } = useStore();
-  const [triggeringMock, setTriggeringMock] = useState(false);
+  const [selectedEvent, setSelectedEvent] = useState<PrismaEvent | null>(null);
+  const [toastMessage, setToastMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  const [isSyncing, setIsSyncing] = useState(false);
 
+  // Fetch Gmail Connection Status
+  const { data: gmailStatus, isLoading: statusLoading, refetch: refetchGmailStatus } = useQuery({
+    queryKey: ['gmail-connection-status'],
+    queryFn: async () => {
+      const user = auth.currentUser;
+      let headers: any = {};
+      if (user) {
+        const token = await user.getIdToken();
+        headers['Authorization'] = `Bearer ${token}`;
+      } else {
+        const mockToken = localStorage.getItem('recollab-mock-token');
+        if (mockToken) headers['Authorization'] = `Bearer ${mockToken}`;
+      }
+      const res = await fetch('/api/events/gmail/status', { headers });
+      if (!res.ok) return { isLinked: false };
+      return res.json() as Promise<{ isLinked: boolean }>;
+    },
+  });
+
+  // Listen for callback query params to trigger toast
   useEffect(() => {
-    fetchEvents();
-    fetchAiLogs();
-    
-    // Poll for changes every 5 seconds for real-time automatic ingestion updates!
-    const interval = setInterval(() => {
-      fetchAiLogs();
-      fetchEvents();
-    }, 5000);
-    return () => clearInterval(interval);
-  }, [fetchEvents, fetchAiLogs]);
-
-  // Helper to map DB processing log to user-friendly status and details
-  const getStatusDetails = (log: any) => {
-    const status = log.status;
-    const reason = (log.errorReason || '').toLowerCase();
-    
-    if (status === 'SUCCESS') {
-      return {
-        label: 'Published',
-        color: 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20 dark:bg-emerald-500/20 dark:text-emerald-300',
-        badge: '✨ Ingested'
-      };
-    }
-    
-    if (status === 'FAILED') {
-      if (reason.includes('collision') || reason.includes('overlap') || reason.includes('conflict')) {
-        return {
-          label: 'Validation Failed',
-          color: 'bg-rose-500/10 text-rose-500 border-rose-500/20 dark:bg-rose-500/20 dark:text-rose-300',
-          badge: '⚠️ Conflict'
-        };
+    if (typeof window !== 'undefined') {
+      const searchParams = new URLSearchParams(window.location.search);
+      const linked = searchParams.get('gmail_linked');
+      if (linked === 'success') {
+        setToastMessage({
+          type: 'success',
+          text: 'Official SRM Gmail account connected successfully! Real-time email parsing is now active.',
+        });
+        // Clear parameters
+        window.history.replaceState({}, document.title, window.location.pathname);
+      } else if (linked === 'error') {
+        setToastMessage({
+          type: 'error',
+          text: 'Failed to link Gmail account. Please check your credentials or try again later.',
+        });
+        window.history.replaceState({}, document.title, window.location.pathname);
       }
-      if (reason.includes('duplicate') || reason.includes('already exists')) {
-        return {
-          label: 'Duplicate Event',
-          color: 'bg-purple-500/10 text-purple-500 border-purple-500/20 dark:bg-purple-500/20 dark:text-purple-300',
-          badge: '👥 Duplicate'
-        };
-      }
-      return {
-        label: 'Extraction Failed',
-        color: 'bg-red-500/10 text-red-500 border-red-500/20 dark:bg-red-500/20 dark:text-red-300',
-        badge: '❌ Error'
-      };
     }
+  }, []);
 
-    return {
-      label: 'Processing',
-      color: 'bg-amber-500/10 text-amber-500 border-amber-500/20 dark:bg-amber-500/20 dark:text-amber-300 animate-pulse',
-      badge: '🤖 AI Extracting'
-    };
-  };
-
-  // Trigger a mock email ingestion
+  // Mock manual trigger for Gmail Ingestion
   const handleTriggerMock = async () => {
-    setTriggeringMock(true);
     try {
-      const response = await fetch('/api/events/gmail/mock', {
+      const user = auth.currentUser;
+      let headers: any = { 'Content-Type': 'application/json' };
+      if (user) {
+        const token = await user.getIdToken();
+        headers['Authorization'] = `Bearer ${token}`;
+      } else {
+        const mockToken = localStorage.getItem('recollab-mock-token');
+        if (mockToken) headers['Authorization'] = `Bearer ${mockToken}`;
+      }
+
+      await fetch('/api/events/gmail/mock', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers,
         body: JSON.stringify({
-          sender: 'srm.dean.fsh@srmist.edu.in',
-          subject: 'AI & Quantum Symposium 2026 Announcement',
+          sender: 'r.matheshwaran.io@gmail.com',
+          subject: 'EVENT: AI & Quantum Symposium 2026 Announcement',
           body: 'Dear Colleagues, we are pleased to announce the AI & Quantum Symposium 2026 scheduled on June 18 at 10:30 AM in the TP Ganesan Auditorium. Organized by the FSH Computer Science Department. RSVP at the link shared. Thanks!'
         })
       });
-      if (response.ok) {
-        // Fetch logs and events immediately
-        await fetchAiLogs();
-        await fetchEvents();
+      
+      setToastMessage({
+        type: 'success',
+        text: 'Mock email simulated successfully! Processing via local Qwen pipeline.',
+      });
+    } catch (e) {
+      console.error('Failed to trigger mock ingestion:', e);
+    }
+  };
+
+  // Disconnect Google Ingestion
+  const handleDisconnectGmail = async () => {
+    try {
+      const user = auth.currentUser;
+      let headers: any = {};
+      if (user) {
+        const token = await user.getIdToken();
+        headers['Authorization'] = `Bearer ${token}`;
+      } else {
+        const mockToken = localStorage.getItem('recollab-mock-token');
+        if (mockToken) headers['Authorization'] = `Bearer ${mockToken}`;
+      }
+
+      const res = await fetch('/api/events/gmail/disconnect', {
+        method: 'DELETE',
+        headers,
+      });
+
+      if (res.ok) {
+        refetchGmailStatus();
+        setToastMessage({
+          type: 'success',
+          text: 'Gmail integration disconnected successfully.',
+        });
       }
     } catch (e) {
-      console.error(e);
+      console.error('Failed to disconnect Gmail:', e);
+    }
+  };
+
+  // Triggers real email syncing
+  const handleSyncGmail = async () => {
+    setIsSyncing(true);
+    try {
+      const user = auth.currentUser;
+      let headers: any = {};
+      if (user) {
+        const token = await user.getIdToken();
+        headers['Authorization'] = `Bearer ${token}`;
+      } else {
+        const mockToken = localStorage.getItem('recollab-mock-token');
+        if (mockToken) headers['Authorization'] = `Bearer ${mockToken}`;
+      }
+
+      const res = await fetch('/api/events/gmail/sync', {
+        method: 'POST',
+        headers,
+      });
+
+      if (res.ok) {
+        setToastMessage({
+          type: 'success',
+          text: 'Gmail mailbox polling triggered! Processing any new emails matching the safety filters.',
+        });
+      } else {
+        throw new Error('Sync failed');
+      }
+    } catch (e) {
+      console.error('Failed to sync Gmail:', e);
+      setToastMessage({
+        type: 'error',
+        text: 'Failed to poll inbox. Make sure you are authenticated.',
+      });
     } finally {
-      setTriggeringMock(false);
+      setIsSyncing(false);
     }
   };
 
   return (
-    <div className="space-y-8 relative selection:bg-recollab-gold selection:text-black text-left h-full flex flex-col pb-12">
+    <div className="space-y-6 relative select-none text-left flex flex-col pb-12">
       
-      {/* Header section */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6 border-b border-slate-100 dark:border-slate-850 pb-5">
-        <div>
-          <span className="text-[10px] font-black text-recollab-crimson dark:text-recollab-gold uppercase tracking-widest flex items-center gap-1.5">
-            <School className="w-4 h-4 text-recollab-crimson dark:text-recollab-gold" />
-            <span>ReCollab Academic Portal</span>
-          </span>
-          <h2 className="font-display font-extrabold text-xl sm:text-2xl text-slate-900 dark:text-white mt-1.5 flex items-center gap-2">
-            AI Automated Events
-            <span className="text-[10px] bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 px-2 py-1 rounded-md uppercase tracking-wider font-black ml-2 animate-pulse">Auto-Pilot Active</span>
-          </h2>
-          <p className="text-slate-500 dark:text-slate-400 text-xs mt-1 leading-relaxed max-w-2xl">
-            Manual creation is disabled. All events are continuously ingested by our AI parsing engine from emails sent to <strong>recollab@srmist.edu.in</strong> or authorized accounts.
-          </p>
+      {/* 🚀 Toast Notifications */}
+      {toastMessage && (
+        <div className={`border rounded-xl p-4 flex items-center justify-between gap-4 animate-fade-in ${
+          toastMessage.type === 'success' 
+            ? 'bg-emerald-50 border-emerald-200 text-emerald-800' 
+            : 'bg-rose-50 border-rose-200 text-rose-800'
+        }`}>
+          <div className="flex items-center gap-2">
+            <CheckCircle className={`w-5 h-5 shrink-0 ${toastMessage.type === 'success' ? 'text-emerald-600' : 'text-rose-600'}`} />
+            <span className="text-sm font-medium">{toastMessage.text}</span>
+          </div>
+          <button 
+            onClick={() => setToastMessage(null)}
+            className={`text-[11px] font-semibold uppercase tracking-wider ${
+              toastMessage.type === 'success' ? 'text-emerald-700 hover:text-emerald-950' : 'text-rose-700 hover:text-rose-950'
+            }`}
+          >
+            Dismiss
+          </button>
         </div>
+      )}
 
-        {/* Action controls */}
-        <div className="flex items-center space-x-2.5 shrink-0 self-start sm:self-center">
-          <a
-            href="/api/events/gmail/auth-url"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center space-x-1.5 px-3 py-2 bg-gradient-to-r from-amber-500/10 to-amber-600/5 hover:from-amber-500/20 hover:to-amber-600/10 border border-amber-500/30 text-amber-600 dark:text-amber-400 rounded-xl transition duration-200 text-xs font-black uppercase tracking-wider shadow-sm"
-          >
-            <Mail className="w-3.5 h-3.5" />
-            <span>Link Gmail Account</span>
-          </a>
-
-          <button
-            onClick={handleTriggerMock}
-            disabled={triggeringMock || isLoading}
-            className="flex items-center space-x-1.5 px-3 py-2 bg-slate-100 dark:bg-slate-900 hover:bg-slate-200 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-350 rounded-xl transition duration-200 text-xs font-bold shadow-sm"
-          >
-            <Zap className={`w-3.5 h-3.5 ${triggeringMock ? 'animate-bounce text-amber-500' : ''}`} />
-            <span>{triggeringMock ? 'Triggering...' : 'Trigger Mock Ingestion'}</span>
-          </button>
-
-          <button
-            onClick={() => { fetchEvents(true); fetchAiLogs(); }}
-            disabled={isLoading}
-            className="flex items-center space-x-1.5 px-3 py-2 bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 rounded-xl hover:text-slate-900 dark:hover:text-white transition duration-200 text-xs font-bold disabled:opacity-50 cursor-pointer shadow-sm"
-          >
-            <RefreshCw className={`w-3.5 h-3.5 ${isLoading ? 'animate-spin' : ''}`} />
-          </button>
+      {/* 🚀 Header section */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6 pb-2">
+        <div>
+          <span className="text-[10px] font-mono font-bold text-indigoElectric uppercase tracking-widest flex items-center gap-1.5">
+            <Bot className="w-4 h-4 text-indigoElectric" />
+            <span>AI Automation Engine</span>
+          </span>
+          <h2 className="font-display font-extrabold text-3xl text-black mt-2 flex items-center gap-3 tracking-tight">
+            Events
+            <span className="text-[9px] font-mono font-bold bg-tealGlow/10 text-tealGlow border border-tealGlow/20 px-2.5 py-1 rounded-md uppercase tracking-wider animate-pulse">Auto-Pilot Active</span>
+          </h2>
+          <p className="text-stone-600 text-sm mt-2 leading-relaxed max-w-2xl">
+            Real-time visualization of academic events ingested, structured, and published entirely by our local Small Language Model (SLM) pipeline.
+          </p>
         </div>
       </div>
 
-      {/* 1. Smart AI Calendar Section */}
-      <section className="space-y-3">
-        <div className="flex items-center justify-between border-l-4 border-recollab-crimson dark:border-recollab-gold pl-3">
-          <h3 className="font-display font-black text-sm uppercase tracking-widest text-slate-800 dark:text-slate-200">
-            1. Smart AI Calendar
-          </h3>
-          <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 px-2 py-0.5 rounded-md">
-            {events.length} Published Events
-          </span>
-        </div>
-        <CalendarView events={events} />
-      </section>
-
-      {/* 2. AI Processed Events List Section */}
-      <section className="space-y-4 pt-6">
-        <div className="flex items-center justify-between border-l-4 border-recollab-crimson dark:border-recollab-gold pl-3">
-          <div>
-            <h3 className="font-display font-black text-sm uppercase tracking-widest text-slate-800 dark:text-slate-200">
-              2. AI Processed Ingestion Stream
-            </h3>
-            <p className="text-[10px] text-slate-500 font-semibold mt-0.5">
-              Lifecycle of all email events received and processed by Gemini AI
-            </p>
+      {/* 🔌 Gmail Integration Hub Connection Card */}
+      <div className="w-full">
+        {statusLoading ? (
+          <div className="bg-white border border-borderStroke rounded-2xl p-6 flex items-center justify-center min-h-[92px]">
+            <Loader2 className="w-6 h-6 text-stone-400 animate-spin" />
           </div>
-          <span className="text-[10px] text-green-500 font-bold uppercase tracking-wider flex items-center gap-1.5">
-            <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-ping"></span>
-            Listening Continuously
-          </span>
-        </div>
-
-        {aiLogs.length === 0 ? (
-          <div className="border border-dashed border-slate-350 dark:border-slate-800 rounded-3xl py-16 flex flex-col items-center justify-center text-center text-slate-500 space-y-3">
-            <Bot className="w-10 h-10 opacity-30 text-recollab-gold" />
-            <div>
-              <p className="text-[11px] uppercase font-black tracking-widest text-slate-400 dark:text-slate-500">
-                No Ingested Emails Yet
-              </p>
-              <p className="text-[10px] text-slate-450 dark:text-slate-600 mt-1 max-w-sm">
-                Send an email with event details to r.matheshwaran.io@gmail.com or click "Trigger Mock Ingestion" to test.
-              </p>
+        ) : gmailStatus?.isLinked ? (
+          /* CONNECTED STATE */
+          <div className="bg-white border border-borderStroke rounded-2xl p-6 flex flex-col md:flex-row md:items-center justify-between gap-6">
+            <div className="flex items-center gap-4">
+              <div className="relative flex h-3.5 w-3.5 shrink-0">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-500 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-3.5 w-3.5 bg-emerald-505 bg-emerald-500"></span>
+              </div>
+              <div>
+                <h3 className="text-[16px] font-display font-bold text-black flex items-center gap-2">
+                  Gmail Campus Ingestion Hub
+                  <span className="text-[9px] font-mono font-bold bg-emerald-500/10 text-emerald-600 border border-emerald-500/20 px-2 py-0.5 rounded uppercase tracking-wider">Active</span>
+                </h3>
+                <p className="text-[13px] text-stone-500 mt-1">Polling campus inbox for new events matching safety whitelist rules.</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-3 shrink-0">
+              <GlowButton onClick={handleSyncGmail} disabled={isSyncing} variant="primary" size="sm" className="gap-2">
+                {isSyncing ? (
+                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                ) : (
+                  <Mail className="w-3.5 h-3.5 text-white" />
+                )}
+                <span>Sync Inbox</span>
+              </GlowButton>
+              <GlowButton onClick={handleTriggerMock} variant="secondary" size="sm" className="gap-2">
+                <Sparkles className="w-3.5 h-3.5 text-stone-700" />
+                <span>Simulate Ingestion</span>
+              </GlowButton>
+              <GlowButton onClick={handleDisconnectGmail} variant="secondary" size="sm" className="gap-2 text-rose-600 border-rose-200 hover:border-rose-500 hover:bg-rose-50/50">
+                <Link2Off className="w-3.5 h-3.5" />
+                <span>Disconnect</span>
+              </GlowButton>
             </div>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-            {aiLogs.map((log: any) => {
-              const statusDetails = getStatusDetails(log);
-              const data = log.extractedJson || {};
-              const confidence = log.confidenceScore || 
-                (log.status === 'SUCCESS' ? 96 : log.status === 'PROCESSING' ? 0 : 45);
-
-              return (
-                <div 
-                  key={log.id} 
-                  className="bg-white dark:bg-slate-900/15 border border-slate-200/80 dark:border-slate-850 p-5 rounded-2xl flex flex-col justify-between shadow-sm relative overflow-hidden transition hover:shadow-md hover:border-slate-300 dark:hover:border-slate-750"
-                >
-                  {/* Status and Confidence */}
-                  <div className="flex items-center justify-between mb-4">
-                    <span className={`text-[8px] font-black uppercase px-2.5 py-1 rounded-md border ${statusDetails.color}`}>
-                      {statusDetails.label}
-                    </span>
-                    
-                    {confidence > 0 && (
-                      <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest flex items-center gap-1">
-                        <TrendingUp className="w-3.5 h-3.5 text-emerald-500" />
-                        {confidence}% AI Confidence
-                      </span>
-                    )}
-                  </div>
-
-                  {/* Subject/Title */}
-                  <div className="mb-4">
-                    <h4 className="text-xs font-black text-slate-900 dark:text-white leading-snug line-clamp-1">
-                      {data.title || log.subject}
-                    </h4>
-                    <p className="text-[9px] text-slate-450 dark:text-slate-500 font-bold mt-1 truncate">
-                      📧 Sender: {log.senderEmail}
-                    </p>
-                  </div>
-
-                  {/* Event Details Grid (if successfully extracted/published) */}
-                  {log.status === 'SUCCESS' && (
-                    <div className="bg-slate-50 dark:bg-slate-950/60 p-3 rounded-xl border border-slate-100 dark:border-slate-900 space-y-2 mb-4">
-                      <div className="flex items-center space-x-2 text-[9px] text-slate-655 dark:text-slate-400 font-bold">
-                        <Clock className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-                        <span className="truncate">
-                          {data.date ? format(new Date(data.date), 'MMM dd, yyyy') : 'No Date'} | {data.time || 'No Time'}
-                        </span>
-                      </div>
-                      <div className="flex items-center space-x-2 text-[9px] text-slate-655 dark:text-slate-400 font-bold">
-                        <MapPin className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-                        <span className="truncate">{data.venue || 'No Venue Specified'}</span>
-                      </div>
-                      <div className="flex items-center justify-between pt-1 text-[8px] font-black uppercase tracking-wider text-slate-400">
-                        <span>🏷️ {data.category || 'Academic'}</span>
-                        <span className="text-amber-500 dark:text-recollab-gold">{data.department || 'SRMIST'}</span>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Failure / Validation details */}
-                  {log.status === 'FAILED' && log.errorReason && (
-                    <div className="bg-rose-500/[0.03] border border-rose-500/20 p-3 rounded-xl mb-4 flex gap-2">
-                      <AlertCircle className="w-4 h-4 text-rose-500 shrink-0 mt-0.5" />
-                      <div className="text-[9px] font-bold text-rose-600 dark:text-rose-400 leading-normal">
-                        <span className="uppercase block text-[8px] font-black text-rose-500">Validation Error:</span>
-                        {log.errorReason}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Processing Status placeholder */}
-                  {log.status === 'PROCESSING' && (
-                    <div className="py-6 flex flex-col items-center justify-center text-slate-400 space-y-2 mb-4 border border-dashed border-slate-200 dark:border-slate-800 rounded-xl">
-                      <Bot className="w-6 h-6 animate-bounce text-amber-500" />
-                      <span className="text-[8px] font-black uppercase tracking-widest text-amber-500">Gemini LLM Extraction...</span>
-                    </div>
-                  )}
-
-                  {/* Timestamp footer */}
-                  <div className="border-t border-slate-100 dark:border-slate-900 pt-3 flex items-center justify-between text-[8px] text-slate-400 font-bold">
-                    <span>Received Inbound</span>
-                    <span>{formatDistanceToNow(new Date(log.createdAt), { addSuffix: true })}</span>
-                  </div>
-                </div>
-              );
-            })}
+          /* DISCONNECTED STATE */
+          <div className="bg-amber-50/40 border border-amber-200/60 rounded-2xl p-6 flex flex-col md:flex-row md:items-center justify-between gap-6">
+            <div className="flex items-start gap-3.5">
+              <AlertTriangle className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
+              <div>
+                <h3 className="text-[16px] font-display font-bold text-amber-950 flex items-center gap-2">
+                  Gmail Ingestion Service Paused
+                  <span className="text-[9px] font-mono font-bold bg-amber-500/10 text-amber-700 border border-amber-500/20 px-2 py-0.5 rounded uppercase tracking-wider">Inactive</span>
+                </h3>
+                <p className="text-[13px] text-amber-900/75 mt-1 max-w-3xl leading-relaxed">
+                  Real-time campus event parsing is currently paused. Link an official SRM Gmail account to start parsing incoming emails. Only messages starting with <code className="font-mono bg-amber-100 px-1.5 py-0.5 rounded text-amber-950 font-semibold">EVENT:</code> sent by <code className="font-mono bg-amber-100 px-1.5 py-0.5 rounded text-amber-950 font-semibold">r.matheshwaran.io@gmail.com</code> are parsed.
+                </p>
+              </div>
+            </div>
+            <a href="/api/events/gmail/auth-url" className="shrink-0 self-start md:self-center">
+              <GlowButton variant="primary" size="sm" className="gap-2 bg-amber-900 border-amber-950 hover:bg-amber-950 text-white">
+                <Mail className="w-3.5 h-3.5" />
+                <span>Link SRM Gmail</span>
+              </GlowButton>
+            </a>
           </div>
         )}
-      </section>
+      </div>
+
+      {/* 📊 Pipeline Statistics */}
+      <PipelineStats />
+
+      {/* 🗓️ Main Dashboard Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        
+        {/* Left Column: FullCalendar (Span 2) */}
+        <div className="lg:col-span-2">
+          <EventCalendar onEventClick={setSelectedEvent as any} />
+        </div>
+
+        {/* Right Column: Live Event Feed (Span 1) */}
+        <div className="lg:col-span-1">
+          <LiveEventFeed onEventClick={setSelectedEvent as any} />
+        </div>
+      </div>
+
+      {/* 🔍 Human-in-the-loop Moderation Queue */}
+      <div className="mt-6">
+        <ReviewQueue onEventClick={setSelectedEvent as any} />
+      </div>
+
+      {/* 🔎 Event Detail Modal */}
+      <EventDetailModal 
+        isOpen={!!selectedEvent} 
+        onClose={() => setSelectedEvent(null)} 
+        event={selectedEvent} 
+      />
+
     </div>
   );
 }

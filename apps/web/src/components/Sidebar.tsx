@@ -1,32 +1,27 @@
 'use client';
 
+import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useStore } from '@/store/useStore';
-import { useState } from 'react';
 import { 
   LayoutDashboard, 
   MessageSquare, 
   Briefcase, 
   User, 
   LogOut, 
-  ShieldAlert, 
-  UserSquare, 
-  Menu,
-  GraduationCap,
   Calendar as CalendarIcon,
   Users,
-  X,
-  ChevronUp,
-  MoreHorizontal,
-  Home
+  Cpu,
+  Search,
+  BarChart3,
+  Sparkles
 } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { cn } from '@/lib/utils';
 
 export default function Sidebar() {
   const pathname = usePathname();
-  const { currentUser, roleOverride, setMobileSidebar, showMobileSidebar, logout } = useStore();
-  const [showMobileMore, setShowMobileMore] = useState(false);
+  const { currentUser, roleOverride, logout } = useStore();
 
   const menuItems = [
     { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
@@ -34,62 +29,69 @@ export default function Sidebar() {
     { name: 'Researchers', href: '/researchers', icon: Users },
     { name: 'Opportunities', href: '/opportunities', icon: Briefcase },
     { name: 'Events', href: '/events', icon: CalendarIcon },
+    { name: 'AI Search', href: '/search', icon: Search },
+    { name: 'AI Pipeline', href: '/pipeline', icon: Cpu },
+    { name: 'Analytics', href: '/analytics', icon: BarChart3 },
+    { name: 'Ask ReCollab', href: '/copilot', icon: Sparkles },
   ];
 
   const moreItems = [
     { name: 'My Profile', href: '/profile', icon: User },
   ];
 
+  // Helper to extract initials
+  const getInitials = (name?: string) => {
+    if (!name) return 'RC';
+    return name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase();
+  };
+
   return (
     <>
-      {/* 🖥️ DESKTOP SIDEBAR - Sleek Academic Design (Linear + Notion) */}
-      <aside className="hidden md:flex flex-col justify-between w-64 bg-[#fcfdfe] dark:bg-[#07090e] border-r border-slate-200/80 dark:border-slate-800/80 h-screen sticky top-0 z-40 transition-colors duration-300">
-        <div>
-          {/* Logo Header */}
-          <div className="h-16 flex items-center px-6 border-b border-slate-100 dark:border-slate-800/60">
-            <Link href="/dashboard" className="flex items-center space-x-2.5">
-              <img src="/logo.png" className="w-8 h-8 object-contain shrink-0" alt="ReCollab" />
-              <div className="flex items-baseline">
-                <span className="font-display font-black text-base tracking-tight text-slate-800 dark:text-slate-100">
-                  ReCollab
-                </span>
-              </div>
-            </Link>
-          </div>
+      {/* 🖥️ DESKTOP SIDEBAR - 220px Fixed Left Panel */}
+      <aside className="hidden md:flex flex-col w-[220px] bg-white border-r border-borderStroke h-screen sticky top-0 z-40 select-none shrink-0 font-sans">
+        
+        {/* TOP SECTION */}
+        <div className="h-[60px] flex items-center px-4 border-b border-borderStroke">
+          <Link href="/dashboard" className="flex items-center space-x-3 shrink-0">
+            <div className="w-[28px] h-[28px] bg-black flex items-center justify-center font-display font-bold text-white text-[13px] tracking-tight rounded-sm">
+              RC
+            </div>
+            <span className="font-sans font-semibold text-[15px] tracking-tight text-black">
+              ReCollab
+            </span>
+            <span className="bg-darkSurfaceMuted border border-borderStroke text-textSecondary text-[11px] font-sans px-2 py-0.5 rounded-full scale-90">
+              SRM
+            </span>
+          </Link>
+        </div>
 
-          {/* User Profile Snapshot */}
-          <div className="mx-4 my-3 p-3 rounded-xl bg-slate-50 dark:bg-slate-900/35 border border-slate-100 dark:border-slate-850/50">
-            <div className="flex items-center space-x-2.5">
-              <img 
-                src={currentUser?.image || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150'} 
-                alt={currentUser?.name || 'User'} 
-                className="w-9 h-9 rounded-full border border-recollab-gold/30 object-cover shadow-sm shrink-0"
-              />
-              <div className="flex-1 min-w-0">
-                <p className="text-xs font-bold text-slate-800 dark:text-slate-200 truncate">
-                  {currentUser?.name || 'Academic Collaborator'}
-                </p>
-                <div className="flex items-center mt-0.5">
-                  {roleOverride === 'FACULTY' ? (
-                    <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[9px] font-bold bg-recollab-crimson/10 text-recollab-crimson border border-recollab-crimson/20 dark:bg-red-950/40 dark:text-red-400 dark:border-red-900/30">
-                      <GraduationCap className="w-2.5 h-2.5 mr-0.5" />
-                      Faculty
-                    </span>
-                  ) : (
-                    <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[9px] font-bold bg-recollab-blue/10 text-recollab-blue border border-recollab-blue/20 dark:bg-blue-950/40 dark:text-blue-400 dark:border-blue-900/30">
-                      <UserSquare className="w-2.5 h-2.5 mr-0.5" />
-                      PhD Scholar
-                    </span>
-                  )}
-                </div>
+        {/* USER CARD */}
+        <div className="p-4 border-b border-borderStroke bg-white">
+          <div className="flex items-center space-x-3">
+            {/* Avatar Circle with Warm Gradient */}
+            <div className="w-[36px] h-[36px] rounded-full bg-gradient-to-tr from-amber-500 via-orange-400 to-rose-400 flex items-center justify-center font-sans font-semibold text-white text-[13px] relative shrink-0">
+              <span>{getInitials(currentUser?.name || undefined)}</span>
+              {/* Online Dot */}
+              <span className="w-2 h-2 rounded-full bg-[#22c55e] border border-white absolute bottom-0 right-0" />
+            </div>
+            <div className="flex-1 min-w-0 text-left">
+              <p className="text-[13px] font-semibold text-black truncate leading-none">
+                {currentUser?.name || 'Academic Scholar'}
+              </p>
+              <div className="mt-1.5 flex">
+                <span className="bg-darkSurfaceMuted border border-borderStroke text-textSecondary text-[10px] font-sans px-2 py-0.5 rounded-full leading-none">
+                  {roleOverride === 'FACULTY' ? 'Faculty' : 'Scholar'}
+                </span>
               </div>
             </div>
           </div>
+        </div>
 
-          {/* Nav Links */}
-          <div className="px-3 py-2">
-            <p className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest px-3 mb-2">
-              Research portal
+        {/* NAV SECTIONS */}
+        <div className="flex-1 overflow-y-auto px-2 py-4 space-y-4">
+          <div>
+            <p className="text-[11px] font-sans font-medium text-textMuted uppercase tracking-wider px-3 mb-2 text-left select-none">
+              RESEARCH SYSTEMS
             </p>
             <nav className="space-y-1">
               {menuItems.map((item) => {
@@ -98,33 +100,27 @@ export default function Sidebar() {
                   <Link
                     key={item.href}
                     href={item.href}
-                    className={`
-                      flex items-center space-x-3 px-3 py-2.5 rounded-xl text-xs font-semibold tracking-tight transition-all duration-200 group relative
-                      ${isActive 
-                        ? 'bg-slate-100 dark:bg-slate-900/60 text-slate-950 dark:text-slate-100 border-l-2 border-recollab-crimson dark:border-recollab-gold pl-2.5' 
-                        : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-900/20'
-                      }
-                    `}
-                  >
-                    <item.icon className={`w-4 h-4 shrink-0 transition-colors ${isActive ? 'text-recollab-crimson dark:text-recollab-gold' : 'text-slate-450 dark:text-slate-500 group-hover:text-slate-700 dark:group-hover:text-slate-300'}`} />
-                    <span>{item.name}</span>
-                    {isActive && (
-                      <motion.div 
-                        layoutId="active-indicator-desktop"
-                        className="absolute inset-0 bg-recollab-crimson/5 dark:bg-recollab-gold/5 rounded-xl -z-10 pointer-events-none" 
-                        transition={{ type: 'spring', stiffness: 380, damping: 30 }}
-                      />
+                    className={cn(
+                      "flex items-center px-3 py-2.5 rounded-lg text-[14px] font-sans tracking-tight transition-all duration-200 group relative shrink-0",
+                      isActive 
+                        ? 'bg-darkSurfaceMuted text-black font-medium border-l-[2px] border-black rounded-l-none' 
+                        : 'text-textSecondary hover:text-black hover:bg-darkBg'
                     )}
+                  >
+                    <item.icon className={cn(
+                      "w-4 h-4 shrink-0 transition-colors mr-2.5",
+                      isActive ? 'text-black' : 'text-textSecondary'
+                    )} />
+                    <span className="truncate leading-none">{item.name}</span>
                   </Link>
                 );
               })}
             </nav>
           </div>
 
-          {/* Account and Identity */}
-          <div className="px-3 py-1 mt-4">
-            <p className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest px-3 mb-2">
-              Identity Card
+          <div className="pt-2">
+            <p className="text-[11px] font-sans font-medium text-textMuted uppercase tracking-wider px-3 mb-2 text-left select-none">
+              ACADEMIC IDENTITY
             </p>
             <nav className="space-y-1">
               {moreItems.map((item) => {
@@ -133,16 +129,18 @@ export default function Sidebar() {
                   <Link
                     key={item.href}
                     href={item.href}
-                    className={`
-                      flex items-center space-x-3 px-3 py-2.5 rounded-xl text-xs font-semibold tracking-tight transition-all duration-200 group relative
-                      ${isActive 
-                        ? 'bg-slate-100 dark:bg-slate-900/60 text-slate-950 dark:text-slate-100 border-l-2 border-recollab-crimson dark:border-recollab-gold pl-2.5' 
-                        : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-900/20'
-                      }
-                    `}
+                    className={cn(
+                      "flex items-center px-3 py-2.5 rounded-lg text-[14px] font-sans tracking-tight transition-all duration-200 group relative shrink-0",
+                      isActive 
+                        ? 'bg-darkSurfaceMuted text-black font-medium border-l-[2px] border-black rounded-l-none' 
+                        : 'text-textSecondary hover:text-black hover:bg-darkBg'
+                    )}
                   >
-                    <item.icon className={`w-4 h-4 shrink-0 transition-colors ${isActive ? 'text-recollab-crimson dark:text-recollab-gold' : 'text-slate-450 dark:text-slate-500 group-hover:text-slate-700 dark:group-hover:text-slate-300'}`} />
-                    <span>{item.name}</span>
+                    <item.icon className={cn(
+                      "w-4 h-4 shrink-0 transition-colors mr-2.5",
+                      isActive ? 'text-black' : 'text-textSecondary'
+                    )} />
+                    <span className="truncate leading-none">{item.name}</span>
                   </Link>
                 );
               })}
@@ -150,125 +148,45 @@ export default function Sidebar() {
           </div>
         </div>
 
-        {/* Footer controls & Developer Mode Switcher */}
-        <div className="p-4 border-t border-slate-100 dark:border-slate-850 space-y-3">
-
+        {/* BOTTOM SECTION */}
+        <div className="p-3 border-t border-borderStroke shrink-0">
           <button 
             onClick={() => logout()}
-            className="w-full flex items-center space-x-3 px-3 py-2 rounded-xl text-xs font-semibold text-slate-500 dark:text-slate-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/15 transition-all cursor-pointer text-left"
+            className="w-full flex items-center px-3 py-2.5 rounded-lg text-[13px] font-sans font-semibold text-textMuted hover:text-black hover:bg-darkBg transition-all cursor-pointer text-left shrink-0 select-none"
           >
-            <LogOut className="w-4 h-4 shrink-0" />
-            <span>Exit Platform</span>
+            <LogOut className="w-4 h-4 shrink-0 mr-2.5 text-textMuted" />
+            <span>Exit Portal</span>
           </button>
         </div>
+
       </aside>
 
-      {/* 📱 MOBILE NAVIGATION BAR - Bottom Tab Bar (iOS/Linear Style) */}
-      <div className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-white/90 dark:bg-[#07090e]/95 backdrop-blur-md border-t border-slate-200/80 dark:border-slate-800/80 px-2 py-1.5 shadow-2xl flex justify-around items-center transition-colors duration-300">
+      {/* 📱 MOBILE BOTTOM BAR */}
+      <div className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-borderStroke px-2 py-1.5 flex justify-around items-center">
         {menuItems.slice(0, 4).map((item) => {
           const isActive = pathname === item.href || (item.href !== '/dashboard' && pathname.startsWith(item.href));
           return (
             <Link
               key={item.href}
               href={item.href}
-              className={`flex flex-col items-center space-y-0.5 py-1 px-3 rounded-xl transition duration-200 ${isActive ? 'text-recollab-crimson dark:text-recollab-gold' : 'text-slate-450 dark:text-slate-400'}`}
+              className={cn(
+                "flex flex-col items-center space-y-0.5 py-1 px-3 rounded-lg transition duration-200",
+                isActive ? 'text-black' : 'text-textSecondary'
+              )}
             >
-              <item.icon className="w-5 h-5 shrink-0" />
-              <span className="text-[9px] font-bold tracking-tight">{item.name.replace('Research ', '')}</span>
+              <item.icon className="w-4.5 h-4.5 shrink-0" />
+              <span className="text-[9px] font-semibold tracking-tight">{item.name}</span>
             </Link>
           );
         })}
-
-        {/* "More" Trigger for mobile */}
         <button
-          onClick={() => setShowMobileMore(true)}
-          className={`flex flex-col items-center space-y-0.5 py-1 px-3 rounded-xl transition duration-200 ${showMobileMore ? 'text-recollab-crimson dark:text-recollab-gold' : 'text-slate-450 dark:text-slate-400'}`}
+          onClick={() => logout()}
+          className="flex flex-col items-center space-y-0.5 py-1 px-3 text-textSecondary"
         >
-          <MoreHorizontal className="w-5 h-5 shrink-0" />
-          <span className="text-[9px] font-bold tracking-tight">More</span>
+          <LogOut className="w-4.5 h-4.5 shrink-0" />
+          <span className="text-[9px] font-semibold tracking-tight">Exit</span>
         </button>
       </div>
-
-      {/* 📱 MOBILE MORE DRAWER SHEET - Slide up overlay */}
-      <AnimatePresence>
-        {showMobileMore && (
-          <>
-            {/* Backdrop */}
-            <motion.div 
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 0.5 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setShowMobileMore(false)}
-              className="md:hidden fixed inset-0 z-50 bg-black/60 backdrop-blur-sm"
-            />
-            {/* Sheet */}
-            <motion.div 
-              initial={{ y: '100%' }}
-              animate={{ y: 0 }}
-              exit={{ y: '100%' }}
-              transition={{ type: 'spring', damping: 25, stiffness: 220 }}
-              className="md:hidden fixed bottom-0 left-0 right-0 z-50 max-h-[85vh] bg-[#fcfdfe] dark:bg-[#07090e] border-t border-slate-200 dark:border-slate-800 rounded-t-3xl p-6 shadow-2xl flex flex-col space-y-6"
-            >
-              {/* Header */}
-              <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
-                <div className="flex items-center space-x-2.5">
-                  <img 
-                    src={currentUser?.image || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150'} 
-                    alt={currentUser?.name || 'User'} 
-                    className="w-8 h-8 rounded-full border border-recollab-gold/30 object-cover"
-                  />
-                  <div>
-                    <h3 className="text-xs font-bold text-slate-850 dark:text-white leading-tight">{currentUser?.name}</h3>
-                    <p className="text-[9px] font-bold text-recollab-gold uppercase mt-0.5 tracking-wider">{roleOverride.replace('_', ' ')}</p>
-                  </div>
-                </div>
-                <button 
-                  onClick={() => setShowMobileMore(false)}
-                  className="p-1.5 bg-slate-100 dark:bg-slate-850 hover:bg-slate-200 dark:hover:bg-slate-800 rounded-full transition"
-                >
-                  <X className="w-4 h-4 text-slate-500 dark:text-slate-400" />
-                </button>
-              </div>
-
-              {/* Roster & Quick Action */}
-              <div className="grid grid-cols-2 gap-3">
-                <Link
-                  href="/events"
-                  onClick={() => setShowMobileMore(false)}
-                  className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-900/35 border border-slate-100 dark:border-slate-850 flex flex-col items-center space-y-2 text-center"
-                >
-                  <CalendarIcon className="w-6 h-6 text-recollab-gold" />
-                  <span className="text-xs font-bold text-slate-700 dark:text-slate-350">Events</span>
-                </Link>
-
-                <Link
-                  href="/profile"
-                  onClick={() => setShowMobileMore(false)}
-                  className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-900/35 border border-slate-100 dark:border-slate-850 flex flex-col items-center space-y-2 text-center"
-                >
-                  <User className="w-6 h-6 text-recollab-crimson" />
-                  <span className="text-xs font-bold text-slate-700 dark:text-slate-350">My Profile</span>
-                </Link>
-              </div>
-
-
-              {/* Exit */}
-              <div className="border-t border-slate-100 dark:border-slate-800 pt-4 flex flex-col">
-                <button
-                  onClick={() => {
-                    logout();
-                    setShowMobileMore(false);
-                  }}
-                  className="w-full flex items-center justify-center space-x-2 py-3 rounded-xl border border-red-200 dark:border-red-900/30 text-xs font-bold text-red-650 dark:text-red-400 bg-red-50/20 dark:bg-red-950/10 hover:bg-red-50 dark:hover:bg-red-950/25 transition cursor-pointer"
-                >
-                  <LogOut className="w-4 h-4" />
-                  <span>Logout and Exit Portal</span>
-                </button>
-              </div>
-            </motion.div>
-          </>
-        )}
-      </AnimatePresence>
     </>
   );
 }

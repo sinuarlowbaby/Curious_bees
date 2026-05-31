@@ -1,38 +1,16 @@
 import { Module } from '@nestjs/common';
-import { BullModule } from '@nestjs/bullmq';
 import { EventsController } from './events.controller';
-import { EmailWebhookController } from './email-webhook.controller';
-import { GmailOauthController } from './gmail-oauth.controller';
 import { EventsService } from './events.service';
-import { AiExtractionService } from './ai-extraction.service';
-import { EventValidationService } from './event-validation.service';
-import { GmailIngestionService } from './gmail-ingestion.service';
+import { EventPersistenceService } from './event-persistence.service';
 import { AuthModule } from '../auth/auth.module';
+import { NotificationsModule } from '../notifications/notifications.module';
+import { EmbeddingModule } from '../embeddings/embedding.module';
+import { SearchModule } from '../search/search.module';
 
 @Module({
-  imports: [
-    AuthModule,
-    BullModule.registerQueue({
-      name: 'ai-event-processing',
-      defaultJobOptions: {
-        attempts: 4,
-        backoff: {
-          type: 'exponential',
-          delay: 30000,
-        },
-        removeOnComplete: true,
-        removeOnFail: false,
-      }
-    }),
-  ],
-  controllers: [EventsController, EmailWebhookController, GmailOauthController],
-  providers: [
-    EventsService, 
-    AiExtractionService, 
-    EventValidationService, 
-    GmailIngestionService
-  ],
-  exports: [EventsService, AiExtractionService, EventValidationService, GmailIngestionService]
+  imports: [AuthModule, NotificationsModule, EmbeddingModule, SearchModule],
+  controllers: [EventsController],
+  providers: [EventsService, EventPersistenceService],
+  exports: [EventsService, EventPersistenceService]
 })
 export class EventsModule {}
-

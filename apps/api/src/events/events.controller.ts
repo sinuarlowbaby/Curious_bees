@@ -1,20 +1,51 @@
-import { Controller, Get, Post, Put, Delete, Body, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Put, Patch, Delete, Body, Param, Query, UseGuards } from '@nestjs/common';
 import { EventsService } from './events.service';
 import { FirebaseAuthGuard } from '../auth/firebase.guard';
+import { EventStatus, Prisma } from '@prisma/client';
+import { SearchService } from '../search/search.service';
 
 @Controller('events')
 @UseGuards(FirebaseAuthGuard)
 export class EventsController {
-  constructor(private readonly eventsService: EventsService) {}
+  constructor(
+    private readonly eventsService: EventsService,
+    private readonly searchService: SearchService,
+  ) {}
 
   @Get()
-  async getEvents() {
-    return this.eventsService.getEvents();
+  async getEvents(
+    @Query('status') status?: EventStatus,
+    @Query('limit') limit?: string,
+    @Query('skip') skip?: string
+  ) {
+    return this.eventsService.getEvents({
+      status,
+      limit: limit ? parseInt(limit, 10) : undefined,
+      skip: skip ? parseInt(skip, 10) : undefined,
+    });
   }
 
-  @Get('ai-logs')
-  async getAiLogs() {
-    return this.eventsService.getAiLogs();
+  @Get('review')
+  async getReviewEvents() {
+    return this.eventsService.getReviewEvents();
+  }
+
+  @Get('stats')
+  async getPipelineStats() {
+    return this.eventsService.getPipelineStats();
+  }
+
+  @Get(':id')
+  async getEventById(@Param('id') id: string) {
+    return this.eventsService.getEventById(id);
+  }
+
+  @Get(':id/related')
+  async getRelatedEvents(
+    @Param('id') id: string,
+    @Query('limit') limit?: string,
+  ) {
+    return this.searchService.getRelatedEvents(id, limit ? parseInt(limit) : 5);
   }
 
   @Post()
@@ -24,15 +55,24 @@ export class EventsController {
     return this.eventsService.createEvent(body);
   }
 
-  @Put()
+  @Put(':id')
   async updateEvent(
-    @Body() body: { id: string; title: string; date: string; time: string; venue: string }
+    @Param('id') id: string,
+    @Body() body: Prisma.EventUpdateInput
   ) {
-    return this.eventsService.updateEvent(body);
+    return this.eventsService.updateEvent(id, body);
   }
 
-  @Delete()
-  async deleteEvent(@Body() body: { id: string }) {
-    return this.eventsService.deleteEvent(body.id);
+  @Patch(':id/status')
+  async updateEventStatus(
+    @Param('id') id: string,
+    @Body() body: { status: EventStatus }
+  ) {
+    return this.eventsService.updateEventStatus(id, body.status);
+  }
+
+  @Delete(':id')
+  async deleteEvent(@Param('id') id: string) {
+    return this.eventsService.deleteEvent(id);
   }
 }

@@ -5,6 +5,9 @@ import Navbar from '@/components/Navbar';
 import { useStore } from '@/store/useStore';
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+
+const queryClient = new QueryClient();
  
 export default function PortalLayout({
   children,
@@ -55,9 +58,10 @@ export default function PortalLayout({
   }
  
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex flex-col md:flex-row transition-colors duration-300">
-      {/* Persistent Navigational Sidebar */}
-      <Sidebar />
+    <QueryClientProvider client={queryClient}>
+      <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex flex-col md:flex-row transition-colors duration-300">
+        {/* Persistent Navigational Sidebar */}
+        <Sidebar />
  
       {/* Main content body containing header and main child view */}
       <div className="flex-1 flex flex-col min-w-0 overflow-y-auto">
@@ -68,6 +72,7 @@ export default function PortalLayout({
           {children}
         </main>
       </div>
-    </div>
+      </div>
+    </QueryClientProvider>
   );
 }

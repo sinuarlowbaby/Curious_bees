@@ -1,7 +1,9 @@
 'use client';
 
+import React, { useEffect } from 'react';
+import Link from 'next/link';
+import { format } from 'date-fns';
 import { useStore } from '@/store/useStore';
-import ThreadCard from '@/components/ThreadCard';
 import { 
   Sparkles, 
   TrendingUp, 
@@ -10,17 +12,14 @@ import {
   Compass,
   Briefcase,
   Layers,
-  Award,
   Calendar as CalendarIcon,
   MapPin,
-  Clock,
-  ExternalLink,
-  MessageSquare
+  Clock
 } from 'lucide-react';
-import Link from 'next/link';
-import { motion } from 'framer-motion';
-import { format } from 'date-fns';
-import { useEffect } from 'react';
+import GlassCard from '@/components/GlassCard';
+import TagPill from '@/components/TagPill';
+import AvatarRing from '@/components/AvatarRing';
+import ThreadCard from '@/components/ThreadCard';
 
 export default function DashboardPage() {
   const { currentUser, threads, opportunities, roleOverride, collaborators, events, fetchCollaborators, fetchData } = useStore();
@@ -40,75 +39,81 @@ export default function DashboardPage() {
   };
 
   const stats = [
-    { name: 'Active Opportunities', value: opportunities.length, icon: Briefcase, color: 'text-amber-500 bg-amber-500/10 dark:text-amber-400 dark:bg-amber-950/20' },
-    { name: 'Research Topics Published', value: threads.length, icon: Layers, color: 'text-blue-600 bg-blue-500/10 dark:text-blue-400 dark:bg-blue-950/20' },
-    { name: 'Active Campus Vivas', value: events.length, icon: CalendarIcon, color: 'text-srm-crimson bg-srm-crimson/10 dark:text-red-400 dark:bg-red-950/20' },
+    { name: 'Active Opportunities', value: opportunities.length, icon: Briefcase },
+    { name: 'Research Topics', value: threads.length, icon: Layers },
+    { name: 'Campus Vivas', value: events.length, icon: CalendarIcon },
   ];
 
   return (
-    <div className="space-y-8 select-none">
+    <div className="space-y-8 select-none text-left font-sans">
       
       {/* 🚀 1. WELCOME HERO SECTION */}
-      <motion.div 
-        initial={{ opacity: 0, y: 15 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="glass-card rounded-3xl p-6 sm:p-8 relative overflow-hidden bg-white dark:bg-slate-900/15 border border-slate-200 dark:border-slate-800"
-      >
-        {/* Soft layout gradient accent */}
-        <div className="absolute inset-0 bg-gradient-to-r from-srm-crimson/[0.02] to-srm-gold/[0.02] -z-10" />
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
-          <div className="space-y-2 text-left">
-            <span className="inline-flex items-center space-x-1.5 px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest bg-srm-crimson/10 text-srm-crimson dark:bg-red-950/40 dark:text-red-400 border border-srm-crimson/25 dark:border-red-900/30">
-              <Sparkles className="w-3 h-3" />
-              <span>SRM Intranet Connected</span>
+      <div className="bg-white border border-borderStroke rounded-xl p-6 sm:p-8 relative overflow-hidden select-none">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6 relative z-10">
+          <div className="space-y-2">
+            <span className="inline-flex items-center space-x-1.5 px-3 py-1 rounded-full text-[12px] font-sans font-medium bg-darkSurfaceMuted text-textSecondary border border-borderStroke">
+              <Sparkles className="w-3.5 h-3.5 text-textSecondary" />
+              <span>{roleOverride === 'FACULTY' ? 'Faculty Portal' : 'Scholar Portal'}</span>
             </span>
-            <h2 className="font-display font-extrabold text-xl sm:text-2xl text-slate-900 dark:text-white">
-              {getGreeting()}, {currentUser?.name?.split(' ')[0] || 'Professor'}!
+            <h2 className="font-display font-light text-2xl sm:text-3xl text-black tracking-tight">
+              {getGreeting()}, {currentUser?.name?.split(' ')[0] || (roleOverride === 'FACULTY' ? 'Professor' : 'Scholar')}!
             </h2>
-            <p className="text-slate-500 dark:text-slate-400 text-xs max-w-xl leading-relaxed">
-              Welcome back to your academic workspace nerve center. Explore interdisciplinary proposals, review funded PhD vacancies, or manage campus vivas.
+            <p className="text-textSecondary text-[14px] max-w-xl leading-relaxed">
+              {roleOverride === 'FACULTY' 
+                ? 'Manage your research groups, post funded PhD vacancies, and track interdisciplinary campus viva schedules.' 
+                : 'Discover interdisciplinary proposals, find expert supervisors, and stay updated with the latest campus vivas.'}
             </p>
           </div>
 
-          <div className="flex flex-wrap items-center gap-2.5 shrink-0">
-            <Link 
-              href="/threads/create" 
-              className="text-xs font-black uppercase tracking-wider text-white bg-slate-900 dark:bg-slate-100 dark:text-slate-950 hover:bg-srm-crimson dark:hover:bg-srm-gold dark:hover:text-black px-5 py-3 rounded-xl shadow-sm hover:shadow active:scale-95 transition-all duration-200 text-center cursor-pointer"
-            >
-              Start Discussion
-            </Link>
-            {roleOverride === 'FACULTY' && (
-              <Link 
-                href="/opportunities" 
-                className="text-xs font-black uppercase tracking-wider text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-slate-350 dark:hover:border-slate-700 px-5 py-3 rounded-xl shadow-sm text-center transition cursor-pointer"
-              >
-                Post Vacancy
-              </Link>
+          <div className="flex flex-wrap items-center gap-3 shrink-0">
+            {roleOverride === 'FACULTY' ? (
+              <>
+                <Link href="/threads/create">
+                  <button className="h-[40px] px-5 bg-white border border-borderStroke text-black font-sans font-semibold text-[14px] rounded-lg transition-colors hover:bg-darkSurfaceMuted cursor-pointer">
+                    New Thread
+                  </button>
+                </Link>
+                <Link href="/opportunities">
+                  <button className="h-[40px] px-5 bg-black hover:bg-[#222222] text-white font-sans font-semibold text-[14px] rounded-lg transition-colors cursor-pointer border border-black">
+                    Post Vacancy
+                  </button>
+                </Link>
+              </>
+            ) : (
+              <>
+                <Link href="/opportunities">
+                  <button className="h-[40px] px-5 bg-white border border-borderStroke text-black font-sans font-semibold text-[14px] rounded-lg transition-colors hover:bg-darkSurfaceMuted cursor-pointer">
+                    Find Supervisors
+                  </button>
+                </Link>
+                <Link href="/threads/create">
+                  <button className="h-[40px] px-5 bg-black hover:bg-[#222222] text-white font-sans font-semibold text-[14px] rounded-lg transition-colors cursor-pointer border border-black">
+                    Start Discussion
+                  </button>
+                </Link>
+              </>
             )}
           </div>
         </div>
-      </motion.div>
+      </div>
 
       {/* 🚀 2. DYNAMIC STATS MATRIX */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-        {stats.map((s, index) => (
-          <motion.div 
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: index * 0.08 }}
+        {stats.map((s) => (
+          <div 
             key={s.name} 
-            className="glass-card rounded-2xl p-5 border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/15 flex items-center justify-between shadow-sm"
+            className="bg-white border border-borderStroke rounded-xl flex items-center justify-between p-5 md:px-6 md:py-5 hover:border-black transition-colors duration-300"
           >
             <div className="text-left">
-              <p className="text-[10px] font-bold text-slate-450 dark:text-slate-500 uppercase tracking-widest">{s.name}</p>
-              <h4 className="font-display font-extrabold text-xl text-slate-900 dark:text-white mt-1.5 leading-none">
+              <p className="text-[12px] font-sans font-medium text-textMuted uppercase tracking-wider leading-none">{s.name}</p>
+              <h4 className="font-display font-light text-[40px] text-black mt-2 leading-none">
                 {s.value}
               </h4>
             </div>
-            <div className={`p-2.5 rounded-xl border border-slate-200/50 dark:border-slate-850 ${s.color}`}>
-              <s.icon className="w-4.5 h-4.5" />
+            <div className="w-[40px] h-[40px] bg-darkSurfaceMuted border border-borderStroke rounded-lg flex items-center justify-center text-textSecondary shrink-0">
+              <s.icon className="w-5 h-5" />
             </div>
-          </motion.div>
+          </div>
         ))}
       </div>
 
@@ -117,12 +122,12 @@ export default function DashboardPage() {
         
         {/* Left Columns (Research proposals) */}
         <div className="lg:col-span-2 space-y-6">
-          <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-850 pb-3">
-            <h3 className="font-display font-extrabold text-sm uppercase tracking-wider text-slate-900 dark:text-white flex items-center gap-2">
-              <TrendingUp className="w-4.5 h-4.5 text-srm-crimson dark:text-srm-gold" />
-              <span>Trending Research Discussions</span>
+          <div className="flex items-center justify-between border-b border-borderStroke pb-3">
+            <h3 className="font-sans font-semibold text-[14px] uppercase tracking-wider text-black flex items-center gap-2">
+              <TrendingUp className="w-4 h-4 text-textSecondary" />
+              <span>Trending Research Feed</span>
             </h3>
-            <Link href="/threads" className="text-xs font-bold text-srm-crimson dark:text-srm-gold hover:underline flex items-center gap-0.5">
+            <Link href="/threads" className="text-xs font-sans font-bold text-black hover:underline flex items-center gap-0.5 transition-colors">
               <span>View Feed</span>
               <ArrowUpRight className="w-3.5 h-3.5" />
             </Link>
@@ -140,40 +145,36 @@ export default function DashboardPage() {
           
           {/* Recommended Collaborators */}
           <div className="space-y-4">
-            <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-850 pb-3">
-              <h3 className="font-display font-extrabold text-sm uppercase tracking-wider text-slate-900 dark:text-white flex items-center gap-2">
-                <Compass className="w-4.5 h-4.5 text-srm-crimson dark:text-srm-gold" />
-                <span>Expert Recommendations</span>
+            <div className="flex items-center justify-between border-b border-borderStroke pb-3">
+              <h3 className="font-sans font-semibold text-[14px] uppercase tracking-wider text-black flex items-center gap-2">
+                <Compass className="w-4 h-4 text-textSecondary" />
+                <span>Expert Directory</span>
               </h3>
-              <Link href="/researchers" className="text-xs font-bold text-srm-crimson dark:text-srm-gold hover:underline flex items-center gap-0.5">
-                <span>Find Experts</span>
+              <Link href="/researchers" className="text-xs font-sans font-bold text-black hover:underline flex items-center gap-0.5 transition-colors">
+                <span>All Experts</span>
                 <ArrowUpRight className="w-3.5 h-3.5" />
               </Link>
             </div>
 
-            <div className="space-y-3">
-              {collaborators.slice(0, 2).map((collab, index) => (
-                <motion.div 
-                  initial={{ opacity: 0, x: 10 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: index * 0.08 }}
+            <div className="space-y-4">
+              {collaborators.slice(0, 2).map((collab) => (
+                <div 
                   key={collab.email}
-                  className="glass-card rounded-2xl p-4 border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/15 flex flex-col justify-between hover:border-slate-300 dark:hover:border-slate-700 transition duration-200"
+                  className="bg-white border border-borderStroke rounded-xl p-4 flex flex-col justify-between"
                 >
                   <div className="text-left">
-                    <div className="flex items-start justify-between">
-                      <div className="flex items-center space-x-2.5">
-                        <img 
-                          src={collab.image || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150'} 
-                          className="w-9 h-9 rounded-full border border-slate-250 dark:border-slate-700 object-cover shrink-0" 
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex items-center space-x-2.5 min-w-0">
+                        <AvatarRing 
+                          src={collab.image || undefined} 
+                          name={collab.name || undefined} 
+                          role={collab.role}
+                          size="sm" 
+                          className="shrink-0"
                         />
                         <div className="min-w-0">
-                          <h4 className="text-xs font-bold text-slate-900 dark:text-white leading-tight truncate">{collab.name}</h4>
-                          <span className={`inline-block mt-0.5 text-[8px] font-black uppercase px-2 py-0.2 rounded ${
-                            collab.role === 'FACULTY'
-                              ? 'bg-srm-crimson/10 text-srm-crimson dark:bg-red-950 dark:text-red-400'
-                              : 'bg-srm-blue/10 text-srm-blue dark:bg-blue-950 dark:text-blue-400'
-                          }`}>
+                          <h4 className="text-[14px] font-semibold text-black leading-tight truncate">{collab.name}</h4>
+                          <span className="inline-block mt-1 text-[11px] font-sans font-medium text-textSecondary bg-darkSurfaceMuted px-2 py-0.5 rounded border border-borderStroke">
                             {collab.role === 'FACULTY' ? 'Faculty PI' : 'PhD Scholar'}
                           </span>
                         </div>
@@ -181,47 +182,47 @@ export default function DashboardPage() {
 
                       <button 
                         onClick={() => alert(`Synergy invitation dispatched to ${collab.name}!`)}
-                        className="p-1.5 rounded-lg bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-850 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors cursor-pointer"
+                        className="w-[32px] h-[32px] bg-white border border-borderStroke text-black hover:border-black transition duration-200 cursor-pointer flex items-center justify-center rounded-lg"
                         title="Invite to Workspace"
                       >
                         <UserPlus className="w-3.5 h-3.5" />
                       </button>
                     </div>
                     
-                    <p className="text-[9px] text-slate-450 dark:text-slate-500 font-bold uppercase tracking-wide mt-3 truncate">
-                      {collab.department?.split('(')[0].trim()}
+                    <p className="text-[11px] font-sans font-medium text-textMuted uppercase tracking-wider mt-3.5 truncate">
+                      🏫 {collab.department?.split('(')[0].trim()}
                     </p>
                     
-                    <p className="text-slate-500 dark:text-slate-400 text-xs mt-2 line-clamp-2 leading-relaxed font-medium">
-                      {collab.bio}
+                    <p className="text-textSecondary text-[13px] mt-2 line-clamp-2 leading-relaxed">
+                      {collab.bio || 'Interdisciplinary scholar indexing research fields in the ReCollab network.'}
                     </p>
                   </div>
 
                   {/* Subtag interests */}
-                  <div className="flex flex-wrap gap-1 mt-3 pt-3 border-t border-slate-100 dark:border-slate-850">
-                    {collab.interests?.slice(0, 2).map((item) => (
-                      <span 
-                        key={item.interest?.name}
-                        className="px-2 py-0.5 rounded text-[8px] font-bold bg-slate-100 dark:bg-slate-950 text-slate-500 dark:text-slate-450 border border-slate-200 dark:border-slate-900"
-                      >
-                        {item.interest?.name}
-                      </span>
-                    ))}
-                  </div>
-                </motion.div>
+                  {collab.interests && collab.interests.length > 0 && (
+                    <div className="flex flex-wrap gap-1 mt-3 pt-3 border-t border-borderStroke">
+                      {collab.interests?.slice(0, 2).map((item: any) => (
+                        <TagPill 
+                          key={item.interest?.name || item.interestId}
+                          label={item.interest?.name || 'Research'}
+                        />
+                      ))}
+                    </div>
+                  )}
+                </div>
               ))}
             </div>
           </div>
 
           {/* Dynamic Upcoming Vivas & Events hub placeholder */}
           <div className="space-y-4">
-            <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-850 pb-3">
-              <h3 className="font-display font-extrabold text-sm uppercase tracking-wider text-slate-900 dark:text-white flex items-center gap-2">
-                <CalendarIcon className="w-4.5 h-4.5 text-srm-crimson dark:text-srm-gold" />
-                <span>Upcoming Academic Events</span>
+            <div className="flex items-center justify-between border-b border-borderStroke pb-3">
+              <h3 className="font-sans font-semibold text-[14px] uppercase tracking-wider text-black flex items-center gap-2">
+                <CalendarIcon className="w-4 h-4 text-textSecondary" />
+                <span>Academic Calendar</span>
               </h3>
-              <Link href="/events" className="text-xs font-bold text-srm-crimson dark:text-srm-gold hover:underline flex items-center gap-0.5">
-                <span>Launch Hub</span>
+              <Link href="/events" className="text-xs font-sans font-bold text-black hover:underline flex items-center gap-0.5 transition-colors">
+                <span>Open Calendar</span>
                 <ArrowUpRight className="w-3.5 h-3.5" />
               </Link>
             </div>
@@ -230,19 +231,20 @@ export default function DashboardPage() {
               {events.slice(0, 2).map((ev) => (
                 <div 
                   key={ev.id}
-                  className="p-4 bg-white dark:bg-slate-900/15 border border-slate-200 dark:border-slate-800 rounded-2xl flex flex-col space-y-2 text-left"
+                  className="p-4 bg-white border border-borderStroke rounded-xl flex flex-col space-y-2.5 text-left"
                 >
-                  <div className="flex justify-between items-start gap-2">
-                    <h4 className="text-xs font-bold text-slate-800 dark:text-white leading-tight line-clamp-1">{ev.title}</h4>
-                    <span className="text-[8px] font-black uppercase bg-slate-100 dark:bg-slate-950 px-2 py-0.5 rounded text-slate-550 dark:text-slate-450 shrink-0">Campus viva</span>
+                  <div className="flex justify-between items-start gap-3">
+                    <h4 className="text-[13px] font-semibold text-black leading-tight line-clamp-2">{ev.title}</h4>
+                    <span className="text-[10px] font-sans font-semibold border border-borderStroke bg-darkSurfaceMuted px-2 py-0.5 rounded text-textSecondary shrink-0">Event</span>
                   </div>
-                  <div className="space-y-1 text-[10px] text-slate-500 dark:text-slate-400 font-semibold">
+                  
+                  <div className="space-y-1.5 text-[12px] text-textSecondary font-sans">
                     <div className="flex items-center">
-                      <Clock className="w-3 h-3 mr-1 text-slate-400 shrink-0" />
-                      <span>{format(new Date(ev.date), 'MMM dd, yyyy')} at {ev.time}</span>
+                      <Clock className="w-3.5 h-3.5 mr-1.5 text-textMuted shrink-0" />
+                      <span>{format(new Date(ev.date), 'MMM dd, yyyy')} | {ev.time}</span>
                     </div>
                     <div className="flex items-center">
-                      <MapPin className="w-3 h-3 mr-1 text-slate-400 shrink-0" />
+                      <MapPin className="w-3.5 h-3.5 mr-1.5 text-textMuted shrink-0" />
                       <span className="truncate">{ev.venue}</span>
                     </div>
                   </div>

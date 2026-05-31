@@ -9,7 +9,12 @@ import { CommentsModule } from './comments/comments.module';
 import { OpportunitiesModule } from './opportunities/opportunities.module';
 import { EventsModule } from './events/events.module';
 import { NotificationsModule } from './notifications/notifications.module';
-import { EventsQueueModule } from './queues/events.queue.module';
+import { AiProcessingQueueModule } from './queues/ai-processing.queue.module';
+import { GmailModule } from './gmail/gmail.module';
+import { EmbeddingModule } from './embeddings/embedding.module';
+import { SearchModule } from './search/search.module';
+import { AnalyticsModule } from './analytics/analytics.module';
+import { CopilotModule } from './copilot/copilot.module';
 
 @Module({
   imports: [
@@ -26,8 +31,13 @@ import { EventsQueueModule } from './queues/events.queue.module';
     CommentsModule,
     OpportunitiesModule,
     EventsModule,
-    EventsQueueModule,
-    NotificationsModule
+    AiProcessingQueueModule,
+    GmailModule,
+    NotificationsModule,
+    EmbeddingModule,
+    SearchModule,
+    AnalyticsModule,
+    CopilotModule,
   ],
   controllers: [AppController],
   providers: [],

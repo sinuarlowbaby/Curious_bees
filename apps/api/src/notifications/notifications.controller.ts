@@ -1,4 +1,4 @@
-import { Controller, Post, Body, UseGuards, Req } from '@nestjs/common';
+import { Controller, Post, Get, Put, Body, UseGuards, Req } from '@nestjs/common';
 import { FirebaseAuthGuard } from '../auth/firebase.guard';
 import { NotificationsService } from './notifications.service';
 
@@ -14,5 +14,15 @@ export class NotificationsController {
       success: true,
       deviceId: result.id
     };
+  }
+
+  @Get('preferences')
+  async getPreferences(@Req() req: any) {
+    return await this.notificationsService.getPreferences(req.user.id);
+  }
+
+  @Put('preferences')
+  async updatePreferences(@Req() req: any, @Body() body: any) {
+    return await this.notificationsService.updatePreferences(req.user.id, body);
   }
 }

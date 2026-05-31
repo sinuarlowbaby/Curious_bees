@@ -1,4 +1,36 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700;800&display=swap');
+@font-face {
+  font-family: 'Waldenburg';
+  src: url('/fonts/kmr_waldenburg_normal.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Waldenburg';
+  src: url('/fonts/kmr_waldenburg_book.woff2') format('woff2');
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Waldenburg';
+  src: url('/fonts/kmr_waldenburg_bold.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'WaldenburgFH';
+  src: url('/fonts/ai_agents_deployment.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@import url('https://fonts.googleapis.com/css2?family=Geist+Mono:wght@300;400;500;600;700&family=Geist:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700;800&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -6,170 +38,364 @@
 
 @layer base {
   :root {
-    --background: 210 20% 98%;
-    --foreground: 222.2 84% 4.9%;
+    --background: 30 9% 95%;
+    --foreground: 0 0% 0%;
 
     --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card-foreground: 0 0% 0%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover-foreground: 0 0% 0%;
 
-    --primary: 345 100% 25%;
-    --primary-foreground: 210 40% 98%;
+    --primary: 0 0% 0%;
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    --secondary: 30 9% 96%;
+    --secondary-foreground: 0 0% 0%;
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    --muted: 30 9% 96%;
+    --muted-foreground: 30 5% 43%;
 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    --accent: 198 62% 62%;
+    --accent-foreground: 0 0% 0%;
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: 0 100% 38%;
+    --destructive-foreground: 0 0% 100%;
 
-    --border: 214.3 31.8% 90%;
-    --input: 214.3 31.8% 90%;
-    --ring: 345 100% 25%;
+    --border: 30 9% 89%;
+    --input: 30 9% 89%;
+    --ring: 0 0% 0%;
 
-    --radius: 0.75rem;
+    --radius: 12px;
 
-    --font-sans: 'Inter', sans-serif;
-    --font-display: 'Outfit', sans-serif;
+    --font-sans: 'Inter', 'Inter Fallback', sans-serif;
+    --font-display: 'Waldenburg', 'Waldenburg Fallback', sans-serif;
+    --font-mono: 'WaldenburgFH', 'WaldenburgFH Fallback', monospace;
   }
 
   .dark {
-    --background: 224 45% 6%;
-    --foreground: 210 40% 98%;
+    --background: 30 9% 95%;
+    --foreground: 0 0% 0%;
 
-    --card: 224 40% 8%;
-    --card-foreground: 210 40% 98%;
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 0%;
 
-    --popover: 224 45% 6%;
-    --popover-foreground: 210 40% 98%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 0%;
 
-    --primary: 345 100% 25%;
-    --primary-foreground: 210 40% 98%;
+    --primary: 0 0% 0%;
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 224 30% 12%;
-    --secondary-foreground: 210 40% 98%;
+    --secondary: 30 9% 96%;
+    --secondary-foreground: 0 0% 0%;
 
-    --muted: 224 30% 12%;
-    --muted-foreground: 215 20.2% 65.1%;
+    --muted: 30 9% 96%;
+    --muted-foreground: 30 5% 43%;
 
-    --accent: 224 30% 12%;
-    --accent-foreground: 210 40% 98%;
+    --accent: 198 62% 62%;
+    --accent-foreground: 0 0% 0%;
 
-    --destructive: 0 62.8% 30.6;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: 0 100% 38%;
+    --destructive-foreground: 0 0% 100%;
 
-    --border: 224 25% 14%;
-    --input: 224 25% 14%;
-    --ring: 345 100% 25%;
+    --border: 30 9% 89%;
+    --input: 30 9% 89%;
+    --ring: 0 0% 0%;
   }
 }
 
 body {
-  background-color: hsl(var(--background));
-  color: hsl(var(--foreground));
+  background-color: #f5f3f1;
+  color: #000000;
   font-family: var(--font-sans);
+  font-size: 17px;
+  font-weight: 400;
   overflow-x: hidden;
-  transition: background-color 0.3s ease, color 0.3s ease;
+  letter-spacing: normal;
 }
 
 h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-display);
+  letter-spacing: -0.02em;
 }
 
-/* Custom premium scrollbar */
+/* Custom premium dark scrollbar */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 6px;
+  height: 6px;
 }
 
 ::-webkit-scrollbar-track {
-  background: transparent;
+  background: rgba(0, 0, 0, 0.4);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
+  background: rgba(255, 255, 255, 0.08);
   border-radius: 9999px;
+  border: 1px solid rgba(255, 255, 255, 0.03);
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
+  background: rgba(255, 255, 255, 0.16);
 }
 
-.dark ::-webkit-scrollbar-thumb {
-  background: #1e293b;
+/* Noise texture overlay at 1.5% opacity over backgrounds for depth */
+.noise-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  content: "";
+  opacity: 0.015;
+  z-index: 9999;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
 }
 
-.dark ::-webkit-scrollbar-thumb:hover {
-  background: #334155;
+/* Flat card structures matching ElevenLabs specifications */
+.glass-premium {
+  background: #ffffff;
+  border: 1px solid #e8e5e1;
+  box-shadow: none !important;
+  transition: border-color 0.2s ease;
 }
 
-/* Glassmorphism card utilities */
-.glass-card {
-  background: hsl(var(--card));
-  border: 1px solid hsl(var(--border));
-  box-shadow: 0 4px 20px -5px rgba(0, 0, 0, 0.05);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+.glass-premium-hover:hover {
+  border-color: #000000 !important;
+  background: #ffffff !important;
+  box-shadow: none !important;
 }
 
-.dark .glass-card {
-  background: rgba(15, 23, 42, 0.4);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.2);
+/* Gradient Separator with fade-out on both ends */
+.gradient-fade-separator {
+  height: 1px;
+  background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.08) 50%, transparent 100%);
+  width: 100%;
 }
 
-.glass-card-hover:hover {
-  border-color: hsl(var(--primary) / 0.3);
-  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.08);
-  transform: translateY(-2px);
-}
-
-.dark .glass-card-hover:hover {
-  border-color: rgba(255, 255, 255, 0.12);
-  box-shadow: 0 10px 35px -10px rgba(0, 0, 0, 0.6), 0 0 15px -3px rgba(128, 0, 32, 0.1);
-}
-
-.glass-input {
-  background: hsl(var(--card));
-  border: 1px solid hsl(var(--border));
-  color: hsl(var(--foreground));
-  transition: all 0.2s ease;
-}
-
-.dark .glass-input {
-  background: rgba(15, 23, 42, 0.6);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  color: #fff;
-}
-
-.glass-input:focus {
-  border-color: #800020;
-  box-shadow: 0 0 10px rgba(128, 0, 32, 0.2);
-  outline: none;
-}
-
-.gradient-text {
-  background: linear-gradient(135deg, hsl(var(--foreground)) 20%, #800020 100%);
+.gradient-text-indigo {
+  background: linear-gradient(135deg, #6C63FF 0%, #9B59B6 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
-.recollab-gradient {
-  background: linear-gradient(135deg, #0d3c61 0%, #800020 100%);
+.gradient-text-teal {
+  background: linear-gradient(135deg, #00C2B2 0%, #6C63FF 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
-.srm-gradient {
-  background: linear-gradient(135deg, #0d3c61 0%, #800020 100%);
+/* Neon mesh gradients background nodes */
+.bg-mesh-node {
+  position: absolute;
+  border-radius: 9999px;
+  filter: blur(140px);
+  opacity: 0.15;
+  pointer-events: none;
+  z-index: 0;
 }
 
-.gold-gradient {
-  background: linear-gradient(135deg, #800020 0%, #d4af37 100%);
+/* FullCalendar styling overrides to fit the ultra-premium light theme */
+.fc {
+  --fc-border-color: #e8e5e1 !important;
+  --fc-daygrid-event-dot-width: 8px !important;
+  --fc-neutral-bg-color: transparent !important;
+  --fc-list-event-hover-bg-color: #f7f4f2 !important;
+  --fc-page-bg-color: transparent !important;
+  font-family: var(--font-sans) !important;
+  font-size: 11px !important;
 }
+
+.fc-theme-standard td, .fc-theme-standard th {
+  border: 1px solid #e8e5e1 !important;
+}
+
+.fc .fc-scrollgrid {
+  border: 1px solid rgba(0, 0, 0, 0.06) !important;
+  border-radius: 12px !important;
+  overflow: hidden !important;
+}
+
+.fc-col-header-cell-cushion {
+  color: #6e6e6e !important;
+  font-weight: 700 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.05em !important;
+  padding: 10px 0 !important;
+}
+
+.fc-daygrid-day-number {
+  color: #000000 !important;
+  font-weight: 500 !important;
+  font-size: 11px !important;
+  padding: 8px !important;
+}
+
+.fc-day-today {
+  background: rgba(0, 0, 0, 0.02) !important;
+}
+
+.fc-day-today .fc-daygrid-day-number {
+  color: #ffffff !important;
+  background-color: #000000 !important;
+  border-radius: 999px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 24px !important;
+  height: 24px !important;
+  padding: 0 !important;
+}
+
+.fc .fc-button-primary {
+  background-color: #ffffff !important;
+  border: 1px solid #e8e5e1 !important;
+  color: #000000 !important;
+  font-size: 10px !important;
+  text-transform: uppercase !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.05em !important;
+  padding: 6px 12px !important;
+  border-radius: 8px !important;
+  transition: all 0.2s ease !important;
+}
+
+.fc .fc-button-primary:hover {
+  background-color: #f7f4f2 !important;
+  border-color: #000000 !important;
+}
+
+.fc .fc-button-primary:disabled {
+  background-color: #f7f4f2 !important;
+  opacity: 0.4 !important;
+}
+
+.fc .fc-button-active {
+  background-color: #000000 !important;
+  border-color: #000000 !important;
+  color: #ffffff !important;
+}
+
+.fc .fc-toolbar-title {
+  color: #000000 !important;
+  font-size: 14px !important;
+  font-weight: 800 !important;
+  font-family: var(--font-display) !important;
+  letter-spacing: -0.02em !important;
+}
+
+.fc-event {
+  background-color: #1e1916 !important;
+  border: none !important;
+  color: #ffffff !important;
+  border-radius: 6px !important;
+  padding: 2px 4px !important;
+  font-weight: 600 !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3) !important;
+}
+
+/* Custom Typography Scale Utilities */
+.text-hero-stat {
+  font-family: var(--font-display);
+  font-size: 48px;
+  font-weight: 300;
+  line-height: 52px;
+  letter-spacing: -0.02em;
+}
+
+.text-section-heading {
+  font-family: var(--font-display);
+  font-size: 36px;
+  font-weight: 300;
+  line-height: 42px;
+  letter-spacing: -0.02em;
+}
+
+.text-heading-32 {
+  font-family: var(--font-display);
+  font-size: 32px;
+  font-weight: 400;
+  line-height: 38px;
+  letter-spacing: -0.02em;
+}
+
+.text-heading-20 {
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 400;
+  line-height: 26px;
+  letter-spacing: -0.02em;
+}
+
+.text-body-custom {
+  font-family: var(--font-sans);
+  font-size: 17px;
+  font-weight: 400;
+  line-height: 23.8px;
+  letter-spacing: normal;
+}
+
+.text-card-title {
+  font-family: var(--font-sans);
+  font-size: 17px;
+  font-weight: 500;
+  line-height: 23.8px;
+  letter-spacing: normal;
+}
+
+.text-ui-medium {
+  font-family: var(--font-sans);
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 25px;
+  letter-spacing: normal;
+}
+
+.text-ui-small {
+  font-family: var(--font-sans);
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 21px;
+  letter-spacing: normal;
+}
+
+.text-ui-xs {
+  font-family: var(--font-sans);
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 21px;
+  letter-spacing: normal;
+}
+
+.text-mono-12 {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 16px;
+}
+
+.text-mono-14 {
+  font-family: var(--font-mono);
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 18px;
+}
+
+.text-label-caps {
+  font-family: var(--font-sans);
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: normal;
+}
+
+.text-muted-custom {
+  font-family: var(--font-sans);
+  font-size: 14px;
+  font-weight: 400;
+  color: #a59f97;
+  line-height: 21px;
+  letter-spacing: normal;
+}
+
+

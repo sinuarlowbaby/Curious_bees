@@ -1,31 +1,61 @@
 import { Injectable, BadRequestException, NotFoundException, Logger } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { EventStatus, Prisma } from '@prisma/client';
+import { NotificationsService } from '../notifications/notifications.service';
 
 @Injectable()
 export class EventsService {
   private readonly logger = new Logger(EventsService.name);
 
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private notificationsService: NotificationsService
+  ) {}
 
-  async getEvents() {
+  /**
+   * Retrieves events with optional filtering and pagination.
+   */
+  async getEvents(filters?: { status?: EventStatus; limit?: number; skip?: number }) {
     try {
+      const where: Prisma.EventWhereInput = {};
+      if (filters?.status) {
+        where.status = filters.status;
+      } else {
+        // By default, don't return FAILED events in the main calendar
+        where.status = { not: EventStatus.FAILED };
+      }
+
       return await this.prisma.event.findMany({
-        where: { approvalStatus: 'PUBLISHED' },
-        orderBy: { date: 'asc' }
+        where,
+        orderBy: { date: 'asc' },
+        take: filters?.limit || 100,
+        skip: filters?.skip || 0,
       });
     } catch (e: any) {
-      this.logger.warn('Failed to query database events. Returning fallback mock data.');
+      this.logger.error('Failed to query database events', e);
       return [];
     }
   }
 
-  async getAiLogs() {
-    return await this.prisma.aIProcessingLog.findMany({
-      take: 20,
-      orderBy: { createdAt: 'desc' }
-    });
+  /**
+   * Specifically returns events requiring human review.
+   */
+  async getReviewEvents() {
+    return this.getEvents({ status: EventStatus.REVIEW_REQUIRED });
   }
 
+  /**
+   * Retrieves a single event by ID.
+   */
+  async getEventById(id: string) {
+    const event = await this.prisma.event.findUnique({ where: { id } });
+    if (!event) throw new NotFoundException('Event not found.');
+    return event;
+  }
+
+  /**
+   * Creates an event manually (skipping AI).
+   */
   async createEvent(input: { title: string; date: string; time: string; venue: string; description?: string }) {
     const { title, date, time, venue, description } = input;
     if (!title || !date || !time || !venue) {
@@ -40,7 +70,11 @@ export class EventsService {
           time, 
           venue, 
           description,
-          createdByAi: false 
+          eventType: 'Manual Entry',
+          confidence: 1.0,
+          aiModel: 'manual',
+          aiProvider: 'manual',
+          status: EventStatus.PUBLISHED
         }
       });
     } catch (e) {
@@ -49,27 +83,48 @@ export class EventsService {
     }
   }
 
-  async updateEvent(input: { id: string; title: string; date: string; time: string; venue: string }) {
-    const { id, title, date, time, venue } = input;
-    if (!id) {
-      throw new BadRequestException('Event identifier is required.');
-    }
-
+  /**
+   * Updates full event details.
+   */
+  async updateEvent(id: string, input: Prisma.EventUpdateInput) {
     try {
       return await this.prisma.event.update({
         where: { id },
-        data: { title, date: new Date(date), time, venue }
+        data: input
       });
     } catch (e) {
       throw new NotFoundException('Event not found.');
     }
   }
 
-  async deleteEvent(id: string) {
-    if (!id) {
-      throw new BadRequestException('Event identifier is required.');
-    }
+  /**
+   * Patches only the status of an event (for AI review queue).
+   */
+  async updateEventStatus(id: string, status: EventStatus) {
+    try {
+      const updatedEvent = await this.prisma.event.update({
+        where: { id },
+        data: { status }
+      });
 
+      // If approved, route it to interested users
+      if (status === EventStatus.PUBLISHED) {
+        // We do this async without awaiting so it doesn't block the HTTP response
+        this.notificationsService.routeEvent(updatedEvent).catch(e => {
+          this.logger.error(`Failed to route published event ${id}: ${e.message}`);
+        });
+      }
+
+      return updatedEvent;
+    } catch (e) {
+      throw new NotFoundException('Event not found.');
+    }
+  }
+
+  /**
+   * Deletes an event.
+   */
+  async deleteEvent(id: string) {
     try {
       return await this.prisma.event.delete({
         where: { id }
@@ -77,5 +132,34 @@ export class EventsService {
     } catch (e) {
       throw new NotFoundException('Event not found.');
     }
+  }
+
+  /**
+   * Gets AI processing statistics for the dashboard.
+   */
+  async getPipelineStats() {
+    const totalEvents = await this.prisma.event.count();
+    const reviewRequired = await this.prisma.event.count({ where: { status: EventStatus.REVIEW_REQUIRED } });
+    
+    // Calculate average confidence of AI generated events
+    const aiEvents = await this.prisma.event.findMany({
+      where: { aiProvider: { not: 'manual' } },
+      select: { confidence: true }
+    });
+    
+    const avgConfidence = aiEvents.length > 0 
+      ? (aiEvents.reduce((acc, curr) => acc + curr.confidence, 0) / aiEvents.length) * 100
+      : 0;
+
+    const duplicatesRejected = await this.prisma.aIProcessingLog.count({
+      where: { status: 'IGNORED' }
+    });
+
+    return {
+      totalEvents,
+      reviewQueue: reviewRequired,
+      avgConfidence: Math.round(avgConfidence),
+      duplicatesRejected,
+    };
   }
 }

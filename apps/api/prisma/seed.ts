@@ -240,7 +240,7 @@ The project involves designing multi-agent reinforcement learning (MARL) algorit
       date: new Date(today),
       time: '10:00 AM',
       venue: 'ECE Seminar Hall (PG Block)',
-      approvalStatus: 'PUBLISHED'
+      status: 'PUBLISHED', eventType: 'Seminar', confidence: 0.9, aiModel: 'manual', aiProvider: 'manual'
     }
   });
 
@@ -250,7 +250,7 @@ The project involves designing multi-agent reinforcement learning (MARL) algorit
       date: new Date(tomorrow),
       time: '02:30 PM',
       venue: 'Biotech Conference Room',
-      approvalStatus: 'PUBLISHED'
+      status: 'PUBLISHED', eventType: 'Seminar', confidence: 0.9, aiModel: 'manual', aiProvider: 'manual'
     }
   });
 
@@ -260,7 +260,7 @@ The project involves designing multi-agent reinforcement learning (MARL) algorit
       date: new Date(dayAfter),
       time: '11:15 AM',
       venue: 'Main Auditorium (Administrative Block)',
-      approvalStatus: 'PUBLISHED'
+      status: 'PUBLISHED', eventType: 'Seminar', confidence: 0.9, aiModel: 'manual', aiProvider: 'manual'
     }
   });
 

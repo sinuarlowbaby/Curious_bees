@@ -1,28 +1,27 @@
 'use client';
 
-import { useState } from 'react';
-import { useStore } from '@/store/useStore';
-import OpportunityCard from '@/components/OpportunityCard';
-import { SRM_DEPARTMENTS } from '@srm-recollab/shared-utils';
+import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { CreateOpportunitySchema } from '@srm-recollab/shared-utils';
+import { CreateOpportunitySchema, SRM_DEPARTMENTS } from '@srm-recollab/shared-utils';
+import { useStore } from '@/store/useStore';
 import { 
   Briefcase, 
   Plus, 
   Search, 
   Check, 
-  MapPin, 
-  Sparkles, 
   ShieldAlert, 
-  SlidersHorizontal,
   X,
   GraduationCap
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import GlassCard from '@/components/GlassCard';
+import TagPill from '@/components/TagPill';
+import GlowButton from '@/components/GlowButton';
+import OpportunityCard from '@/components/OpportunityCard';
 
 export default function OpportunitiesFeedPage() {
-  const { opportunities, createOpportunity, roleOverride, isLoading } = useStore();
+  const { opportunities, createOpportunity, roleOverride } = useStore();
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   
   // Filtering states
@@ -64,75 +63,75 @@ export default function OpportunitiesFeedPage() {
 
   const handleOpenDrawer = () => {
     if (roleOverride !== 'FACULTY') {
-      alert('🔒 Access Restricted! Only verified Verified Faculty Principal Investigators (PIs) are authorized to publish funded research opportunities. Toggle role in sandbox at sidebar bottom to test!');
+      alert('🔒 Access Restricted! Only verified Faculty Principal Investigators (PIs) are authorized to publish funded research opportunities. Toggle role in sandbox at sidebar bottom to test!');
       return;
     }
     setIsDrawerOpen(true);
   };
 
   return (
-    <div className="space-y-8 relative select-none">
+    <div className="space-y-8 relative select-none text-left">
       
-      {/* Upper Title Row */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6 border-b border-slate-100 dark:border-slate-850 pb-5 text-left">
+      {/* 🚀 Upper Title Row */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6 border-b border-borderStroke pb-5">
         <div>
-          <span className="text-[10px] font-black text-recollab-crimson dark:text-recollab-gold uppercase tracking-widest flex items-center gap-1">
-            <Briefcase className="w-4 h-4 text-recollab-crimson dark:text-recollab-gold" />
+          <span className="text-[10px] font-mono font-bold text-indigoElectric uppercase tracking-widest flex items-center gap-1.5">
+            <Briefcase className="w-4 h-4 text-indigoElectric" />
             <span>Academic Portal Vacancies</span>
           </span>
-          <h2 className="font-display font-extrabold text-xl sm:text-2xl text-slate-900 dark:text-white mt-1.5">
+          <h2 className="font-display font-extrabold text-2xl text-black mt-2">
             Faculty Research Openings
           </h2>
-          <p className="text-slate-500 dark:text-slate-400 text-xs mt-1 leading-relaxed">
+          <p className="text-textMuted text-xs mt-1 leading-relaxed">
             Explore funded PhD positions, research assistant slots, and interdisciplinary vacancies published by Principal Investigators.
           </p>
         </div>
 
         <button
           onClick={handleOpenDrawer}
-          className="px-5 py-3 rounded-xl text-xs font-black uppercase tracking-wider text-white recollab-gradient hover:opacity-95 shadow transition-all duration-200 active:scale-95 flex items-center justify-center space-x-1.5 shrink-0 cursor-pointer"
+          className="h-[40px] px-4 bg-black hover:bg-[#222222] text-white font-sans font-semibold text-[13px] rounded-lg transition-colors flex items-center gap-1.5 shrink-0 self-start sm:self-center cursor-pointer"
         >
           <Plus className="w-4.5 h-4.5" />
           <span>Publish Opportunity</span>
         </button>
       </div>
 
-      {/* Dynamic Filter Controls */}
-      <div className="glass-card rounded-2xl p-5 border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/15 grid grid-cols-1 sm:grid-cols-2 gap-4 text-left shadow-sm">
+      {/* 🚀 Dynamic Filter Controls */}
+      <GlassCard hoverable={false} className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-5">
         
         {/* Department select filter */}
         <div className="space-y-2">
-          <label className="block text-[10px] font-black text-slate-450 dark:text-slate-500 uppercase tracking-widest mb-1">Filter by Department</label>
+          <label className="block text-[9px] font-mono font-bold text-textMuted uppercase tracking-widest">Filter by Department</label>
           <select
             value={selectedDept}
             onChange={(e) => setSelectedDept(e.target.value)}
-            className="w-full px-4 py-2.5 rounded-xl glass-input text-xs font-semibold cursor-pointer text-slate-700 dark:text-slate-350"
+            className="w-full px-3 py-2 text-xs font-semibold rounded-lg bg-white border border-borderStroke text-black focus:border-black focus:outline-none transition-all cursor-pointer"
           >
-            <option value="" className="bg-slate-50 dark:bg-slate-950 text-slate-450 dark:text-slate-500">All Departments</option>
+            <option value="" className="bg-darkSurfaceMuted">All Departments</option>
             {SRM_DEPARTMENTS.map((dept) => (
-              <option key={dept} value={dept} className="bg-white dark:bg-slate-950 text-slate-800 dark:text-slate-200">{dept.split('(')[0]}</option>
+              <option key={dept} value={dept} className="bg-darkSurfaceMuted">{dept.split('(')[0]}</option>
             ))}
           </select>
         </div>
 
         {/* Domain text input filter */}
         <div className="space-y-2">
-          <label className="block text-[10px] font-black text-slate-450 dark:text-slate-500 uppercase tracking-widest mb-1">Search Research Domain</label>
+          <label className="block text-[9px] font-mono font-bold text-textMuted uppercase tracking-widest">Search Research Domain</label>
           <div className="relative">
             <input
               type="text"
               value={searchDomain}
               onChange={(e) => setSearchDomain(e.target.value)}
               placeholder="E.g. Reinforcement Learning, Nanomaterials..."
-              className="w-full pl-9 pr-4 py-2.5 rounded-xl glass-input text-xs font-semibold"
+              className="w-full pl-9 pr-4 py-2 text-xs font-semibold rounded-lg bg-white border border-borderStroke text-black placeholder-textMuted focus:border-black focus:outline-none transition-all"
             />
-            <Search className="w-4 h-4 text-slate-400 dark:text-slate-600 absolute left-3 top-3.5" />
+            <Search className="w-3.5 h-3.5 text-textMuted absolute left-3 top-2.5" />
           </div>
         </div>
 
-      </div>
+      </GlassCard>
 
-      {/* Main Feed Container */}
+      {/* 🚀 Main Feed Container */}
       <div className="space-y-6">
         <AnimatePresence mode="popLayout">
           {filteredOpps.length === 0 ? (
@@ -140,12 +139,12 @@ export default function OpportunitiesFeedPage() {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
-              className="glass-card rounded-3xl p-12 text-center border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/15"
+              className="bg-white border border-borderStroke rounded-2xl py-16 text-center"
             >
-              <Briefcase className="w-10 h-10 text-slate-350 dark:text-slate-655 mx-auto mb-4" />
-              <h4 className="text-slate-900 dark:text-white font-bold text-base">No Vacancies Pinned</h4>
-              <p className="text-slate-500 dark:text-slate-400 text-xs sm:text-sm max-w-xs mx-auto mt-2 leading-relaxed font-semibold">
-                No funded research slots match your filters at this time. Toggle sandbox roles inside the sidebar to publish a new slot!
+              <Briefcase className="w-12 h-12 text-textMuted mx-auto mb-4" />
+              <h4 className="text-black font-bold text-base">No Vacancies Pinned</h4>
+              <p className="text-textMuted text-xs max-w-xs mx-auto mt-2 leading-relaxed font-semibold">
+                No funded research slots match your filters at this time. Faculty leads can post JRF listings dynamically.
               </p>
             </motion.div>
           ) : (
@@ -156,17 +155,17 @@ export default function OpportunitiesFeedPage() {
         </AnimatePresence>
       </div>
 
-      {/* SLIDE OUT DRAWER FORM (For Faculty Creation) */}
+      {/* 🚀 SLIDE OUT DRAWER FORM (For Faculty Creation) */}
       <AnimatePresence>
         {isDrawerOpen && (
           <>
             {/* Backdrop */}
             <motion.div
               initial={{ opacity: 0 }}
-              animate={{ opacity: 0.5 }}
+              animate={{ opacity: 0.6 }}
               exit={{ opacity: 0 }}
               onClick={() => setIsDrawerOpen(false)}
-              className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 cursor-pointer"
+              className="fixed inset-0 bg-white/80 backdrop-blur-sm z-50 cursor-pointer"
             />
             
             {/* Drawer Panel */}
@@ -175,23 +174,23 @@ export default function OpportunitiesFeedPage() {
               animate={{ x: 0 }}
               exit={{ x: '100%' }}
               transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-              className="fixed inset-y-0 right-0 w-full sm:max-w-lg bg-white dark:bg-[#07090e] border-l border-slate-200 dark:border-slate-850 z-50 p-6 shadow-2xl flex flex-col justify-between overflow-y-auto text-left"
+              className="fixed inset-y-0 right-0 w-full sm:max-w-lg bg-darkSurface border-l border-borderStroke z-50 p-6 shadow-2xl flex flex-col justify-between overflow-y-auto text-left"
             >
               <div>
                 {/* Header */}
-                <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-4 mb-6">
-                  <div className="flex items-center space-x-2">
-                    <div className="w-8 h-8 rounded-lg bg-recollab-crimson/5 dark:bg-recollab-gold/5 border border-recollab-crimson/15 dark:border-recollab-gold/15 flex items-center justify-center text-recollab-crimson dark:text-recollab-gold">
+                <div className="flex items-center justify-between border-b border-borderStroke pb-4 mb-6">
+                  <div className="flex items-center space-x-2.5">
+                    <div className="w-8 h-8 rounded-lg bg-darkSurfaceMuted border border-borderStroke flex items-center justify-center text-black">
                       <GraduationCap className="w-5 h-5" />
                     </div>
                     <div>
-                      <h3 className="font-display font-extrabold text-sm text-slate-900 dark:text-white leading-none">Publish Research Slot</h3>
-                      <p className="text-[9px] text-slate-450 dark:text-slate-500 font-bold uppercase tracking-wider mt-1">Exclusive Faculty Intranet Hub</p>
+                      <h3 className="font-display font-extrabold text-sm text-black leading-none">Publish Research Slot</h3>
+                      <p className="text-[9px] text-textMuted font-mono font-bold uppercase tracking-wider mt-1.5">Exclusive Faculty Intranet Hub</p>
                     </div>
                   </div>
                   <button 
                     onClick={() => setIsDrawerOpen(false)} 
-                    className="p-1 rounded-lg text-slate-500 hover:text-slate-805 cursor-pointer"
+                    className="p-1 rounded-lg text-textMuted hover:text-white cursor-pointer transition"
                   >
                     <X className="w-5 h-5" />
                   </button>
@@ -201,68 +200,68 @@ export default function OpportunitiesFeedPage() {
                 <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
                   {/* 1. Title */}
                   <div className="space-y-2">
-                    <label className="block text-[10px] font-black text-slate-450 dark:text-slate-500 uppercase tracking-widest">Position Title</label>
+                    <label className="block text-[9px] font-mono font-bold text-textMuted uppercase tracking-widest">Position Title</label>
                     <input
                       type="text"
                       {...register('title')}
                       placeholder="E.g. PhD Slot: Silicon Photonics Biosensor Integration"
-                      className="w-full px-4 py-3 rounded-xl glass-input text-xs font-semibold"
+                      className="w-full px-3 py-2 text-xs font-semibold rounded-lg bg-white border border-borderStroke text-black placeholder-textMuted focus:border-black focus:outline-none transition-all"
                     />
-                    {errors.title && <p className="text-[10px] text-red-500 mt-1 font-semibold">{errors.title.message as string}</p>}
+                    {errors.title && <p className="text-[10px] text-dangerAlert mt-1 font-semibold">{errors.title.message as string}</p>}
                   </div>
 
                   {/* 2. Research Domain */}
                   <div className="space-y-2">
-                    <label className="block text-[10px] font-black text-slate-450 dark:text-slate-500 uppercase tracking-widest">Research Domain Keyword</label>
+                    <label className="block text-[9px] font-mono font-bold text-textMuted uppercase tracking-widest">Research Domain Keyword</label>
                     <input
                       type="text"
                       {...register('researchDomain')}
                       placeholder="E.g. Silicon Photonics"
-                      className="w-full px-4 py-3 rounded-xl glass-input text-xs font-semibold"
+                      className="w-full px-3 py-2 text-xs font-semibold rounded-lg bg-white border border-borderStroke text-black placeholder-textMuted focus:border-black focus:outline-none transition-all"
                     />
-                    {errors.researchDomain && <p className="text-[10px] text-red-500 mt-1 font-semibold">{errors.researchDomain.message as string}</p>}
+                    {errors.researchDomain && <p className="text-[10px] text-dangerAlert mt-1 font-semibold">{errors.researchDomain.message as string}</p>}
                   </div>
 
                   {/* 3. Department */}
                   <div className="space-y-2">
-                    <label className="block text-[10px] font-black text-slate-450 dark:text-slate-500 uppercase tracking-widest">Department Node</label>
+                    <label className="block text-[9px] font-mono font-bold text-textMuted uppercase tracking-widest">Department Node</label>
                     <select
                       {...register('department')}
-                      className="w-full px-4 py-3 rounded-xl glass-input text-xs font-semibold text-slate-700 dark:text-slate-350 cursor-pointer"
+                      className="w-full px-3 py-2 text-xs font-semibold rounded-lg bg-white border border-borderStroke text-black focus:border-black focus:outline-none transition-all cursor-pointer"
                     >
-                      <option value="" className="bg-slate-50 dark:bg-slate-950 text-slate-450 dark:text-slate-500">Select Department</option>
+                      <option value="" className="bg-darkSurfaceMuted">Select Department</option>
                       {SRM_DEPARTMENTS.map((dept) => (
-                        <option key={dept} value={dept} className="bg-white dark:bg-slate-950 text-slate-800 dark:text-slate-200">{dept}</option>
+                        <option key={dept} value={dept} className="bg-darkSurfaceMuted">{dept}</option>
                       ))}
                     </select>
-                    {errors.department && <p className="text-[10px] text-red-500 mt-1 font-semibold">{errors.department.message as string}</p>}
+                    {errors.department && <p className="text-[10px] text-dangerAlert mt-1 font-semibold">{errors.department.message as string}</p>}
                   </div>
 
                   {/* 4. Description */}
                   <div className="space-y-2">
-                    <label className="block text-[10px] font-black text-slate-450 dark:text-slate-500 uppercase tracking-widest">Job Scope & Stipend Details</label>
+                    <label className="block text-[9px] font-mono font-bold text-textMuted uppercase tracking-widest">Scope & Stipend Details</label>
                     <textarea
                       rows={5}
                       {...register('description')}
                       placeholder="Provide funding details (e.g. SERB rates), essential credentials required, and core lab requirements..."
-                      className="w-full px-4 py-3 rounded-xl glass-input text-xs leading-relaxed font-sans font-semibold"
+                      className="w-full px-3 py-2 text-xs leading-relaxed font-sans font-semibold rounded-lg bg-white border border-borderStroke text-black placeholder-textMuted focus:border-black focus:outline-none transition-all"
                     />
-                    {errors.description && <p className="text-[10px] text-red-500 mt-1 font-semibold">{errors.description.message as string}</p>}
+                    {errors.description && <p className="text-[10px] text-dangerAlert mt-1 font-semibold">{errors.description.message as string}</p>}
                   </div>
 
                   {/* Actions */}
-                  <div className="flex justify-end gap-3 pt-6 border-t border-slate-100 dark:border-slate-850">
+                  <div className="flex justify-end gap-3 pt-6 border-t border-borderStroke">
                     <button
                       type="button"
                       onClick={() => setIsDrawerOpen(false)}
-                      className="px-4 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider text-slate-500 hover:text-slate-850 cursor-pointer"
+                      className="px-4 py-2.5 rounded-xl text-xs font-mono font-bold uppercase tracking-wider text-textMuted hover:text-white cursor-pointer"
                     >
                       Cancel
                     </button>
-                    <button
+                    <GlowButton
                       type="submit"
                       disabled={isSubmitting}
-                      className="px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider text-white recollab-gradient hover:opacity-95 shadow transition-all duration-200 active:scale-95 flex items-center space-x-1.5 cursor-pointer"
+                      variant="primary"
                     >
                       {isSubmitting ? (
                         <span className="w-4 h-4 border-2 border-white border-t-transparent animate-spin rounded-full" />
@@ -272,16 +271,16 @@ export default function OpportunitiesFeedPage() {
                           <span>Publish Slot</span>
                         </>
                       )}
-                    </button>
+                    </GlowButton>
                   </div>
 
                 </form>
               </div>
 
               {/* Dev notice footer */}
-              <div className="mt-8 bg-slate-50 dark:bg-slate-900/50 border border-slate-150 dark:border-slate-850 p-3 rounded-xl flex items-center space-x-2 text-[9px] text-slate-500 uppercase font-black">
-                <ShieldAlert className="w-4 h-4 text-recollab-gold shrink-0 animate-pulse" />
-                <span>Only Faculty can invoke this service.</span>
+              <div className="mt-8 bg-darkSurfaceMuted border border-borderStroke p-3.5 rounded-xl flex items-center space-x-2.5 text-[9px] text-textMuted uppercase font-mono font-bold">
+                <ShieldAlert className="w-4 h-4 text-indigoElectric shrink-0 animate-pulse" />
+                <span>Verified Faculty PIs authorized only.</span>
               </div>
 
             </motion.div>

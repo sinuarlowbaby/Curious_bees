@@ -12,28 +12,25 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="light">
+    <html lang="en" className="light" style={{ colorScheme: 'light' }}>
       <head>
         <script
           dangerouslySetInnerHTML={{
             __html: `
               (function() {
                 try {
-                  var theme = localStorage.getItem('srm-recollab-theme') || 'light';
-                  if (theme === 'dark') {
-                    document.documentElement.classList.add('dark');
-                    document.documentElement.classList.remove('light');
-                  } else {
-                    document.documentElement.classList.add('light');
-                    document.documentElement.classList.remove('dark');
-                  }
+                  document.documentElement.classList.add('light');
+                  document.documentElement.classList.remove('dark');
+                  localStorage.setItem('srm-recollab-theme', 'light');
                 } catch (e) {}
               })();
             `
           }}
         />
       </head>
-      <body className="antialiased">
+      <body className="antialiased bg-darkBg text-textPrimary relative min-h-screen">
+        {/* Global 3% noise texture overlay */}
+        <div className="noise-overlay" />
         {children}
       </body>
     </html>
@@ -42,3 +39,4 @@ export default function RootLayout({
 
 // Utility to handle typescript parameter typings without syntax bugs
 type Readrules<T> = Readonly<T>;
+
