@@ -1,9 +1,11 @@
-import { Injectable, CanActivate, ExecutionContext, UnauthorizedException } from '@nestjs/common';
+import { Injectable, CanActivate, ExecutionContext, Logger, UnauthorizedException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { FirebaseAdminService } from './firebase-admin.service';
 
 @Injectable()
 export class FirebaseAuthGuard implements CanActivate {
+  private readonly logger = new Logger(FirebaseAuthGuard.name);
+
   constructor(
     private prisma: PrismaService,
     private firebaseAdmin: FirebaseAdminService,
@@ -26,6 +28,7 @@ export class FirebaseAuthGuard implements CanActivate {
       let decodedToken: any;
 
       if (process.env.NODE_ENV !== 'production' && token.startsWith('mock-bypass-token-')) {
+        this.logger.warn('Using local mock Firebase auth bypass token.');
         const isFaculty = token.includes('faculty');
         decodedToken = {
           uid: isFaculty ? 'mock-bypass-uid-faculty' : 'mock-bypass-uid-scholar',
@@ -36,15 +39,21 @@ export class FirebaseAuthGuard implements CanActivate {
             : 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150',
         };
       } else {
-        // 1. Verify token signature using firebase-admin
+        this.logger.debug(`Received Firebase bearer token for verification. tokenLength=${token.length}`);
         decodedToken = await this.firebaseAdmin.verifyToken(token);
       }
-      const email = decodedToken.email || '';
-      const username = email.split('@')[0].toLowerCase();
 
-      // 4. Find or auto-register user in Supabase PostgreSQL
+      const email = decodedToken.email || '';
+      if (!email) {
+        throw new Error('Firebase token is valid but does not contain an email claim.');
+      }
+
+      this.logger.log(`Authenticated Firebase user uid=${decodedToken.uid}, email=${email}`);
+      const username = email.split('@')[0].toLowerCase();
+      const normalizedEmail = email.toLowerCase();
+
       let user = await this.prisma.user.findUnique({
-        where: { email: email.toLowerCase() },
+        where: { email: normalizedEmail },
         include: {
           interests: {
             include: {
@@ -55,14 +64,14 @@ export class FirebaseAuthGuard implements CanActivate {
       });
 
       if (!user) {
-        // Auto-determine default role
         const isFaculty = username.startsWith('dr.') || username.includes('faculty') || username.startsWith('hod.');
         const role = isFaculty ? 'FACULTY' : 'PHD_SCHOLAR';
 
+        this.logger.log(`Creating CuriousBees user for ${normalizedEmail} with role=${role}.`);
         user = await this.prisma.user.create({
           data: {
             id: decodedToken.uid, // Map Firebase UID as primary key
-            email: email.toLowerCase(),
+            email: normalizedEmail,
             name: decodedToken.name || email.split('@')[0],
             image: decodedToken.picture || null,
             role: role as any,
@@ -77,13 +86,35 @@ export class FirebaseAuthGuard implements CanActivate {
             }
           }
         });
+      } else {
+        this.logger.log(`Existing CuriousBees user found for ${normalizedEmail}; syncing profile fields.`);
+        user = await this.prisma.user.update({
+          where: { id: user.id },
+          data: {
+            name: decodedToken.name || user.name,
+            image: decodedToken.picture || user.image,
+            emailVerified: user.emailVerified || new Date(),
+          },
+          include: {
+            interests: {
+              include: {
+                interest: true
+              }
+            }
+          }
+        });
       }
 
-      // 5. Attach the verified user database model to NestJS request
+      this.logger.log(`CuriousBees user sync complete for ${normalizedEmail}: id=${user.id}, role=${user.role}, approved=${user.isApproved}`);
       request.user = user;
       return true;
     } catch (e: any) {
-      throw new UnauthorizedException(e.message || 'Authentication failed.');
+      this.logger.error(`Authentication failed: ${e.message}`);
+      throw new UnauthorizedException({
+        message: e.message || 'Authentication failed.',
+        code: 'FIREBASE_AUTH_SYNC_FAILED',
+        details: this.firebaseAdmin.getMissingCredentials?.() || [],
+      });
     }
   }
 }

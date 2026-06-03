@@ -10,6 +10,14 @@ const firebaseConfig = {
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
 };
 
+const missingFirebaseConfig = Object.entries(firebaseConfig)
+  .filter(([, value]) => !value)
+  .map(([key]) => key);
+
+if (missingFirebaseConfig.length > 0) {
+  console.warn('[Firebase Client] Missing Firebase web config keys:', missingFirebaseConfig);
+}
+
 // Initialize Firebase app (Singleton)
 export const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
 
@@ -28,7 +36,17 @@ googleProvider.setCustomParameters({
 export const signInWithGoogle = async () => {
   try {
     const result = await signInWithPopup(auth, googleProvider);
+    console.info('[Auth] Google login success:', {
+      uid: result.user.uid,
+      email: result.user.email,
+    });
+
     const token = await result.user.getIdToken();
+    console.info('[Auth] Firebase ID token generated:', {
+      uid: result.user.uid,
+      tokenLength: token.length,
+    });
+
     return { user: result.user, token };
   } catch (error: any) {
     console.error('Firebase Google Sign-In Error:', error);

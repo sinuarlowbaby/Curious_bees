@@ -34,7 +34,7 @@ export default function LoginPage() {
       const params = new URLSearchParams(window.location.search);
       const err = params.get('error');
       if (err === 'access_denied') {
-        setErrorMsg('Your Google account is not authorized for this platform. Only registered institutional accounts can access CuriousBees.');
+        setErrorMsg('Your account could not be synced with CuriousBees. Please try again or use the developer sandbox bypass if Firebase is not configured locally.');
       }
     }
   }, []);
@@ -62,18 +62,25 @@ export default function LoginPage() {
     setAuthLoading(true);
 
     try {
-      await signInWithGoogle();
-      const syncedUser = await syncUserSession();
+      const { user, token } = await signInWithGoogle();
+      console.info('[Login] Google sign-in completed, starting backend sync:', {
+        uid: user.uid,
+        email: user.email,
+        tokenLength: token.length,
+      });
+
+      const syncedUser = await syncUserSession({ throwOnError: true });
       if (syncedUser) {
-        // Role-based redirect — determined by email mapping
+        // Role-based redirect determined by the backend user profile.
         const route = syncedUser.role === 'ADMIN' ? '/admin' : '/dashboard';
         router.push(route);
       } else {
         await signOut(auth);
-        setErrorMsg('Your Google account is not authorized to access CuriousBees. Only mapped institutional accounts are permitted during this development phase.');
+        setErrorMsg('CuriousBees could not sync your Google session with the backend.');
       }
     } catch (e: any) {
       console.error(e);
+      await signOut(auth).catch(() => {});
       if (e.message?.includes('auth/api-key-not-valid') || e.code?.includes('api-key-not-valid')) {
         setErrorMsg('Security Alert: The Firebase API key configured is invalid. Use the local sandbox bypass below.');
       } else {

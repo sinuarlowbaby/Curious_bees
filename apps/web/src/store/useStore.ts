@@ -1,7 +1,6 @@
 import { create } from 'zustand';
 import { User, Thread, Comment, Opportunity, UserRole, Event, CollaborationRequest, Workspace, WorkspaceFile, WorkspaceMilestone, WorkspaceAnnouncement, AuditLog } from '@curiousbees/types';
 import { auth } from '@/lib/firebase';
-import { getRoleForEmail } from '@/lib/auth/role-mapping';
 import { getDashboardRoute } from '@/lib/auth/route-protection';
 import { ROLE_COOKIE_NAME } from '@/lib/auth/constants';
 
@@ -53,7 +52,7 @@ interface AppState {
   setTheme: (theme: 'dark' | 'light') => void;
 
   // Live REST API Actions (Integrates Firebase Bearer JWT)
-  syncUserSession: () => Promise<User | null>;
+  syncUserSession: (options?: { throwOnError?: boolean }) => Promise<User | null>;
   fetchData: () => Promise<void>;
   fetchCollaborators: (search?: string, department?: string) => Promise<User[]>;
   createThread: (title: string, content: string, tags: string[]) => Promise<Thread>;
@@ -97,6 +96,11 @@ const getBearerHeader = async (): Promise<Record<string, string>> => {
   const user = auth.currentUser;
   if (user) {
     const token = await user.getIdToken(true); // Enforce fresh token
+    console.info('[Auth] Prepared Firebase bearer token for backend sync:', {
+      uid: user.uid,
+      email: user.email,
+      tokenLength: token.length,
+    });
     return { 'Authorization': `Bearer ${token}` };
   }
   
@@ -108,6 +112,25 @@ const getBearerHeader = async (): Promise<Record<string, string>> => {
     }
   }
   return {};
+};
+
+const readApiError = async (res: Response): Promise<string> => {
+  try {
+    const data = await res.json();
+    const message = Array.isArray(data?.message)
+      ? data.message.join(', ')
+      : data?.message;
+    const details = Array.isArray(data?.details)
+      ? data.details.join(', ')
+      : data?.details;
+    return [message, details].filter(Boolean).join(' ');
+  } catch {
+    try {
+      return await res.text();
+    } catch {
+      return '';
+    }
+  }
 };
 
 // ─── Cookie helpers (client-side only) ──────────────────────────────────────
@@ -181,58 +204,84 @@ export const useStore = create<AppState>((set, get) => ({
     set({ theme });
   },
 
-  // 1. Sync User session from Firebase auth token with the Supabase Backend
-  syncUserSession: async () => {
+  // 1. Sync User session from Firebase auth token with the backend
+  syncUserSession: async (options) => {
     set({ isLoading: true });
     try {
       const headers = await getBearerHeader();
       if (Object.keys(headers).length === 0) {
         deleteCookie(ROLE_COOKIE_NAME);
         set({ currentUser: null });
+        if (options?.throwOnError) {
+          throw new Error('No Firebase ID token is available. Complete Google sign-in before syncing with the backend.');
+        }
         return null;
       }
 
+      console.info('[Auth] Sending backend session sync request:', {
+        endpoint: '/api/auth/me',
+        hasAuthorizationHeader: Boolean(headers.Authorization),
+      });
+
       const res = await fetch('/api/auth/me', { headers });
+      console.info('[Auth] Backend session sync response:', {
+        status: res.status,
+        ok: res.ok,
+      });
+
       if (res.ok) {
         const data = await res.json();
         if (data.success && data.user) {
           const user: User = data.user;
-
-          // ── DEV ROLE OVERRIDE ─────────────────────────────────────────────
-          // Overlay the static email → role mapping for local testing.
-          // In production: remove this block; the backend returns the real role.
-          const devRole = getRoleForEmail(user.email);
-          if (devRole !== null) {
-            user.role = devRole;
-          } else {
-            // Email not in dev mapping → deny access
-            if (typeof window !== 'undefined') {
-              localStorage.removeItem('curiousbees-mock-token');
-            }
-            deleteCookie(ROLE_COOKIE_NAME);
-            set({ currentUser: null });
-            return null; // Caller should redirect to /login?error=access_denied
-          }
-          // ── END DEV ROLE OVERRIDE ─────────────────────────────────────────
-
+          console.info('[Auth] Backend session sync success:', {
+            id: user.id,
+            email: user.email,
+            role: user.role,
+            isApproved: user.isApproved,
+          });
           const route = getDashboardRoute(user.role);
           setCookie(ROLE_COOKIE_NAME, user.role);
           set({ currentUser: user, roleOverride: user.role, dashboardRoute: route });
           return user;
         }
+        const errorMessage = 'Backend auth sync returned HTTP 200 without a user payload.';
+        console.error('[Auth] Backend session sync failed:', errorMessage);
+        if (typeof window !== 'undefined') {
+          localStorage.removeItem('curiousbees-mock-token');
+        }
+        deleteCookie(ROLE_COOKIE_NAME);
+        set({ currentUser: null });
+        if (options?.throwOnError) {
+          throw new Error(errorMessage);
+        }
+        return null;
       }
+
+      const apiMessage = await readApiError(res);
+      const errorMessage = apiMessage
+        ? `Backend auth sync failed (${res.status}): ${apiMessage}`
+        : `Backend auth sync failed with HTTP ${res.status}.`;
+      console.error('[Auth] Backend session sync failed:', errorMessage);
+
       if (typeof window !== 'undefined') {
         localStorage.removeItem('curiousbees-mock-token');
       }
       deleteCookie(ROLE_COOKIE_NAME);
       set({ currentUser: null });
+      if (options?.throwOnError) {
+        throw new Error(errorMessage);
+      }
       return null;
-    } catch (e) {
+    } catch (e: any) {
       if (typeof window !== 'undefined') {
         localStorage.removeItem('curiousbees-mock-token');
       }
       deleteCookie(ROLE_COOKIE_NAME);
       set({ currentUser: null });
+      console.error('[Auth] Session sync exception:', e);
+      if (options?.throwOnError) {
+        throw e;
+      }
       return null;
     } finally {
       set({ isLoading: false });

@@ -2,21 +2,26 @@ import * as dotenv from 'dotenv';
 import * as path from 'path';
 import * as fs from 'fs';
 
-// Dynamically locate root .env in monorepo parent folders
-let envPath = path.join(process.cwd(), '.env');
-if (!fs.existsSync(envPath)) {
-  envPath = path.join(process.cwd(), '..', '.env');
+// Dynamically locate .env when the API is started from either the repo root
+// or the apps/api workspace directory.
+const envCandidates = [
+  path.join(process.cwd(), '.env'),
+  path.join(process.cwd(), 'apps/api/.env'),
+  path.join(process.cwd(), 'apps/web/.env'),
+  path.join(process.cwd(), '..', '.env'),
+  path.join(process.cwd(), '../..', '.env'),
+  path.join(process.cwd(), '../web/.env'),
+  path.join(process.cwd(), '../../apps/api/.env'),
+  path.join(process.cwd(), '../../apps/web/.env'),
+];
+const envPath = envCandidates.find((candidate) => fs.existsSync(candidate));
+if (envPath) {
+  dotenv.config({ path: envPath });
+  console.log(`[CuriousBees] Loaded environment from ${envPath}`);
+} else {
+  dotenv.config();
+  console.warn('[CuriousBees] No .env file found in expected API/web locations.');
 }
-if (!fs.existsSync(envPath)) {
-  envPath = path.join(process.cwd(), '../..', '.env');
-}
-if (!fs.existsSync(envPath)) {
-  envPath = path.join(process.cwd(), '../web/.env');
-}
-if (!fs.existsSync(envPath)) {
-  envPath = path.join(process.cwd(), '../../apps/web/.env');
-}
-dotenv.config({ path: envPath });
 
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
@@ -37,6 +42,8 @@ async function createApp(expressInstance?: express.Express) {
     exclude: [
       { path: '', method: RequestMethod.GET },
       { path: 'api', method: RequestMethod.GET },
+      { path: 'health', method: RequestMethod.GET },
+      { path: 'api/health', method: RequestMethod.GET },
     ],
   });
 
@@ -50,15 +57,20 @@ async function createApp(expressInstance?: express.Express) {
   );
 
   // CORS — supports local dev + all Vercel preview/production deployments
-  const allowedOrigins = [
-    'http://localhost:3000',
-    'http://127.0.0.1:3000',
-    'https://curiousbees.vercel.app',
-    'https://curiousbees.vercel.app',
+  const configuredOrigins = [
+    process.env.FRONTEND_URL,
+    process.env.WEB_URL,
     ...(process.env.ALLOWED_ORIGINS
       ? process.env.ALLOWED_ORIGINS.split(',').map((o) => o.trim())
       : []),
-  ];
+  ].filter(Boolean) as string[];
+
+  const allowedOrigins = Array.from(new Set([
+    'http://localhost:3000',
+    'http://127.0.0.1:3000',
+    'https://curiousbees.vercel.app',
+    ...configuredOrigins,
+  ]));
 
   app.enableCors({
     origin: (origin, callback) => {

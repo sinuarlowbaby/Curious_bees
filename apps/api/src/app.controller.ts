@@ -14,10 +14,10 @@ export class AppController {
     };
   }
 
-  @Get('health')
+  @Get(['health', 'api/health'])
   health() {
     return {
-      status: 'healthy',
+      status: 'ok',
       uptime: process.uptime(),
       timestamp: new Date().toISOString(),
     };
