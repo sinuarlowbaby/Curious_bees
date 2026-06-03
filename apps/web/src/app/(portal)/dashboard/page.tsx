@@ -22,13 +22,32 @@ import AvatarRing from '@/components/AvatarRing';
 import ThreadCard from '@/components/ThreadCard';
 
 export default function DashboardPage() {
-  const { currentUser, threads, opportunities, roleOverride, collaborators, events, fetchCollaborators, fetchData } = useStore();
+  const { 
+    currentUser, 
+    threads, 
+    opportunities, 
+    roleOverride, 
+    collaborators, 
+    events, 
+    pendingApprovals,
+    collaborationRequests,
+    fetchPendingApprovals,
+    fetchCollaborationRequests,
+    approveScholar,
+    updateCollaborationRequest,
+    fetchCollaborators, 
+    fetchData 
+  } = useStore();
 
-  // Fetch live threads, opportunities, and collaborators on mount
+  // Fetch live data on mount
   useEffect(() => {
     fetchData();
     fetchCollaborators();
-  }, [fetchData, fetchCollaborators]);
+    if (roleOverride === 'FACULTY' || currentUser?.role === 'FACULTY') {
+      fetchPendingApprovals();
+      fetchCollaborationRequests();
+    }
+  }, [fetchData, fetchCollaborators, fetchPendingApprovals, fetchCollaborationRequests, roleOverride, currentUser]);
 
   // Pick suitable greeting based on local time
   const getGreeting = () => {
@@ -122,6 +141,93 @@ export default function DashboardPage() {
         
         {/* Left Columns (Research proposals) */}
         <div className="lg:col-span-2 space-y-6">
+
+          {roleOverride === 'FACULTY' && (
+            <div className="space-y-6">
+              
+              {/* Scholar Approvals Hub */}
+              {pendingApprovals.length > 0 && (
+                <div className="bg-white border border-borderStroke rounded-xl p-5 space-y-4">
+                  <h3 className="font-sans font-bold text-xs uppercase tracking-widest text-indigoElectric">
+                    Pending Scholar Approvals ({pendingApprovals.length})
+                  </h3>
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-left border-collapse">
+                      <thead>
+                        <tr className="border-b border-borderStroke text-[11px] font-bold text-textSecondary uppercase tracking-wider">
+                          <th className="pb-2">Scholar</th>
+                          <th className="pb-2">Department</th>
+                          <th className="pb-2 text-right">Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-borderStroke">
+                        {pendingApprovals.map((scholar) => (
+                          <tr key={scholar.id} className="text-xs">
+                            <td className="py-3 font-semibold text-black">
+                              <div>{scholar.name}</div>
+                              <div className="text-[10px] text-textSecondary font-normal">{scholar.email}</div>
+                            </td>
+                            <td className="py-3 text-textSecondary">{scholar.department || 'N/A'}</td>
+                            <td className="py-3 text-right">
+                              <button
+                                onClick={() => approveScholar(scholar.id)}
+                                className="px-3 py-1 bg-black text-white hover:bg-[#222222] font-semibold rounded text-[11px] cursor-pointer"
+                              >
+                                Approve Access
+                              </button>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              )}
+
+              {/* Collaboration Requests Hub */}
+              {collaborationRequests.filter(r => r.status === 'PENDING').length > 0 && (
+                <div className="bg-white border border-borderStroke rounded-xl p-5 space-y-4">
+                  <h3 className="font-sans font-bold text-xs uppercase tracking-widest text-indigoElectric">
+                    Pending Collaboration Invites ({collaborationRequests.filter(r => r.status === 'PENDING').length})
+                  </h3>
+                  <div className="space-y-3">
+                    {collaborationRequests.filter(r => r.status === 'PENDING').map((req) => (
+                      <div key={req.id} className="p-3.5 border border-borderStroke rounded-lg bg-darkSurfaceMuted flex flex-col sm:flex-row justify-between sm:items-start gap-3 text-left">
+                        <div className="space-y-1 min-w-0">
+                          <h4 className="text-xs font-bold text-black truncate">
+                            {req.scholar?.name || 'Scholar'} requested synergy
+                          </h4>
+                          <p className="text-[11px] text-textSecondary truncate">
+                            Opportunity: <span className="font-semibold text-black">{req.opportunity?.title}</span>
+                          </p>
+                          {req.message && (
+                            <p className="text-xs text-textSecondary italic border-l-2 border-borderStroke pl-2 mt-1 line-clamp-2">
+                              "{req.message}"
+                            </p>
+                          )}
+                        </div>
+                        <div className="flex space-x-2 shrink-0 self-end sm:self-start">
+                          <button
+                            onClick={() => updateCollaborationRequest(req.id, 'PUBLISHED')}
+                            className="px-3 py-1.5 bg-black text-white hover:bg-[#222222] font-semibold rounded text-[10px] cursor-pointer"
+                          >
+                            Accept
+                          </button>
+                          <button
+                            onClick={() => updateCollaborationRequest(req.id, 'REJECTED')}
+                            className="px-3 py-1.5 bg-white text-dangerAlert border border-borderStroke hover:bg-red-50 font-semibold rounded text-[10px] cursor-pointer"
+                          >
+                            Decline
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+            </div>
+          )}
           <div className="flex items-center justify-between border-b border-borderStroke pb-3">
             <h3 className="font-sans font-semibold text-[14px] uppercase tracking-wider text-black flex items-center gap-2">
               <TrendingUp className="w-4 h-4 text-textSecondary" />
@@ -194,7 +300,7 @@ export default function DashboardPage() {
                     </p>
                     
                     <p className="text-textSecondary text-[13px] mt-2 line-clamp-2 leading-relaxed">
-                      {collab.bio || 'Interdisciplinary scholar indexing research fields in the ReCollab network.'}
+                      {collab.bio || 'Interdisciplinary scholar indexing research fields in the CuriousBees network.'}
                     </p>
                   </div>
 

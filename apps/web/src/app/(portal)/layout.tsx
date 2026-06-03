@@ -20,7 +20,7 @@ export default function PortalLayout({
   // Sync local storage theme on mount
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      const savedTheme = (localStorage.getItem('srm-recollab-theme') as 'dark' | 'light') || 'light';
+      const savedTheme = (localStorage.getItem('curiousbees-theme') as 'dark' | 'light') || 'light';
       setTheme(savedTheme);
     }
   }, [setTheme]);
@@ -29,6 +29,8 @@ export default function PortalLayout({
   useEffect(() => {
     if (!currentUser) {
       router.push('/login');
+    } else if (currentUser.role === 'PHD_SCHOLAR' && !currentUser.isApproved) {
+      router.push('/auth/pending');
     } else {
       fetchData(); // Trigger initial live API fetch
       
@@ -50,7 +52,7 @@ export default function PortalLayout({
     return (
       <div className="min-h-screen bg-slate-50 dark:bg-[#070a13] flex items-center justify-center text-slate-500 dark:text-slate-400">
         <div className="flex flex-col items-center space-y-3">
-          <div className="w-8 h-8 rounded-full border-2 border-recollab-gold border-t-transparent animate-spin" />
+          <div className="w-8 h-8 rounded-full border-2 border-curiousbees-gold border-t-transparent animate-spin" />
           <p className="text-xs font-semibold uppercase tracking-wider">Verifying Intranet Security Credentials...</p>
         </div>
       </div>

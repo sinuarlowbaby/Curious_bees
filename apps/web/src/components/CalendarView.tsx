@@ -18,7 +18,7 @@ import {
   ChevronRight,
   TrendingUp
 } from 'lucide-react';
-import { Event } from '@srm-recollab/types';
+import { Event } from '@curiousbees/types';
 import { format } from 'date-fns';
 import GlassCard from './GlassCard';
 import TagPill from './TagPill';
@@ -408,7 +408,7 @@ export default function CalendarView({
 
           <div className="border-t border-borderStroke pt-4 mt-6">
             <span className="text-[8px] font-mono font-bold text-textMuted uppercase tracking-widest block text-center">
-              ReCollab AI Engine V2.0
+              CuriousBees AI Engine V2.0
             </span>
           </div>
         </div>

@@ -5,7 +5,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { auth } from '@/lib/firebase';
 import { motion, AnimatePresence } from 'framer-motion';
 import { AlertCircle, Check, CheckCircle, X, Calendar, MapPin, Loader2 } from 'lucide-react';
-import { Event } from '@srm-recollab/types';
+import { Event } from '@curiousbees/types';
 
 type PrismaEvent = Event & {
   status: 'DRAFT' | 'PUBLISHED' | 'REVIEW_REQUIRED' | 'FAILED';
@@ -20,7 +20,7 @@ const fetchReviewQueue = async () => {
     const token = await user.getIdToken();
     headers['Authorization'] = `Bearer ${token}`;
   } else {
-    const mockToken = localStorage.getItem('recollab-mock-token');
+    const mockToken = localStorage.getItem('curiousbees-mock-token');
     if (mockToken) headers['Authorization'] = `Bearer ${mockToken}`;
   }
 
@@ -36,7 +36,7 @@ const updateStatus = async ({ id, status }: { id: string, status: string }) => {
     const token = await user.getIdToken();
     headers['Authorization'] = `Bearer ${token}`;
   } else {
-    const mockToken = localStorage.getItem('recollab-mock-token');
+    const mockToken = localStorage.getItem('curiousbees-mock-token');
     if (mockToken) headers['Authorization'] = `Bearer ${mockToken}`;
   }
 

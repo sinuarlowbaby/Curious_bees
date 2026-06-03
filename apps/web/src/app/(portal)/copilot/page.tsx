@@ -43,7 +43,7 @@ async function createNewSession(title?: string) {
       'Content-Type': 'application/json',
       Authorization: `Bearer ${token}` 
     },
-    body: JSON.stringify({ title: title || 'Ask ReCollab Conversation' }),
+    body: JSON.stringify({ title: title || 'Ask CuriousBees Conversation' }),
   });
   if (!res.ok) throw new Error('Failed to create session');
   return res.json();
@@ -127,7 +127,7 @@ export default function CopilotPage() {
     // Create session first if none is active
     if (!targetSessionId) {
       try {
-        const sessionData = await createSessionMutation.mutateAsync('Ask ReCollab session');
+        const sessionData = await createSessionMutation.mutateAsync('Ask CuriousBees session');
         targetSessionId = sessionData.session.id;
       } catch (err) {
         setStreamError('Failed to initialize a chat session.');
@@ -281,7 +281,7 @@ export default function CopilotPage() {
               RC
             </div>
             <div>
-              <span className="text-xs font-bold text-black block leading-none">Ask ReCollab AI</span>
+              <span className="text-xs font-bold text-black block leading-none">Ask CuriousBees AI</span>
               <span className="text-[9px] font-bold text-[#10b981] flex items-center gap-1 mt-0.5">
                 <span className="w-1.5 h-1.5 rounded-full bg-[#10b981] animate-pulse" />
                 <span>Qwen2.5 Local RAG Active</span>
@@ -443,7 +443,7 @@ export default function CopilotPage() {
             <div className="max-w-xl mx-auto py-12 text-center select-none">
               <Sparkles className="w-10 h-10 text-[#61b5db] mx-auto mb-4 animate-pulse" />
               <h2 className="text-xl font-extrabold text-black tracking-tight mb-2">
-                Ask ReCollab AI Copilot
+                Ask CuriousBees AI Copilot
               </h2>
               <p className="text-xs text-[#a59f97] font-semibold leading-relaxed mb-6">
                 Query structured event metadata, department activity growth rates, semantic pgvector clusters, or host CPU telemetry using natural language.
@@ -477,7 +477,7 @@ export default function CopilotPage() {
                 value={queryInput}
                 onChange={e => setQueryInput(e.target.value)}
                 onKeyDown={e => e.key === 'Enter' && handleSendQuery()}
-                placeholder="Ask ReCollab about events, trends, clusters or statistics..."
+                placeholder="Ask CuriousBees about events, trends, clusters or statistics..."
                 disabled={isStreaming}
                 className="flex-1 py-3.5 pl-4 pr-12 text-xs text-black placeholder-[#a59f97] bg-transparent outline-none disabled:opacity-50"
               />

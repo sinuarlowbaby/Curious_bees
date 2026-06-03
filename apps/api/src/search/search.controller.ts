@@ -1,9 +1,10 @@
 import { Controller, Get, Param, Query, Req, UseGuards } from '@nestjs/common';
 import { FirebaseAuthGuard } from '../auth/firebase.guard';
+import { ApprovedGuard } from '../auth/approved.guard';
 import { SearchService } from './search.service';
 
 @Controller('search')
-@UseGuards(FirebaseAuthGuard)
+@UseGuards(FirebaseAuthGuard, ApprovedGuard)
 export class SearchController {
   constructor(private readonly searchService: SearchService) {}
 

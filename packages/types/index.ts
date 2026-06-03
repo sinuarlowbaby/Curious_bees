@@ -1,4 +1,4 @@
-export type UserRole = 'FACULTY' | 'PHD_SCHOLAR';
+export type UserRole = 'FACULTY' | 'PHD_SCHOLAR' | 'ADMIN';
 
 export interface User {
   id: string;
@@ -8,11 +8,15 @@ export interface User {
   role: UserRole;
   department: string | null;
   bio: string | null;
+  isApproved: boolean;
+  supervisorId: string | null;
   createdAt: Date | string;
   interests?: UserInterest[];
   threads?: Thread[];
   comments?: Comment[];
   opportunities?: Opportunity[];
+  supervisor?: User | null;
+  scholars?: User[];
 }
 
 export interface ResearchInterest {
@@ -109,4 +113,78 @@ export interface CreateEventInput {
   date: string;
   time: string;
   venue: string;
+}
+
+export interface CollaborationRequest {
+  id: string;
+  scholarId: string;
+  opportunityId: string;
+  status: 'PENDING' | 'PUBLISHED' | 'REJECTED' | 'NEEDS_INFO';
+  message: string | null;
+  createdAt: Date | string;
+  updatedAt: Date | string;
+  scholar?: User;
+  opportunity?: Opportunity;
+}
+
+export interface Workspace {
+  id: string;
+  title: string;
+  description: string | null;
+  createdAt: Date | string;
+  updatedAt: Date | string;
+  members?: WorkspaceMember[];
+  files?: WorkspaceFile[];
+  milestones?: WorkspaceMilestone[];
+  announcements?: WorkspaceAnnouncement[];
+}
+
+export interface WorkspaceMember {
+  workspaceId: string;
+  userId: string;
+  role: 'OWNER' | 'MEMBER';
+  joinedAt: Date | string;
+  user?: User;
+  workspace?: Workspace;
+}
+
+export interface WorkspaceFile {
+  id: string;
+  workspaceId: string;
+  name: string;
+  url: string;
+  size: number;
+  uploadedById: string;
+  uploadedAt: Date | string;
+  uploadedBy?: User;
+}
+
+export interface WorkspaceMilestone {
+  id: string;
+  workspaceId: string;
+  title: string;
+  description: string | null;
+  dueDate: Date | string | null;
+  completed: boolean;
+  createdAt: Date | string;
+  updatedAt: Date | string;
+}
+
+export interface WorkspaceAnnouncement {
+  id: string;
+  workspaceId: string;
+  title: string;
+  content: string;
+  authorId: string;
+  createdAt: Date | string;
+  author?: User;
+}
+
+export interface AuditLog {
+  id: string;
+  userId: string | null;
+  action: string;
+  details: string | null;
+  ipAddress: string | null;
+  createdAt: Date | string;
 }

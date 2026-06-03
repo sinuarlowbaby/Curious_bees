@@ -67,7 +67,7 @@ export default function LandingPage() {
             RC
           </div>
           <span className="font-sans font-semibold text-[15px] tracking-tight text-black">
-            ReCollab
+            CuriousBees
           </span>
           <span className="bg-darkSurfaceMuted border border-borderStroke text-textSecondary text-[11px] font-sans px-2 py-0.5 rounded-full">
             SRM IST
@@ -224,7 +224,7 @@ export default function LandingPage() {
                     AI Event Ingestion
                   </h3>
                   <p className="text-textMuted font-sans text-[14px] leading-relaxed max-w-md">
-                    ReCollab continuously listens to departmental email announcements, parses metadata via Gemini 2.5 Flash, and publishes calendar hooks in real time.
+                    CuriousBees continuously listens to departmental email announcements, parses metadata via Gemini 2.5 Flash, and publishes calendar hooks in real time.
                   </p>
                 </div>
 
@@ -253,7 +253,7 @@ export default function LandingPage() {
                   </div>
 
                   <div className="font-mono text-[12px] text-textMuted select-none text-left">
-                    recollab@srmist.edu.in
+                    curiousbees@srmist.edu.in
                   </div>
                 </div>
               </div>
@@ -353,7 +353,7 @@ export default function LandingPage() {
                 Seamlessly Processing<br />Inbound Announcements
               </h2>
               <p className="text-textSecondary font-sans text-[16px] leading-relaxed max-w-md">
-                ReCollab coordinates with native NestJS queues and Google Cloud endpoints to process events with zero manual actions.
+                CuriousBees coordinates with native NestJS queues and Google Cloud endpoints to process events with zero manual actions.
               </p>
 
               <div className="space-y-6 pt-4">
@@ -455,7 +455,7 @@ export default function LandingPage() {
               <div className="w-7 h-7 bg-white text-black flex items-center justify-center font-display font-bold text-[13px] rounded-sm">
                 RC
               </div>
-              <span className="font-sans font-semibold text-[15px] tracking-tight">ReCollab</span>
+              <span className="font-sans font-semibold text-[15px] tracking-tight">CuriousBees</span>
             </div>
             <p className="text-[14px] text-[#888888] font-sans leading-relaxed">
               Automated SRM Intranet.
@@ -493,7 +493,7 @@ export default function LandingPage() {
 
         {/* Bottom bar */}
         <div className="max-w-[1280px] w-full mx-auto border-t border-[#222222] mt-[24px] pt-[24px] text-[13px] text-[#555555] font-sans flex items-center justify-between">
-          <p>© {new Date().getFullYear()} ReCollab · SRM Institute of Science & Technology</p>
+          <p>© {new Date().getFullYear()} CuriousBees · SRM Institute of Science & Technology</p>
         </div>
       </footer>
     </div>

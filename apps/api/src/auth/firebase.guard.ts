@@ -66,6 +66,7 @@ export class FirebaseAuthGuard implements CanActivate {
             name: decodedToken.name || email.split('@')[0],
             image: decodedToken.picture || null,
             role: role as any,
+            isApproved: isFaculty, // Faculty auto-approved, scholars require supervisor mapping
             emailVerified: new Date(),
           },
           include: {

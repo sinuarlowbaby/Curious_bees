@@ -73,7 +73,7 @@ export default function LoginPage() {
     try {
       const mockToken = `mock-bypass-token-${bypassRole}`;
       if (typeof window !== 'undefined') {
-        localStorage.setItem('recollab-mock-token', mockToken);
+        localStorage.setItem('curiousbees-mock-token', mockToken);
       }
       
       const syncedUser = await syncUserSession();
@@ -105,7 +105,7 @@ export default function LoginPage() {
             RC
           </div>
           <span className="font-sans font-semibold text-[15px] tracking-tight text-black">
-            ReCollab
+            CuriousBees
           </span>
           <span className="bg-darkSurfaceMuted border border-borderStroke text-textSecondary text-[11px] font-sans px-2 py-0.5 rounded-full">
             SRM IST

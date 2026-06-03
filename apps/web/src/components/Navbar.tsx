@@ -45,7 +45,7 @@ export default function Navbar() {
     if (pathname.startsWith('/pipeline')) return 'Ingestion Pipeline';
     if (pathname.startsWith('/profile')) return 'Academic Portfolio';
     if (pathname.startsWith('/researchers')) return 'Scholar Discovery';
-    return 'ReCollab';
+    return 'CuriousBees';
   };
 
   return (

@@ -31,7 +31,7 @@ export default function ThreadsFeedPage() {
       {/* Upper header title row */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6 border-b border-slate-100 dark:border-slate-850 pb-5 text-left">
         <div>
-          <span className="text-[10px] font-black text-recollab-crimson dark:text-recollab-gold uppercase tracking-widest flex items-center gap-1">
+          <span className="text-[10px] font-black text-curiousbees-crimson dark:text-curiousbees-gold uppercase tracking-widest flex items-center gap-1">
             <Layers className="w-3.5 h-3.5" />
             <span>Collaborative Intranet Feed</span>
           </span>
@@ -45,7 +45,7 @@ export default function ThreadsFeedPage() {
 
         <Link
           href="/threads/create"
-          className="px-5 py-3 rounded-xl text-xs font-black uppercase tracking-wider text-white recollab-gradient hover:opacity-95 shadow transition-all duration-200 active:scale-95 flex items-center justify-center space-x-1.5 shrink-0 cursor-pointer"
+          className="px-5 py-3 rounded-xl text-xs font-black uppercase tracking-wider text-white curiousbees-gradient hover:opacity-95 shadow transition-all duration-200 active:scale-95 flex items-center justify-center space-x-1.5 shrink-0 cursor-pointer"
         >
           <Plus className="w-4.5 h-4.5" />
           <span>New Proposal</span>
@@ -95,7 +95,7 @@ export default function ThreadsFeedPage() {
               onClick={() => setActiveTag('')}
               className={`px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-colors shrink-0 cursor-pointer ${
                 activeTag === '' 
-                  ? 'bg-recollab-crimson/10 text-recollab-crimson border border-recollab-crimson/25 dark:bg-recollab-gold/10 dark:text-recollab-gold dark:border-recollab-gold/30' 
+                  ? 'bg-curiousbees-crimson/10 text-curiousbees-crimson border border-curiousbees-crimson/25 dark:bg-curiousbees-gold/10 dark:text-curiousbees-gold dark:border-curiousbees-gold/30' 
                   : 'bg-slate-100 dark:bg-slate-900 text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-850 hover:text-slate-900 dark:hover:text-white'
               }`}
             >
@@ -107,7 +107,7 @@ export default function ThreadsFeedPage() {
                 onClick={() => setActiveTag(tag)}
                 className={`px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-colors shrink-0 cursor-pointer ${
                   activeTag === tag 
-                    ? 'bg-recollab-crimson/10 text-recollab-crimson border border-recollab-crimson/25 dark:bg-recollab-gold/10 dark:text-recollab-gold dark:border-recollab-gold/30' 
+                    ? 'bg-curiousbees-crimson/10 text-curiousbees-crimson border border-curiousbees-crimson/25 dark:bg-curiousbees-gold/10 dark:text-curiousbees-gold dark:border-curiousbees-gold/30' 
                     : 'bg-slate-100 dark:bg-slate-900 text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-850 hover:text-slate-900 dark:hover:text-white'
                 }`}
               >
@@ -129,7 +129,7 @@ export default function ThreadsFeedPage() {
               className="py-16 flex justify-center items-center text-slate-500"
             >
               <div className="flex flex-col items-center space-y-3">
-                <div className="w-8 h-8 rounded-full border-2 border-recollab-crimson dark:border-recollab-gold border-t-transparent animate-spin" />
+                <div className="w-8 h-8 rounded-full border-2 border-curiousbees-crimson dark:border-curiousbees-gold border-t-transparent animate-spin" />
                 <p className="text-xs font-semibold tracking-wider">Syncing Collaborative Database...</p>
               </div>
             </motion.div>
@@ -147,7 +147,7 @@ export default function ThreadsFeedPage() {
               </p>
               <button
                 onClick={() => { setSearchQuery(''); setActiveTag(''); }}
-                className="mt-5 text-[10px] font-black uppercase tracking-wider text-recollab-crimson dark:text-recollab-gold border border-recollab-crimson/20 dark:border-recollab-gold/20 hover:border-recollab-crimson dark:hover:border-recollab-gold bg-recollab-crimson/5 dark:bg-recollab-gold/5 px-4 py-2 rounded-xl transition-all cursor-pointer"
+                className="mt-5 text-[10px] font-black uppercase tracking-wider text-curiousbees-crimson dark:text-curiousbees-gold border border-curiousbees-crimson/20 dark:border-curiousbees-gold/20 hover:border-curiousbees-crimson dark:hover:border-curiousbees-gold bg-curiousbees-crimson/5 dark:bg-curiousbees-gold/5 px-4 py-2 rounded-xl transition-all cursor-pointer"
               >
                 Reset Filters
               </button>

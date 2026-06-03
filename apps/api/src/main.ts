@@ -53,8 +53,8 @@ async function createApp(expressInstance?: express.Express) {
   const allowedOrigins = [
     'http://localhost:3000',
     'http://127.0.0.1:3000',
-    'https://srm-recollab.vercel.app',
-    'https://recollab.vercel.app',
+    'https://curiousbees.vercel.app',
+    'https://curiousbees.vercel.app',
     ...(process.env.ALLOWED_ORIGINS
       ? process.env.ALLOWED_ORIGINS.split(',').map((o) => o.trim())
       : []),
@@ -82,7 +82,7 @@ async function bootstrap() {
   const app = await createApp();
   const port = process.env.PORT || 4000;
   await app.listen(port);
-  console.log(`🚀 ReCollab API running on: http://localhost:${port}`);
+  console.log(`🚀 CuriousBees API running on: http://localhost:${port}`);
 }
 
 // ─── Vercel serverless: export a request handler ─────────────────────────────
@@ -92,12 +92,12 @@ let serverHandler: ((req: IncomingMessage, res: ServerResponse) => void) | null 
 
 export default async function handler(req: IncomingMessage, res: ServerResponse) {
   if (!serverHandler) {
-    console.log('[ReCollab] Cold start — initialising NestJS...');
+    console.log('[CuriousBees] Cold start — initialising NestJS...');
     const expressApp = express();
     const nestApp = await createApp(expressApp);
     await nestApp.init(); // init WITHOUT listen
     serverHandler = expressApp;
-    console.log('[ReCollab] NestJS ready.');
+    console.log('[CuriousBees] NestJS ready.');
   }
   serverHandler(req, res);
 }

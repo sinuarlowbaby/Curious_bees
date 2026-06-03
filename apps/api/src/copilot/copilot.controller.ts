@@ -1,11 +1,12 @@
 import { Controller, Get, Post, Body, Param, Query, Req, UseGuards, Sse, MessageEvent } from '@nestjs/common';
 import { FirebaseAuthGuard } from '../auth/firebase.guard';
+import { ApprovedGuard } from '../auth/approved.guard';
 import { CopilotService, SSEMessage } from './copilot.service';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
 @Controller('copilot')
-@UseGuards(FirebaseAuthGuard)
+@UseGuards(FirebaseAuthGuard, ApprovedGuard)
 export class CopilotController {
   constructor(private readonly copilotService: CopilotService) {}
 

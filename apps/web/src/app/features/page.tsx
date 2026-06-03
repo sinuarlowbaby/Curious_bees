@@ -17,7 +17,7 @@ export default function FeaturesPage() {
                 RC
               </div>
               <span className="font-sans font-semibold text-[15px] tracking-tight text-black">
-                ReCollab
+                CuriousBees
               </span>
             </div>
           </Link>
@@ -83,13 +83,13 @@ export default function FeaturesPage() {
             <div className="w-7 h-7 bg-white text-black flex items-center justify-center font-display font-bold text-[13px] rounded-sm">
               RC
             </div>
-            <span className="font-sans font-semibold text-[15px] tracking-tight">ReCollab</span>
+            <span className="font-sans font-semibold text-[15px] tracking-tight">CuriousBees</span>
           </div>
           <p className="text-[14px] text-[#888888] font-sans leading-relaxed text-center mb-8">
             Automated SRM Intranet.
           </p>
           <div className="w-full border-t border-[#222222] pt-[24px] text-[13px] text-[#555555] font-sans text-center">
-            <p>© {new Date().getFullYear()} ReCollab · SRM Institute of Science & Technology</p>
+            <p>© {new Date().getFullYear()} CuriousBees · SRM Institute of Science & Technology</p>
           </div>
         </div>
       </footer>

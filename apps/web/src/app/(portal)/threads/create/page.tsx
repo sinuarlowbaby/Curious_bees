@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useStore } from '@/store/useStore';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { CreateThreadSchema } from '@srm-recollab/shared-utils';
+import { CreateThreadSchema } from '@curiousbees/shared-utils';
 import { 
   FileText, 
   Eye, 
@@ -103,7 +103,7 @@ export default function CreateThreadPage() {
 
       {/* Page Title details */}
       <div className="text-left">
-        <span className="text-[10px] font-black text-recollab-crimson dark:text-recollab-gold uppercase tracking-widest flex items-center gap-1">
+        <span className="text-[10px] font-black text-curiousbees-crimson dark:text-curiousbees-gold uppercase tracking-widest flex items-center gap-1">
           <Sparkles className="w-3.5 h-3.5" />
           <span>Intranet Proposal Writer</span>
         </span>
@@ -147,7 +147,7 @@ export default function CreateThreadPage() {
           
           {/* LEFT COLUMN: The Composer Panel */}
           <div className={`md:col-span-7 bg-white dark:bg-slate-900/15 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 sm:p-8 shadow-sm space-y-6 text-left ${mobileTab === 'edit' ? 'block' : 'hidden md:block'}`}>
-            <span className="text-[9px] font-black text-recollab-crimson dark:text-recollab-gold uppercase tracking-widest block border-b border-slate-100 dark:border-slate-850 pb-2">
+            <span className="text-[9px] font-black text-curiousbees-crimson dark:text-curiousbees-gold uppercase tracking-widest block border-b border-slate-100 dark:border-slate-850 pb-2">
               📝 Composer Panel
             </span>
 
@@ -190,7 +190,7 @@ export default function CreateThreadPage() {
                 {tags.map((tag) => (
                   <span 
                     key={tag}
-                    className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-recollab-gold"
+                    className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-curiousbees-gold"
                   >
                     <span>#{tag}</span>
                     <button 
@@ -228,7 +228,7 @@ export default function CreateThreadPage() {
 
           {/* RIGHT COLUMN: The Notion Real-time Previewer */}
           <div className={`md:col-span-5 bg-white dark:bg-slate-900/15 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 sm:p-8 shadow-sm space-y-4 text-left md:sticky md:top-24 min-h-[400px] flex flex-col ${mobileTab === 'preview' ? 'block' : 'hidden md:block'}`}>
-            <span className="text-[9px] font-black text-recollab-crimson dark:text-recollab-gold uppercase tracking-widest block border-b border-slate-100 dark:border-slate-850 pb-2">
+            <span className="text-[9px] font-black text-curiousbees-crimson dark:text-curiousbees-gold uppercase tracking-widest block border-b border-slate-100 dark:border-slate-850 pb-2">
               👁️ Real-time Document Preview
             </span>
             
@@ -273,7 +273,7 @@ export default function CreateThreadPage() {
           <button
             type="submit"
             disabled={isSubmitting}
-            className="px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider text-white recollab-gradient hover:opacity-95 shadow transition-all duration-200 active:scale-95 flex items-center space-x-1.5 cursor-pointer"
+            className="px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider text-white curiousbees-gradient hover:opacity-95 shadow transition-all duration-200 active:scale-95 flex items-center space-x-1.5 cursor-pointer"
           >
             {isSubmitting ? (
               <span className="w-4 h-4 border-2 border-white border-t-transparent animate-spin rounded-full" />

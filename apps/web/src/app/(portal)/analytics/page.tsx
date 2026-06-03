@@ -102,7 +102,7 @@ export default function AnalyticsPage() {
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `recollab-analytics-${type}-${Date.now()}.csv`;
+      a.download = `curiousbees-analytics-${type}-${Date.now()}.csv`;
       document.body.appendChild(a);
       a.click();
       a.remove();

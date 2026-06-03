@@ -11,7 +11,7 @@
           "dist/**/*.js",
           "node_modules/.prisma/**",
           "node_modules/@prisma/client/**",
-          "node_modules/@srm-recollab/**"
+          "node_modules/@srm-curiousbees/**"
         ]
       }
     }

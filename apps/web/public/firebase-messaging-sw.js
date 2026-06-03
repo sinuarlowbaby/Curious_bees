@@ -22,7 +22,7 @@ const messaging = firebase.messaging();
 messaging.onBackgroundMessage((payload) => {
   console.log('[firebase-messaging-sw.js] Received background message ', payload);
 
-  const notificationTitle = payload.notification?.title || 'ReCollab Update';
+  const notificationTitle = payload.notification?.title || 'CuriousBees Update';
   const notificationOptions = {
     body: payload.notification?.body || 'You have a new synergy notification.',
     icon: payload.notification?.image || '/logo.png',

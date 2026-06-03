@@ -1,9 +1,10 @@
 import { Controller, Post, Get, Put, Body, UseGuards, Req } from '@nestjs/common';
 import { FirebaseAuthGuard } from '../auth/firebase.guard';
+import { ApprovedGuard } from '../auth/approved.guard';
 import { NotificationsService } from './notifications.service';
 
 @Controller('notifications')
-@UseGuards(FirebaseAuthGuard)
+@UseGuards(FirebaseAuthGuard, ApprovedGuard)
 export class NotificationsController {
   constructor(private readonly notificationsService: NotificationsService) {}
 

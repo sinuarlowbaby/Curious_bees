@@ -1,13 +1,14 @@
 import { Controller, Get, Post, Body, Query, Req, Res, UseGuards } from '@nestjs/common';
 import { Response } from 'express';
 import { FirebaseAuthGuard } from '../auth/firebase.guard';
+import { ApprovedGuard } from '../auth/approved.guard';
 import { AnalyticsService } from './analytics.service';
 import { TrendService } from './trend.service';
 import { ClusterService } from './cluster.service';
 import { ObservabilityService } from './observability.service';
 
 @Controller('analytics')
-@UseGuards(FirebaseAuthGuard)
+@UseGuards(FirebaseAuthGuard, ApprovedGuard)
 export class AnalyticsController {
   constructor(
     private readonly analyticsService: AnalyticsService,
@@ -122,7 +123,7 @@ export class AnalyticsController {
     const csvContent = await this.analyticsService.getCsvExport(type);
     
     res.setHeader('Content-Type', 'text/csv');
-    res.setHeader('Content-Disposition', `attachment; filename="recollab-analytics-${type}-${Date.now()}.csv"`);
+    res.setHeader('Content-Disposition', `attachment; filename="curiousbees-analytics-${type}-${Date.now()}.csv"`);
     res.status(200).send(csvContent);
   }
 }

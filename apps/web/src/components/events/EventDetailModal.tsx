@@ -3,7 +3,7 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Calendar, MapPin, User, Tag, Mail, Bot, CheckCircle } from 'lucide-react';
-import { Event } from '@srm-recollab/types';
+import { Event } from '@curiousbees/types';
 
 type PrismaEvent = Event & {
   status: 'DRAFT' | 'PUBLISHED' | 'REVIEW_REQUIRED' | 'FAILED';

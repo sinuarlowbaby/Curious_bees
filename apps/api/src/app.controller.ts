@@ -5,9 +5,9 @@ export class AppController {
   @Get(['', 'api'])
   healthCheck() {
     return {
-      message: 'Welcome to ReCollab API',
+      message: 'Welcome to CuriousBees API',
       status: 'ok',
-      service: 'ReCollab API',
+      service: 'CuriousBees API',
       version: '1.0.0',
       timestamp: new Date().toISOString(),
       docs: '/api',

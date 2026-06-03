@@ -6,7 +6,7 @@ import { auth } from '@/lib/firebase';
 import { motion } from 'framer-motion';
 import { formatDistanceToNow } from 'date-fns';
 import { Bot, CheckCircle, Zap } from 'lucide-react';
-import { Event } from '@srm-recollab/types';
+import { Event } from '@curiousbees/types';
 
 type PrismaEvent = Event & {
   status: 'DRAFT' | 'PUBLISHED' | 'REVIEW_REQUIRED' | 'FAILED';
@@ -22,7 +22,7 @@ const fetchFeed = async () => {
     const token = await user.getIdToken();
     headers['Authorization'] = `Bearer ${token}`;
   } else {
-    const mockToken = localStorage.getItem('recollab-mock-token');
+    const mockToken = localStorage.getItem('curiousbees-mock-token');
     if (mockToken) headers['Authorization'] = `Bearer ${mockToken}`;
   }
 

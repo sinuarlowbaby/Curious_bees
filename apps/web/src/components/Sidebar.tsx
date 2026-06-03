@@ -15,7 +15,9 @@ import {
   Cpu,
   Search,
   BarChart3,
-  Sparkles
+  Sparkles,
+  FolderOpen,
+  Shield
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -28,12 +30,17 @@ export default function Sidebar() {
     { name: 'Research Feed', href: '/threads', icon: MessageSquare },
     { name: 'Researchers', href: '/researchers', icon: Users },
     { name: 'Opportunities', href: '/opportunities', icon: Briefcase },
+    { name: 'Workspaces', href: '/workspace', icon: FolderOpen },
     { name: 'Events', href: '/events', icon: CalendarIcon },
     { name: 'AI Search', href: '/search', icon: Search },
     { name: 'AI Pipeline', href: '/pipeline', icon: Cpu },
     { name: 'Analytics', href: '/analytics', icon: BarChart3 },
-    { name: 'Ask ReCollab', href: '/copilot', icon: Sparkles },
+    { name: 'Ask CuriousBees', href: '/copilot', icon: Sparkles },
   ];
+
+  if (currentUser?.role === 'ADMIN') {
+    menuItems.push({ name: 'Admin Panel', href: '/admin', icon: Shield });
+  }
 
   const moreItems = [
     { name: 'My Profile', href: '/profile', icon: User },
@@ -57,7 +64,7 @@ export default function Sidebar() {
               RC
             </div>
             <span className="font-sans font-semibold text-[15px] tracking-tight text-black">
-              ReCollab
+              CuriousBees
             </span>
             <span className="bg-darkSurfaceMuted border border-borderStroke text-textSecondary text-[11px] font-sans px-2 py-0.5 rounded-full scale-90">
               SRM

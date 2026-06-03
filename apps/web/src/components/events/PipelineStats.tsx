@@ -12,7 +12,7 @@ const fetchStats = async () => {
     const token = await user.getIdToken();
     headers['Authorization'] = `Bearer ${token}`;
   } else {
-    const mockToken = localStorage.getItem('recollab-mock-token');
+    const mockToken = localStorage.getItem('curiousbees-mock-token');
     if (mockToken) headers['Authorization'] = `Bearer ${mockToken}`;
   }
 

@@ -2,8 +2,8 @@ import type { Metadata } from 'next';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'ReCollab — AI-powered Academic Collaboration Portal',
-  description: 'A dedicated intranet collaboration space for ReCollab Academic Portal Faculty and PhD Scholars.',
+  title: 'CuriousBees — AI-powered Academic Collaboration Portal',
+  description: 'A dedicated intranet collaboration space for CuriousBees Academic Portal Faculty and PhD Scholars.',
 };
 
 export default function RootLayout({
@@ -21,7 +21,7 @@ export default function RootLayout({
                 try {
                   document.documentElement.classList.add('light');
                   document.documentElement.classList.remove('dark');
-                  localStorage.setItem('srm-recollab-theme', 'light');
+                  localStorage.setItem('curiousbees-theme', 'light');
                 } catch (e) {}
               })();
             `

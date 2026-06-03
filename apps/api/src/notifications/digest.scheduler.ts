@@ -56,7 +56,7 @@ export class DigestScheduler {
       // We directly queue a batch push using NotificationsService (we can add a helper for direct pushes)
       // For now, let's just log it since the BullMQ queue requires a single title/body
       
-      const title = `📅 Today's ReCollab Digest: ${todaysEvents.length} Events`;
+      const title = `📅 Today's CuriousBees Digest: ${todaysEvents.length} Events`;
       const body = todaysEvents.slice(0, 2).map(e => `${e.title} at ${e.time}`).join(', ') + 
                    (todaysEvents.length > 2 ? ` and ${todaysEvents.length - 2} more...` : '');
 

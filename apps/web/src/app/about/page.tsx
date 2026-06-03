@@ -17,7 +17,7 @@ export default function AboutPage() {
                 RC
               </div>
               <span className="font-sans font-semibold text-[15px] tracking-tight text-black">
-                ReCollab
+                CuriousBees
               </span>
             </div>
           </Link>
@@ -43,10 +43,10 @@ export default function AboutPage() {
 
       <main className="flex-grow flex flex-col items-center justify-center py-20 px-10 text-center">
         <h1 className="font-display font-light text-[48px] text-black tracking-tighter leading-[1.1] max-w-3xl mb-6">
-          About ReCollab
+          About CuriousBees
         </h1>
         <p className="text-textSecondary font-sans font-normal text-[18px] leading-[1.6] max-w-[600px] mx-auto">
-          ReCollab is an AI-powered intranet built exclusively for SRM Institute of Science and Technology. 
+          CuriousBees is an AI-powered intranet built exclusively for SRM Institute of Science and Technology. 
           Our mission is to bridge the gap between faculty, PhD scholars, and ongoing research initiatives through 
           automated pipelines and centralized discovery.
         </p>
@@ -59,13 +59,13 @@ export default function AboutPage() {
             <div className="w-7 h-7 bg-white text-black flex items-center justify-center font-display font-bold text-[13px] rounded-sm">
               RC
             </div>
-            <span className="font-sans font-semibold text-[15px] tracking-tight">ReCollab</span>
+            <span className="font-sans font-semibold text-[15px] tracking-tight">CuriousBees</span>
           </div>
           <p className="text-[14px] text-[#888888] font-sans leading-relaxed text-center mb-8">
             Automated SRM Intranet.
           </p>
           <div className="w-full border-t border-[#222222] pt-[24px] text-[13px] text-[#555555] font-sans text-center">
-            <p>© {new Date().getFullYear()} ReCollab · SRM Institute of Science & Technology</p>
+            <p>© {new Date().getFullYear()} CuriousBees · SRM Institute of Science & Technology</p>
           </div>
         </div>
       </footer>

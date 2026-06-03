@@ -148,7 +148,7 @@ export class CopilotService {
 
     // 6. Build final system generation prompt (Step 13: Response Safety)
     const systemPrompt = `
-You are "Ask ReCollab", an institutional AI assistant for SRM Campus.
+You are "Ask CuriousBees", an institutional AI assistant for SRM Campus.
 Answer the user query based ONLY on the retrieved institutional records and analytics provided in the Context block.
 Follow these response safety rules strictly:
 - ALWAYS rely on the grounded context below. DO NOT hallucinate dates, departments, or details.

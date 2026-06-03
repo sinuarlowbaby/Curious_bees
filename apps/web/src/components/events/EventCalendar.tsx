@@ -8,7 +8,7 @@ import interactionPlugin from '@fullcalendar/interaction';
 import listPlugin from '@fullcalendar/list';
 import { useQuery } from '@tanstack/react-query';
 import { auth } from '@/lib/firebase';
-import { Event } from '@srm-recollab/types';
+import { Event } from '@curiousbees/types';
 
 type PrismaEvent = Event & {
   status: 'DRAFT' | 'PUBLISHED' | 'REVIEW_REQUIRED' | 'FAILED';
@@ -21,7 +21,7 @@ const fetchEvents = async () => {
     const token = await user.getIdToken();
     headers['Authorization'] = `Bearer ${token}`;
   } else {
-    const mockToken = localStorage.getItem('recollab-mock-token');
+    const mockToken = localStorage.getItem('curiousbees-mock-token');
     if (mockToken) headers['Authorization'] = `Bearer ${mockToken}`;
   }
 

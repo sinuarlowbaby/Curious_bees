@@ -169,7 +169,7 @@ export default function SpotlightSearch({ isOpen, onClose }: SpotlightSearchProp
               <input
                 ref={inputRef}
                 type="text"
-                placeholder="Search across ReCollab (threads, events, experts...)"
+                placeholder="Search across CuriousBees (threads, events, experts...)"
                 value={query}
                 onChange={(e) => {
                   setQuery(e.target.value);
@@ -261,7 +261,7 @@ export default function SpotlightSearch({ isOpen, onClose }: SpotlightSearchProp
                 <span>↑↓ navigate</span>
                 <span>⏎ select</span>
               </div>
-              <span>ReCollab AI Spotlight</span>
+              <span>CuriousBees AI Spotlight</span>
             </div>
           </motion.div>
         </div>

@@ -10,7 +10,7 @@ import ReviewQueue from '@/components/events/ReviewQueue';
 import EventDetailModal from '@/components/events/EventDetailModal';
 import GlowButton from '@/components/GlowButton';
 import { auth } from '@/lib/firebase';
-import { Event } from '@srm-recollab/types';
+import { Event } from '@curiousbees/types';
 
 // Extend local type
 type PrismaEvent = Event & {
@@ -35,7 +35,7 @@ export default function EventsPage() {
         const token = await user.getIdToken();
         headers['Authorization'] = `Bearer ${token}`;
       } else {
-        const mockToken = localStorage.getItem('recollab-mock-token');
+        const mockToken = localStorage.getItem('curiousbees-mock-token');
         if (mockToken) headers['Authorization'] = `Bearer ${mockToken}`;
       }
       const res = await fetch('/api/events/gmail/status', { headers });
@@ -75,7 +75,7 @@ export default function EventsPage() {
         const token = await user.getIdToken();
         headers['Authorization'] = `Bearer ${token}`;
       } else {
-        const mockToken = localStorage.getItem('recollab-mock-token');
+        const mockToken = localStorage.getItem('curiousbees-mock-token');
         if (mockToken) headers['Authorization'] = `Bearer ${mockToken}`;
       }
 
@@ -107,7 +107,7 @@ export default function EventsPage() {
         const token = await user.getIdToken();
         headers['Authorization'] = `Bearer ${token}`;
       } else {
-        const mockToken = localStorage.getItem('recollab-mock-token');
+        const mockToken = localStorage.getItem('curiousbees-mock-token');
         if (mockToken) headers['Authorization'] = `Bearer ${mockToken}`;
       }
 
@@ -138,7 +138,7 @@ export default function EventsPage() {
         const token = await user.getIdToken();
         headers['Authorization'] = `Bearer ${token}`;
       } else {
-        const mockToken = localStorage.getItem('recollab-mock-token');
+        const mockToken = localStorage.getItem('curiousbees-mock-token');
         if (mockToken) headers['Authorization'] = `Bearer ${mockToken}`;
       }
 

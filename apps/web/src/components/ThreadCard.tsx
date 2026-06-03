@@ -2,7 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { Thread } from '@srm-recollab/types';
+import { Thread } from '@curiousbees/types';
 import { MessageSquare, Calendar, ChevronRight } from 'lucide-react';
 import { motion } from 'framer-motion';
 import GlassCard from './GlassCard';

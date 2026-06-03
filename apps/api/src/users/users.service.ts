@@ -1,7 +1,7 @@
-import { Injectable, BadRequestException } from '@nestjs/common';
+import { Injectable, BadRequestException, ForbiddenException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { UpdateProfileInput } from '@srm-recollab/types';
-import { UpdateProfileSchema } from '@srm-recollab/shared-utils';
+import { UpdateProfileInput } from '@curiousbees/types';
+import { UpdateProfileSchema } from '@curiousbees/shared-utils';
 
 @Injectable()
 export class UsersService {
@@ -111,6 +111,117 @@ export class UsersService {
   async getAllInterests() {
     return this.prisma.researchInterest.findMany({
       orderBy: { name: 'asc' }
+    });
+  }
+
+  async requestSupervisor(scholarId: string, supervisorId: string) {
+    // Verify supervisor exists and is Faculty
+    const supervisor = await this.prisma.user.findUnique({
+      where: { id: supervisorId }
+    });
+    if (!supervisor || supervisor.role !== 'FACULTY') {
+      throw new BadRequestException('Selected supervisor must be a registered faculty member.');
+    }
+
+    return this.prisma.user.update({
+      where: { id: scholarId },
+      data: { supervisorId, isApproved: false }
+    });
+  }
+
+  async getApprovals(supervisorId: string) {
+    return this.prisma.user.findMany({
+      where: {
+        supervisorId,
+        isApproved: false,
+        role: 'PHD_SCHOLAR'
+      },
+      include: {
+        interests: {
+          include: {
+            interest: true
+          }
+        }
+      }
+    });
+  }
+
+  async approveScholar(supervisorId: string, scholarId: string) {
+    const scholar = await this.prisma.user.findFirst({
+      where: {
+        id: scholarId,
+        supervisorId
+      }
+    });
+
+    if (!scholar) {
+      throw new BadRequestException('Scholar mapping request not found for this supervisor.');
+    }
+
+    // Approve the scholar
+    const approved = await this.prisma.user.update({
+      where: { id: scholarId },
+      data: { isApproved: true }
+    });
+
+    // Write an audit log entry
+    await this.prisma.auditLog.create({
+      data: {
+        userId: supervisorId,
+        action: 'APPROVE_SCHOLAR',
+        details: `Supervisor approved scholar ${scholar.name || scholar.email} (${scholarId})`
+      }
+    });
+
+    return approved;
+  }
+
+  async getAllUsers(adminId: string) {
+    const admin = await this.prisma.user.findUnique({ where: { id: adminId } });
+    if (!admin || admin.role !== 'ADMIN') {
+      throw new ForbiddenException('Only administrators can access this system management API.');
+    }
+
+    return this.prisma.user.findMany({
+      orderBy: { createdAt: 'desc' }
+    });
+  }
+
+  async updateUserRole(adminId: string, targetUserId: string, role: 'FACULTY' | 'PHD_SCHOLAR' | 'ADMIN') {
+    const admin = await this.prisma.user.findUnique({ where: { id: adminId } });
+    if (!admin || admin.role !== 'ADMIN') {
+      throw new ForbiddenException('Only administrators can change user roles.');
+    }
+
+    const updated = await this.prisma.user.update({
+      where: { id: targetUserId },
+      data: { 
+        role,
+        isApproved: role === 'FACULTY' || role === 'ADMIN' ? true : undefined
+      }
+    });
+
+    // Write audit log
+    await this.prisma.auditLog.create({
+      data: {
+        userId: adminId,
+        action: 'UPDATE_USER_ROLE',
+        details: `Admin changed role of user ${updated.email} to ${role}`
+      }
+    });
+
+    return updated;
+  }
+
+  async getAuditLogs(adminId: string) {
+    const admin = await this.prisma.user.findUnique({ where: { id: adminId } });
+    if (!admin || admin.role !== 'ADMIN') {
+      throw new ForbiddenException('Only administrators can view audit logs.');
+    }
+
+    return this.prisma.auditLog.findMany({
+      orderBy: { createdAt: 'desc' },
+      take: 100
     });
   }
 }

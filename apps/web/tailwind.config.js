@@ -9,7 +9,7 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        recollab: {
+        curiousbees: {
           blue: "#0d3c61",
           gold: "#d4af37",
           crimson: "#800020",

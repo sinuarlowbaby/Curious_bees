@@ -5,7 +5,7 @@ import { useStore } from '@/store/useStore';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { CreateCommentSchema } from '@srm-recollab/shared-utils';
+import { CreateCommentSchema } from '@curiousbees/shared-utils';
 import { 
   ArrowLeft, 
   MessageSquare, 

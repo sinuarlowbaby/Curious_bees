@@ -15,6 +15,7 @@ import { EmbeddingModule } from './embeddings/embedding.module';
 import { SearchModule } from './search/search.module';
 import { AnalyticsModule } from './analytics/analytics.module';
 import { CopilotModule } from './copilot/copilot.module';
+import { WorkspacesModule } from './workspaces/workspaces.module';
 
 @Module({
   imports: [
@@ -38,6 +39,7 @@ import { CopilotModule } from './copilot/copilot.module';
     SearchModule,
     AnalyticsModule,
     CopilotModule,
+    WorkspacesModule,
   ],
   controllers: [AppController],
   providers: [],

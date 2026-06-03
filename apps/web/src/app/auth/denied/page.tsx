@@ -11,7 +11,7 @@ export default function AccessDeniedPage() {
   // Sync theme on mount
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      const savedTheme = (localStorage.getItem('srm-recollab-theme') as 'dark' | 'light') || 'light';
+      const savedTheme = (localStorage.getItem('curiousbees-theme') as 'dark' | 'light') || 'light';
       setTheme(savedTheme);
       const root = window.document.documentElement;
       if (savedTheme === 'dark') {

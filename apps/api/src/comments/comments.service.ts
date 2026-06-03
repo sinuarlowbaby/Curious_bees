@@ -1,7 +1,7 @@
 import { Injectable, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { CreateCommentInput } from '@srm-recollab/types';
-import { CreateCommentSchema } from '@srm-recollab/shared-utils';
+import { CreateCommentInput } from '@curiousbees/types';
+import { CreateCommentSchema } from '@curiousbees/shared-utils';
 import { NotificationsService } from '../notifications/notifications.service';
 
 @Injectable()

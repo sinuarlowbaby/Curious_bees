@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Opportunity } from '@srm-recollab/types';
+import { Opportunity } from '@curiousbees/types';
 import { Share2, Check, ChevronDown, ChevronUp, Clock, MapPin } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -17,7 +17,7 @@ export default function OpportunityCard({ opportunity }: OpportunityCardProps) {
     e.stopPropagation();
     setIsApplied(true);
     setTimeout(() => {
-      alert(`Interest Sent! Your ReCollab profile snapshot has been dispatched to ${opportunity.author?.name || 'the faculty lead'}.`);
+      alert(`Interest Sent! Your CuriousBees profile snapshot has been dispatched to ${opportunity.author?.name || 'the faculty lead'}.`);
     }, 100);
   };
 

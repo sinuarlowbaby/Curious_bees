@@ -1,8 +1,8 @@
 {
-  "name": "srm-recollab-monorepo",
+  "name": "curiousbees-monorepo",
   "version": "1.0.0",
   "private": true,
-  "description": "ReCollab — AI-powered Academic Collaboration Platform",
+  "description": "CuriousBees — AI-powered Academic Collaboration Platform",
   "workspaces": [
     "apps/*",
     "packages/*"

@@ -12,6 +12,7 @@ generator client {
 enum Role {
   FACULTY
   PHD_SCHOLAR
+  ADMIN
 }
 
 model User {
@@ -23,6 +24,8 @@ model User {
   role          Role            @default(PHD_SCHOLAR)
   department    String?
   bio           String?
+  isApproved    Boolean         @default(false)
+  supervisorId  String?
   createdAt     DateTime        @default(now())
   updatedAt     DateTime        @updatedAt
 
@@ -37,6 +40,16 @@ model User {
   preferences   UserPreference?
   recommendationEngagements RecommendationEngagement[]
   copilotChatSessions CopilotChatSession[]
+  
+  // Supervisor/Scholar mappings
+  supervisor    User?           @relation("SupervisorToScholar", fields: [supervisorId], references: [id])
+  scholars      User[]          @relation("SupervisorToScholar")
+  
+  // Collaboration and Workspace relations
+  collaborationRequests CollaborationRequest[]
+  workspaceMembers      WorkspaceMember[]
+  workspaceAnnouncements WorkspaceAnnouncement[]
+  workspaceFiles        WorkspaceFile[]
 }
 
 // NextAuth v5 standard tables
@@ -130,6 +143,8 @@ model Opportunity {
   author         User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
+
+  collaborationRequests CollaborationRequest[]
 }
 
 enum ApprovalStatus {
@@ -390,4 +405,91 @@ model CopilotMessage {
   session       CopilotChatSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
 
   @@index([sessionId])
+}
+
+model CollaborationRequest {
+  id             String         @id @default(cuid())
+  scholarId      String
+  opportunityId  String
+  status         ApprovalStatus @default(PENDING)
+  message        String?        @db.Text
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+
+  scholar        User           @relation(fields: [scholarId], references: [id], onDelete: Cascade)
+  opportunity    Opportunity    @relation(fields: [opportunityId], references: [id], onDelete: Cascade)
+
+  @@unique([scholarId, opportunityId])
+}
+
+model Workspace {
+  id            String                  @id @default(cuid())
+  title         String
+  description   String?                 @db.Text
+  createdAt     DateTime                @default(now())
+  updatedAt     DateTime                @updatedAt
+
+  members       WorkspaceMember[]
+  files         WorkspaceFile[]
+  milestones    WorkspaceMilestone[]
+  announcements WorkspaceAnnouncement[]
+}
+
+model WorkspaceMember {
+  workspaceId   String
+  userId        String
+  role          String                  @default("MEMBER") // "OWNER" | "MEMBER"
+  joinedAt      DateTime                @default(now())
+
+  workspace     Workspace               @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  user          User                    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([workspaceId, userId])
+}
+
+model WorkspaceFile {
+  id            String                  @id @default(cuid())
+  workspaceId   String
+  name          String
+  url           String
+  size          Int                     @default(0)
+  uploadedById  String
+  uploadedAt    DateTime                @default(now())
+
+  workspace     Workspace               @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  uploadedBy    User                    @relation(fields: [uploadedById], references: [id], onDelete: Cascade)
+}
+
+model WorkspaceMilestone {
+  id            String                  @id @default(cuid())
+  workspaceId   String
+  title         String
+  description   String?                 @db.Text
+  dueDate       DateTime?
+  completed     Boolean                 @default(false)
+  createdAt     DateTime                @default(now())
+  updatedAt     DateTime                @updatedAt
+
+  workspace     Workspace               @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+}
+
+model WorkspaceAnnouncement {
+  id            String                  @id @default(cuid())
+  workspaceId   String
+  title         String
+  content       String                  @db.Text
+  authorId      String
+  createdAt     DateTime                @default(now())
+
+  workspace     Workspace               @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  author        User                    @relation(fields: [authorId], references: [id], onDelete: Cascade)
+}
+
+model AuditLog {
+  id            String   @id @default(cuid())
+  userId        String?
+  action        String   // e.g. "APPROVE_SCHOLAR", "DELETE_POST", "WORKSPACE_CREATE"
+  details       String?  @db.Text
+  ipAddress     String?
+  createdAt     DateTime @default(now())
 }

@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { User, Thread, Comment, Opportunity, UserRole, Event } from '@srm-recollab/types';
+import { User, Thread, Comment, Opportunity, UserRole, Event, CollaborationRequest, Workspace, WorkspaceFile, WorkspaceMilestone, WorkspaceAnnouncement, AuditLog } from '@curiousbees/types';
 import { auth } from '@/lib/firebase';
 
 const MOCK_INTERESTS = [
@@ -32,6 +32,12 @@ interface AppState {
   events: Event[];
   aiLogs: any[];
   collaborators: User[];
+  pendingApprovals: User[];
+  collaborationRequests: CollaborationRequest[];
+  workspaces: Workspace[];
+  activeWorkspace: Workspace | null;
+  adminUsers: User[];
+  adminAuditLogs: AuditLog[];
 
   // Setters & Actions
   setCurrentUser: (user: User | null) => void;
@@ -55,6 +61,29 @@ interface AppState {
   updateEvent: (id: string, title: string, date: string, time: string, venue: string) => Promise<Event>;
   deleteEvent: (id: string) => Promise<Event>;
   logout: () => void;
+
+  // Supervisor Approvals & Requests
+  fetchPendingApprovals: () => Promise<User[]>;
+  approveScholar: (scholarId: string) => Promise<User>;
+  requestSupervisor: (supervisorId: string) => Promise<User>;
+
+  // Collaboration Requests
+  fetchCollaborationRequests: () => Promise<CollaborationRequest[]>;
+  createCollaborationRequest: (opportunityId: string, message?: string) => Promise<CollaborationRequest>;
+  updateCollaborationRequest: (requestId: string, status: 'PUBLISHED' | 'REJECTED' | 'NEEDS_INFO') => Promise<CollaborationRequest>;
+
+  // Workspaces
+  fetchWorkspaces: () => Promise<Workspace[]>;
+  fetchWorkspaceDetails: (workspaceId: string) => Promise<Workspace>;
+  addWorkspaceFile: (workspaceId: string, name: string, url: string, size: number) => Promise<WorkspaceFile>;
+  addWorkspaceMilestone: (workspaceId: string, title: string, description?: string, dueDate?: string) => Promise<WorkspaceMilestone>;
+  toggleWorkspaceMilestone: (workspaceId: string, milestoneId: string, completed: boolean) => Promise<WorkspaceMilestone>;
+  addWorkspaceAnnouncement: (workspaceId: string, title: string, content: string) => Promise<WorkspaceAnnouncement>;
+
+  // Admin / Governance
+  fetchAdminUsers: () => Promise<User[]>;
+  fetchAdminAuditLogs: () => Promise<AuditLog[]>;
+  changeUserRole: (userId: string, role: UserRole) => Promise<User>;
 }
 
 // Helper to asynchronously extract valid Firebase ID Token Bearer header
@@ -67,7 +96,7 @@ const getBearerHeader = async (): Promise<Record<string, string>> => {
   
   // Local development bypass support
   if (typeof window !== 'undefined') {
-    const mockToken = localStorage.getItem('recollab-mock-token');
+    const mockToken = localStorage.getItem('curiousbees-mock-token');
     if (mockToken) {
       return { 'Authorization': `Bearer ${mockToken}` };
     }
@@ -91,6 +120,12 @@ export const useStore = create<AppState>((set, get) => ({
   events: [],
   aiLogs: [],
   collaborators: [],
+  pendingApprovals: [],
+  collaborationRequests: [],
+  workspaces: [],
+  activeWorkspace: null,
+  adminUsers: [],
+  adminAuditLogs: [],
 
   setCurrentUser: (user) => set({ currentUser: user, roleOverride: user?.role || 'PHD_SCHOLAR' }),
   setMobileSidebar: (show) => set({ showMobileSidebar: show }),
@@ -112,7 +147,7 @@ export const useStore = create<AppState>((set, get) => ({
         root.classList.add('light');
         root.classList.remove('dark');
       }
-      localStorage.setItem('srm-recollab-theme', theme);
+      localStorage.setItem('curiousbees-theme', theme);
     }
     set({ theme });
   },
@@ -136,13 +171,13 @@ export const useStore = create<AppState>((set, get) => ({
         }
       }
       if (typeof window !== 'undefined') {
-        localStorage.removeItem('recollab-mock-token');
+        localStorage.removeItem('curiousbees-mock-token');
       }
       set({ currentUser: null });
       return null;
     } catch (e) {
       if (typeof window !== 'undefined') {
-        localStorage.removeItem('recollab-mock-token');
+        localStorage.removeItem('curiousbees-mock-token');
       }
       set({ currentUser: null });
       return null;
@@ -393,11 +428,341 @@ export const useStore = create<AppState>((set, get) => ({
 
   logout: () => {
     if (typeof window !== 'undefined') {
-      localStorage.removeItem('recollab-mock-token');
+      localStorage.removeItem('curiousbees-mock-token');
     }
     import('@/lib/firebase').then(({ auth }) => {
       auth.signOut().catch(() => {});
     });
     set({ currentUser: null });
+  },
+
+  fetchPendingApprovals: async () => {
+    try {
+      const headers = await getBearerHeader();
+      const res = await fetch('/api/users/approvals', { headers });
+      if (res.ok) {
+        const data = await res.json();
+        set({ pendingApprovals: data });
+        return data;
+      }
+      return [];
+    } catch (e) {
+      console.error(e);
+      return [];
+    }
+  },
+
+  approveScholar: async (scholarId: string) => {
+    set({ isLoading: true });
+    try {
+      const headers = await getBearerHeader();
+      const res = await fetch('/api/users/approve-scholar', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', ...headers },
+        body: JSON.stringify({ scholarId })
+      });
+      if (res.ok) {
+        const data = await res.json();
+        set(state => ({
+          pendingApprovals: state.pendingApprovals.filter(s => s.id !== scholarId)
+        }));
+        return data;
+      }
+      throw new Error('Failed to approve scholar.');
+    } finally {
+      set({ isLoading: false });
+    }
+  },
+
+  requestSupervisor: async (supervisorId: string) => {
+    set({ isLoading: true });
+    try {
+      const headers = await getBearerHeader();
+      const res = await fetch('/api/users/request-supervisor', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', ...headers },
+        body: JSON.stringify({ supervisorId })
+      });
+      if (res.ok) {
+        const data = await res.json();
+        set(state => ({
+          currentUser: {
+            ...state.currentUser,
+            supervisorId,
+            isApproved: false
+          } as any
+        }));
+        return data;
+      }
+      throw new Error('Failed to submit supervisor request.');
+    } finally {
+      set({ isLoading: false });
+    }
+  },
+
+  fetchCollaborationRequests: async () => {
+    try {
+      const headers = await getBearerHeader();
+      const res = await fetch('/api/opportunities/requests', { headers });
+      if (res.ok) {
+        const data = await res.json();
+        set({ collaborationRequests: data });
+        return data;
+      }
+      return [];
+    } catch (e) {
+      console.error(e);
+      return [];
+    }
+  },
+
+  createCollaborationRequest: async (opportunityId: string, message?: string) => {
+    set({ isLoading: true });
+    try {
+      const headers = await getBearerHeader();
+      const res = await fetch(`/api/opportunities/${opportunityId}/request`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...headers },
+        body: JSON.stringify({ message })
+      });
+      if (res.ok) {
+        const data = await res.json();
+        set(state => ({
+          collaborationRequests: [data, ...state.collaborationRequests]
+        }));
+        return data;
+      }
+      throw new Error('Failed to submit collaboration request.');
+    } finally {
+      set({ isLoading: false });
+    }
+  },
+
+  updateCollaborationRequest: async (requestId: string, status: 'PUBLISHED' | 'REJECTED' | 'NEEDS_INFO') => {
+    set({ isLoading: true });
+    try {
+      const headers = await getBearerHeader();
+      const res = await fetch(`/api/opportunities/requests/${requestId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', ...headers },
+        body: JSON.stringify({ status })
+      });
+      if (res.ok) {
+        const data = await res.json();
+        set(state => ({
+          collaborationRequests: state.collaborationRequests.map(r => r.id === requestId ? data : r)
+        }));
+        return data;
+      }
+      throw new Error('Failed to update collaboration request.');
+    } finally {
+      set({ isLoading: false });
+    }
+  },
+
+  fetchWorkspaces: async () => {
+    try {
+      const headers = await getBearerHeader();
+      const res = await fetch('/api/workspaces', { headers });
+      if (res.ok) {
+        const data = await res.json();
+        set({ workspaces: data });
+        return data;
+      }
+      return [];
+    } catch (e) {
+      console.error(e);
+      return [];
+    }
+  },
+
+  fetchWorkspaceDetails: async (workspaceId: string) => {
+    set({ isLoading: true });
+    try {
+      const headers = await getBearerHeader();
+      const res = await fetch(`/api/workspaces/${workspaceId}`, { headers });
+      if (res.ok) {
+        const data = await res.json();
+        set({ activeWorkspace: data });
+        return data;
+      }
+      throw new Error('Failed to load workspace details.');
+    } finally {
+      set({ isLoading: false });
+    }
+  },
+
+  addWorkspaceFile: async (workspaceId: string, name: string, url: string, size: number) => {
+    set({ isLoading: true });
+    try {
+      const headers = await getBearerHeader();
+      const res = await fetch(`/api/workspaces/${workspaceId}/files`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...headers },
+        body: JSON.stringify({ name, url, size })
+      });
+      if (res.ok) {
+        const fileData = await res.json();
+        set(state => {
+          if (state.activeWorkspace && state.activeWorkspace.id === workspaceId) {
+            return {
+              activeWorkspace: {
+                ...state.activeWorkspace,
+                files: [fileData, ...(state.activeWorkspace.files || [])]
+              }
+            };
+          }
+          return {};
+        });
+        return fileData;
+      }
+      throw new Error('Failed to add file.');
+    } finally {
+      set({ isLoading: false });
+    }
+  },
+
+  addWorkspaceMilestone: async (workspaceId: string, title: string, description?: string, dueDate?: string) => {
+    set({ isLoading: true });
+    try {
+      const headers = await getBearerHeader();
+      const res = await fetch(`/api/workspaces/${workspaceId}/milestones`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...headers },
+        body: JSON.stringify({ title, description, dueDate })
+      });
+      if (res.ok) {
+        const milestoneData = await res.json();
+        set(state => {
+          if (state.activeWorkspace && state.activeWorkspace.id === workspaceId) {
+            return {
+              activeWorkspace: {
+                ...state.activeWorkspace,
+                milestones: [...(state.activeWorkspace.milestones || []), milestoneData]
+              }
+            };
+          }
+          return {};
+        });
+        return milestoneData;
+      }
+      throw new Error('Failed to add milestone.');
+    } finally {
+      set({ isLoading: false });
+    }
+  },
+
+  toggleWorkspaceMilestone: async (workspaceId: string, milestoneId: string, completed: boolean) => {
+    try {
+      const headers = await getBearerHeader();
+      const res = await fetch(`/api/workspaces/${workspaceId}/milestones/${milestoneId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', ...headers },
+        body: JSON.stringify({ completed })
+      });
+      if (res.ok) {
+        const milestoneData = await res.json();
+        set(state => {
+          if (state.activeWorkspace && state.activeWorkspace.id === workspaceId) {
+            return {
+              activeWorkspace: {
+                ...state.activeWorkspace,
+                milestones: (state.activeWorkspace.milestones || []).map(m => m.id === milestoneId ? milestoneData : m)
+              }
+            };
+          }
+          return {};
+        });
+        return milestoneData;
+      }
+      throw new Error('Failed to toggle milestone.');
+    } catch (e) {
+      console.error(e);
+      throw e;
+    }
+  },
+
+  addWorkspaceAnnouncement: async (workspaceId: string, title: string, content: string) => {
+    set({ isLoading: true });
+    try {
+      const headers = await getBearerHeader();
+      const res = await fetch(`/api/workspaces/${workspaceId}/announcements`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...headers },
+        body: JSON.stringify({ title, content })
+      });
+      if (res.ok) {
+        const announcementData = await res.json();
+        set(state => {
+          if (state.activeWorkspace && state.activeWorkspace.id === workspaceId) {
+            return {
+              activeWorkspace: {
+                ...state.activeWorkspace,
+                announcements: [announcementData, ...(state.activeWorkspace.announcements || [])]
+              }
+            };
+          }
+          return {};
+        });
+        return announcementData;
+      }
+      throw new Error('Failed to post announcement.');
+    } finally {
+      set({ isLoading: false });
+    }
+  },
+
+  fetchAdminUsers: async () => {
+    try {
+      const headers = await getBearerHeader();
+      const res = await fetch('/api/users/all', { headers });
+      if (res.ok) {
+        const data = await res.json();
+        set({ adminUsers: data });
+        return data;
+      }
+      return [];
+    } catch (e) {
+      console.error(e);
+      return [];
+    }
+  },
+
+  fetchAdminAuditLogs: async () => {
+    try {
+      const headers = await getBearerHeader();
+      const res = await fetch('/api/users/audit-logs', { headers });
+      if (res.ok) {
+        const data = await res.json();
+        set({ adminAuditLogs: data });
+        return data;
+      }
+      return [];
+    } catch (e) {
+      console.error(e);
+      return [];
+    }
+  },
+
+  changeUserRole: async (userId: string, role: UserRole) => {
+    set({ isLoading: true });
+    try {
+      const headers = await getBearerHeader();
+      const res = await fetch(`/api/users/${userId}/role`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', ...headers },
+        body: JSON.stringify({ role })
+      });
+      if (res.ok) {
+        const data = await res.json();
+        set(state => ({
+          adminUsers: state.adminUsers.map(u => u.id === userId ? data : u)
+        }));
+        return data;
+      }
+      throw new Error('Failed to update user role.');
+    } finally {
+      set({ isLoading: false });
+    }
   }
 }));

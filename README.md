@@ -1,6 +1,6 @@
 <h1 align="center">
   <br/>
-  🔬 ReCollab
+  🔬 CuriousBees
   <br/>
 </h1>
 
@@ -19,7 +19,40 @@
 
 ## 📖 Overview
 
-**ReCollab** is an internal academic collaboration platform built exclusively for SRM IST faculty and PhD scholars. It provides a centralised intranet space to discover research peers, share ideas via discussion threads, post and apply for research opportunities, and features a state-of-the-art **AI-Automated Events Ingestion Pipeline** that reads university emails and populates a campus-wide calendar.
+**CuriousBees** is an internal academic collaboration platform for SRM IST faculty and PhD scholars. It centralizes research collaboration in one place with:
+- researcher discovery,
+- discussion threads,
+- research opportunity listings,
+- AI-powered event ingestion from university email,
+- and smart, interest-based notifications.
+
+---
+
+## 🧩 Tech Stack
+
+### Frontend (`apps/web`)
+- **Next.js 15** with App Router and React
+- **TypeScript**
+- **Tailwind CSS** for styling
+- **Auth.js v5** for Google OAuth sign-in
+- **Firebase Cloud Messaging** for browser/mobile notifications
+- **Zustand** for application state management
+- **FullCalendar** for event calendar display
+
+### Backend (`apps/api`)
+- **NestJS 10** REST API
+- **Prisma 5** ORM
+- **BullMQ** + **Redis** for queueing and background jobs
+- **Google Gemini 2.5 Flash** for AI email parsing and event extraction
+- **Gmail API** for email ingestion
+- **Firebase Admin SDK** for push notifications
+- **Supabase / PostgreSQL** for the primary database
+
+### Infrastructure
+- **Monorepo** with npm workspaces
+- **Vercel** deployment for frontend and API
+- **Supabase** for hosted PostgreSQL and data services
+- **Redis** for BullMQ job queues
 
 ---
 
@@ -27,78 +60,27 @@
 
 | Feature | Description |
 |---|---|
-| 🤖 **AI Event Ingestion** | Emails sent to `recollab@srmist.edu.in` are parsed by **Gemini 2.5 Flash** to extract event details and auto-populate the campus calendar. |
-| 🔔 **Smart Push Notifications** | **Firebase Cloud Messaging (FCM)** pushes instant alerts to researchers whose interests match newly ingested AI events. |
-| 🔐 **Google SSO Auth** | Secure sign-in restricted to `@srmist.edu.in` accounts via Auth.js v5. |
-| 👥 **Researcher Directory** | Browse faculty and PhD scholars filtered by department and research interests. |
-| 💬 **Discussion Threads** | Post, tag, and comment on research topics in a Reddit-style forum. |
-| 📋 **Opportunities Board** | Faculty can post research openings; scholars can explore them by domain. |
-| 📅 **Events Calendar** | Full-calendar view of academic events, seminars, and conferences managed purely by AI. |
+| 🤖 **AI Event Ingestion** | Parses university emails to extract event details and auto-populates the calendar. |
+| 🔔 **Smart Notifications** | Sends notifications to users based on their research interests. |
+| 🔐 **Google SSO** | Sign-in is restricted to approved `@srmist.edu.in` accounts. |
+| 👥 **Researcher Directory** | Find faculty and PhD scholars by department and research interests. |
+| 💬 **Discussion Threads** | Publish posts, tag topics, and comment in community discussions. |
+| 📋 **Opportunities Board** | Post research opportunities and let scholars apply by domain. |
+| 📅 **Events Calendar** | View AI-ingested academic events, seminars, and workshops. |
 
 ---
 
-## 🏗️ Architecture
-
-ReCollab is a **monorepo** powered by npm workspaces, composed of:
+## 🏗️ Project Structure
 
 ```
-ReCollab/
+CuriousBees/
 ├── apps/
-│   ├── web/          # Next.js 15 frontend (App Router)
-│   └── api/          # NestJS 10 REST API (BullMQ Workers & AI Pipeline)
+│   ├── web/          # Next.js frontend
+│   └── api/          # NestJS backend
 ├── packages/
 │   ├── types/        # Shared TypeScript types
-│   └── shared-utils/ # Shared utility functions
+│   └── shared-utils/ # Shared utilities
 └── package.json      # Root monorepo config
-```
-
-### Tech Stack
-
-**Frontend (`apps/web`)**
-- [Next.js 15](https://nextjs.org/) with App Router & React 19
-- [Auth.js v5 (NextAuth)](https://authjs.dev/) — Google OAuth
-- [Firebase Cloud Messaging](https://firebase.google.com/) for client-side push notifications
-- [Tailwind CSS](https://tailwindcss.com/) + [Framer Motion](https://www.framer.com/motion/)
-- [Zustand](https://zustand-demo.pmnd.rs/) for state management
-- [FullCalendar](https://fullcalendar.io/) for the AI events view
-
-**Backend (`apps/api`)**
-- [NestJS 10](https://nestjs.com/) REST API
-- [Google Gen AI SDK](https://github.com/google/genai-js) (Gemini 2.5 Flash) for NLP extraction
-- [Gmail API](https://developers.google.com/gmail/api) for polling authorized inboxes
-- [BullMQ](https://docs.bullmq.io/) & Redis for robust queuing, rate-limiting, and exponential backoffs
-- [Firebase Admin SDK](https://firebase.google.com/docs/admin/setup) for targeted push notifications
-- [Prisma 5](https://www.prisma.io/) ORM
-
-**Database & Infrastructure**
-- **Database:** Hosted on [Supabase](https://supabase.com/) (PostgreSQL 15)
-- **Deployment:** [Vercel](https://vercel.com/)
-- **Queue/Cache:** Redis
-
----
-
-## ⚙️ AI Ingestion Pipeline
-
-ReCollab uses a sophisticated background pipeline to automate calendar management:
-1. **Cron Polling**: The NestJS backend polls an authorized Gmail account for unread emails.
-2. **Heuristic Filtering**: Emails are pre-filtered using RegEx keywords (e.g., "workshop", "seminar") to drop non-events early.
-3. **Queueing (BullMQ)**: Valid emails are added to a Redis-backed queue. Rate limiting (4 requests/min) ensures the Gemini free-tier quota is respected.
-4. **AI Extraction**: **Gemini 2.5 Flash** reads the email body and outputs a structured JSON object containing the Title, Venue, Date, Time, Category, and Tags.
-5. **Validation & De-duplication**: The pipeline cross-references existing events to prevent duplicates.
-6. **Smart Broadcasting**: Upon success, **Firebase Admin SDK** pushes a notification directly to the devices of users whose `ResearchInterests` match the event's tags.
-
----
-
-## 🗄️ Database Schema
-
-```
-User              — Faculty / PhD Scholar profiles with Google auth
-Thread            — Discussion posts with tags and nested comments
-Comment           — Replies on threads
-Opportunity       — Research openings posted by faculty
-Event             — Academic events extracted via Gemini AI
-AIProcessingLog   — Telemetry tracking the state (QUEUED -> AI_PROCESSING -> SUCCESS)
-ResearchInterest  — Tag taxonomy linked to users via UserInterest
 ```
 
 ---
@@ -106,61 +88,30 @@ ResearchInterest  — Tag taxonomy linked to users via UserInterest
 ## 🚀 Getting Started
 
 ### Prerequisites
-- **Node.js** ≥ 18
-- **Redis** server running locally (for BullMQ)
+- Node.js 18+
+- Redis running locally (for BullMQ)
+- Supabase/PostgreSQL credentials
+- Google OAuth credentials
+- Firebase config for FCM
 
-### 1. Clone the repository
-```bash
-git clone https://github.com/matheshwaran-io/SRM_Recollab.git
-cd SRM_Recollab
-```
-
-### 2. Install dependencies
+### Install dependencies
 ```bash
 npm install
 ```
 
-### 3. Environment Configuration
-The monorepo requires `.env` files in both `apps/web` and `apps/api`. 
-Copy the example files and populate your keys:
-- **Supabase** Database & Direct URLs
-- **Google OAuth** Client IDs
-- **Gemini API Key** (`GEMINI_API_KEY`)
-- **Firebase** Client & Admin credentials
-- **Redis** Host and Port
-
-### 4. Run database migrations
-```bash
-npm run db:migrate
-```
-
-### 5. Start the development servers
-Make sure your local Redis server is running, then execute:
+### Run in development
 ```bash
 npm run dev
 ```
 
-This starts both apps concurrently:
-- 🌐 **Web** → [http://localhost:3000](http://localhost:3000)
-- ⚙️ **API** → [http://localhost:4000](http://localhost:4000)
+This starts both frontend and backend locally.
 
 ---
 
-## 📜 Available Scripts
-
-| Script | Description |
-|---|---|
-| `npm run dev` | Start both `web` and `api` in watch mode |
-| `npm run build` | Build all workspaces |
-| `npm run lint` | Lint all workspaces |
-| `npm run db:migrate` | Run Prisma migrations |
-| `npm run db:seed` | Seed the database with sample data |
+## 📌 Notes
+- The AI pipeline is designed to safely ingest events from the university mailbox and prevent duplicate event creation.
+- The platform is built for SRM IST internal users and is intended for academic research collaboration.
 
 ---
 
-## 🤝 Contributing
-This is an internal SRM IST project. Contributions from team members are welcome via pull requests to the `main` branch.
-
----
-
-<p align="center">Built with ❤️ for the SRM IST Research Community</p>
+<p align="center">Built for the SRM IST research community.</p>
