@@ -50,6 +50,11 @@ module.exports = {
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
 
+        // Semantic tokens from requirements
+        "surface-elevated": "#ffffff",
+        "surface": "#fbf8ff",
+        "muted": "#f4f2ff",
+
         // Stitch-specific colors
         "on-tertiary-fixed-variant": "#5d4200",
         "on-tertiary": "#ffffff",
@@ -61,7 +66,6 @@ module.exports = {
         "on-primary-fixed-variant": "#004494",
         "surface-container": "#edecff",
         "surface-variant": "#e1e1f5",
-        "surface": "#fbf8ff",
         "secondary-fixed-dim": "#f5bf1c",
         "surface-container-lowest": "#ffffff",
         "on-surface": "#191b29",
@@ -95,9 +99,9 @@ module.exports = {
         "on-primary-container": "#cbdaff",
         "inverse-on-surface": "#f0efff",
         "primary": "#004495",
-        "background": "#fbf8ff",
         "secondary-fixed": "#ffdf97",
         "outline": "#737785",
+        "destructive": "#ba1a1a",
 
         // ── Semantic Status Tokens ────────────────────────────────────────
         "success":           "#1a7a4a",

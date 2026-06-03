@@ -23,8 +23,8 @@ export function DashboardShell({
   return (
     <div
       className={cn(
-        'flex flex-col gap-6 text-left font-sans select-none w-full',
-        withBackground && 'honeycomb-bg',
+        'w-full max-w-container-max mx-auto px-4 md:px-8 py-6 md:py-8 flex flex-col gap-8',
+        withBackground && 'bg-honeycomb-stroke',
         className
       )}
     >

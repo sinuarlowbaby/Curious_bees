@@ -17,9 +17,9 @@ const ROLE_LABELS: Record<UserRole, string> = {
 };
 
 const ROLE_STYLES: Record<UserRole, string> = {
-  ADMIN:       'bg-rose-50 text-rose-700 border-rose-200',
-  FACULTY:     'bg-indigo-50 text-indigo-700 border-indigo-200',
-  PHD_SCHOLAR: 'bg-emerald-50 text-emerald-700 border-emerald-200',
+  ADMIN:       'bg-error-container text-on-error-container border-error/20',
+  FACULTY:     'bg-primary-container text-on-primary-container border-primary/20',
+  PHD_SCHOLAR: 'bg-success-container text-on-success-container border-success/20',
 };
 
 interface RoleBadgeProps {
