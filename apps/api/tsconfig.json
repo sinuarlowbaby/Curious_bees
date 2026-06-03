@@ -9,7 +9,7 @@
     "target": "es2021",
     "sourceMap": true,
     "outDir": "./dist",
-    "baseUrl": "./",
+    "baseUrl": ".",
     "rootDir": "src",
     "incremental": false,
     "skipLibCheck": true,
@@ -17,7 +17,13 @@
     "noImplicitAny": false,
     "strictBindCallApply": false,
     "forceConsistentCasingInFileNames": false,
-    "noFallthroughCasesInSwitch": false
+    "noFallthroughCasesInSwitch": false,
+
+    "paths": {
+      "@prisma/client": [
+        "./node_modules/@prisma/client"
+      ]
+    }
   },
   "include": ["src/**/*"]
 }

@@ -1,5 +1,7 @@
 import { Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
 import { BullModule } from '@nestjs/bullmq';
+
 import { AppController } from './app.controller';
 import { PrismaModule } from './prisma/prisma.module';
 import { AuthModule } from './auth/auth.module';
@@ -19,12 +21,18 @@ import { WorkspacesModule } from './workspaces/workspaces.module';
 
 @Module({
   imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+      envFilePath: '../../.env',
+    }),
+
     BullModule.forRoot({
       connection: {
         host: process.env.REDIS_HOST || 'localhost',
         port: parseInt(process.env.REDIS_PORT || '6379', 10),
       },
     }),
+
     PrismaModule,
     AuthModule,
     UsersModule,
@@ -45,4 +53,3 @@ import { WorkspacesModule } from './workspaces/workspaces.module';
   providers: [],
 })
 export class AppModule {}
-

@@ -2,7 +2,7 @@
 'use client';
 
 import React from 'react';
-import { useForm, FormProvider, SubmitHandler, UseFormReturn } from 'react-hook-form';
+import { useForm, FormProvider, SubmitHandler, UseFormReturn, FieldValues } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { ZodSchema } from 'zod';
 
@@ -19,7 +19,7 @@ import { ZodSchema } from 'zod';
  *   )}
  * </FormWrapper>
  */
-interface FormWrapperProps<T> {
+interface FormWrapperProps<T extends FieldValues> {
   schema: ZodSchema<T>;
   defaultValues?: Partial<T>;
   onSubmit: SubmitHandler<T>;
