@@ -1,5 +1,6 @@
+@import url('https://fonts.googleapis.com/css2?family=Geist+Mono:wght@300;400;500;600;700&family=Geist:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700;800&display=swap');
+
 @font-face {
-  font-family: 'Waldenburg';
   src: url('/fonts/kmr_waldenburg_normal.woff2') format('woff2');
   font-weight: 400;
   font-style: normal;

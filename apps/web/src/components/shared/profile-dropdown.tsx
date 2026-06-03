@@ -10,10 +10,10 @@ import { cn } from '@/lib/utils';
 
 export function ProfileDropdown() {
   const [isOpen, setIsOpen] = useState(false);
-  const { authState, logout } = useStore();
+  const { currentUser, logout } = useStore();
   const router = useRouter();
 
-  if (!authState.user) return null;
+  if (!currentUser) return null;
 
   return (
     <div className="relative">
@@ -22,10 +22,10 @@ export function ProfileDropdown() {
         className="flex items-center gap-2 cb-focus rounded-full p-1 border border-transparent hover:border-outline-variant/30 transition-all"
       >
         <div className="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center font-bold text-xs uppercase overflow-hidden">
-          {authState.user.avatarUrl ? (
-            <img src={authState.user.avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
+          {currentUser.avatarUrl ? (
+            <img src={currentUser.avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
           ) : (
-            authState.user.name.charAt(0)
+            currentUser.name.charAt(0)
           )}
         </div>
       </button>
@@ -42,9 +42,9 @@ export function ProfileDropdown() {
               className="absolute right-0 top-full mt-2 w-64 bg-surface cb-card cb-glass z-50 overflow-hidden shadow-lg p-2"
             >
               <div className="px-3 py-3 border-b border-outline-variant/30 mb-1">
-                <p className="text-sm font-bold text-foreground truncate">{authState.user.name}</p>
-                <p className="text-xs text-muted-foreground truncate mb-2">{authState.user.email}</p>
-                <RoleBadge role={authState.user.role} size="sm" />
+                <p className="text-sm font-bold text-foreground truncate">{currentUser.name}</p>
+                <p className="text-xs text-muted-foreground truncate mb-2">{currentUser.email}</p>
+                <RoleBadge role={currentUser.role} size="sm" />
               </div>
 
               <div className="flex flex-col gap-1">

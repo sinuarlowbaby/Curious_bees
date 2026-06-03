@@ -17,7 +17,7 @@ import {
   FileText,
   BarChart3
 } from 'lucide-react';
-import { Logo } from '@/components/Logo';
+import Logo from '@/components/Logo';
 
 const NAV_CONFIG = {
   ADMIN: [
@@ -44,8 +44,8 @@ const NAV_CONFIG = {
 
 export function Sidebar() {
   const pathname = usePathname();
-  const { authState } = useStore();
-  const role = authState.user?.role || 'PHD_SCHOLAR';
+  const { currentUser } = useStore();
+  const role = currentUser?.role || 'PHD_SCHOLAR';
   
   const navItems = NAV_CONFIG[role];
 

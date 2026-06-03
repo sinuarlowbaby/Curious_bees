@@ -7,10 +7,10 @@ import { useStore } from '@/store/useStore';
 import { redirect } from 'next/navigation';
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
-  const { authState } = useStore();
+  const { currentUser } = useStore();
 
   // Basic client-side auth check (replace with middleware for robust protection)
-  if (!authState.isAuthenticated) {
+  if (!currentUser) {
     // redirect('/auth/login'); 
     // Commented out temporarily for easy local testing without strict auth block
   }
