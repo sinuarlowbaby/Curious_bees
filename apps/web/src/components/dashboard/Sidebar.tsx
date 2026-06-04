@@ -51,7 +51,7 @@ const getSidebarSections = (role: UserRole): SidebarSection[] => {
       {
         label: 'Admin Console',
         items: [
-          { name: 'Dashboard', href: '/admin', icon: LayoutDashboard },
+          { name: 'Dashboard', href: '/admin/dashboard', icon: LayoutDashboard },
           { name: 'User Management', href: '/admin/users', icon: UserCog },
           { name: 'Supervisors', href: '/admin/supervisors', icon: Shield },
           { name: 'Departments', href: '/admin/departments', icon: FolderOpen },

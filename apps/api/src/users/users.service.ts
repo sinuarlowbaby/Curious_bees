@@ -33,14 +33,13 @@ export class UsersService {
       throw new BadRequestException(parsed.error.errors[0].message);
     }
 
-    const { name, role, department, departmentId, bio, interests } = parsed.data;
+    const { name, department, departmentId, bio, interests } = parsed.data;
 
     // Update user base fields
     const updatedUser = await this.prisma.user.update({
       where: { id: userId },
       data: {
         ...(name && { name }),
-        ...(role && { role: role as any }),
         ...(department !== undefined && { department }),
         ...(departmentId !== undefined && { departmentId }),
         ...(bio !== undefined && { bio })

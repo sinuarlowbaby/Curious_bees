@@ -3,8 +3,9 @@ const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 
 function detectRoleFromEmail(email) {
-  const username = email.split('@')[0].toLowerCase();
-  
+  const normalized = email.trim().toLowerCase();
+  const username = normalized.split('@')[0];
+
   if (username.includes('.')) {
     return { role: 'INSTITUTION_ADMIN', approved: true };
   } else if (/[a-zA-Z]/.test(username) && /[0-9]/.test(username)) {
@@ -17,18 +18,27 @@ function detectRoleFromEmail(email) {
 }
 
 async function main() {
-  console.log('--- Updating user roles based on new patterns ---');
+  console.log('--- Auditing user roles based on new patterns (Existing roles protected) ---');
   
   const users = await prisma.user.findMany();
 
   for (const user of users) {
     const { role: newRole, approved: newApproved } = detectRoleFromEmail(user.email);
     
-    if (user.role !== newRole || user.approved !== newApproved) {
-      await prisma.$executeRawUnsafe(`UPDATE "User" SET role = $1, approved = $2 WHERE id = $3`, newRole, newApproved, user.id);
-      console.log(`Updated ${user.email} -> ${newRole} (approved: ${newApproved})`);
+    // Protect existing roles: do not overwrite them if they are already set in the database.
+    // We only update if the user's role is not yet defined, but since role defaults to RESEARCH_SCHOLAR,
+    // we only allow updating if it is a dry-run or we print the mismatch without changing it.
+    if (user.role !== newRole) {
+      console.log(`[PROTECTED] Mismatch detected for ${user.email}: DB has '${user.role}', pattern suggests '${newRole}'. Not overwriting.`);
+    } else if (user.approved !== newApproved) {
+      // If the role matches but approval status differs, we can sync the approval status safely 
+      // if the user is not a scholar (admins and supervisors are pre-approved).
+      if (user.role === 'INSTITUTION_ADMIN' || user.role === 'RESEARCH_SUPERVISOR') {
+        await prisma.$executeRawUnsafe(`UPDATE "User" SET approved = $1 WHERE id = $2`, newApproved, user.id);
+        console.log(`Updated approval status for ${user.email} to ${newApproved}`);
+      }
     } else {
-      console.log(`Skipped ${user.email} -> Already ${newRole} (approved: ${newApproved})`);
+      console.log(`Skipped ${user.email} -> Already matches ${newRole} (approved: ${newApproved})`);
     }
   }
 }

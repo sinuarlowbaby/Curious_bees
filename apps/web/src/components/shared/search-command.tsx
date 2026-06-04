@@ -46,7 +46,7 @@ export function SearchCommand({ isOpen, onClose }: SearchCommandProps) {
         id: `t-${t.id}`,
         title: t.title,
         category: 'Threads',
-        url: `/dashboard/threads/${t.id}`,
+        url: `/threads/${t.id}`,
         meta: `By ${t.author?.name || 'Scholar'} · ${t.tags.join(', ')}`,
       });
     });
@@ -56,7 +56,7 @@ export function SearchCommand({ isOpen, onClose }: SearchCommandProps) {
         id: `o-${o.id}`,
         title: o.title,
         category: 'Opportunities',
-        url: '/dashboard/opportunities',
+        url: '/opportunities',
         meta: `${o.department} · PI: ${o.author?.name || 'Faculty Leads'}`,
       });
     });
@@ -66,7 +66,7 @@ export function SearchCommand({ isOpen, onClose }: SearchCommandProps) {
         id: `e-${e.id}`,
         title: e.title,
         category: 'Events',
-        url: '/dashboard/events',
+        url: '/events',
         meta: `${e.date} · ${e.venue}`,
       });
     });
@@ -76,7 +76,7 @@ export function SearchCommand({ isOpen, onClose }: SearchCommandProps) {
         id: `c-${c.id}`,
         title: c.name || 'Scholar',
         category: 'Researchers',
-        url: '/dashboard/researcher',
+        url: '/dashboard',
         meta: `${c.department || 'SRMIST'} · Interests: ${c.interests?.map((i: any) => i.interest?.name || '').filter(Boolean).join(', ') || 'General'}`,
       });
     });

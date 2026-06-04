@@ -49,14 +49,17 @@ export function ProfileDropdown() {
 
               <div className="flex flex-col gap-1">
                 <button
-                  onClick={() => { setIsOpen(false); router.push('/dashboard/profile'); }}
+                  onClick={() => { setIsOpen(false); router.push('/profile'); }}
                   className="flex items-center gap-2 px-3 py-2 text-sm text-foreground hover:bg-muted rounded-md transition-colors w-full text-left"
                 >
                   <User className="w-4 h-4 text-muted-foreground" />
                   My Profile
                 </button>
                 <button
-                  onClick={() => { setIsOpen(false); router.push('/dashboard/settings'); }}
+                  onClick={() => {
+                    setIsOpen(false);
+                    router.push(currentUser.role === 'INSTITUTION_ADMIN' ? '/admin/settings' : '/profile');
+                  }}
                   className="flex items-center gap-2 px-3 py-2 text-sm text-foreground hover:bg-muted rounded-md transition-colors w-full text-left"
                 >
                   <Settings className="w-4 h-4 text-muted-foreground" />

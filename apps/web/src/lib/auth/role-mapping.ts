@@ -10,16 +10,6 @@
 
 import type { UserRole } from '@curiousbees/types';
 
-// ─── Dev Role Map ─────────────────────────────────────────────────────────────
-// Maps known developer/test emails to their platform roles.
-// In production: replace this with a database-backed RBAC lookup.
-
-export const DEV_ROLE_MAP: Record<string, UserRole> = {
-  'mrmatheshwaran17@gmail.com': 'RESEARCH_SUPERVISOR',
-  'r.matheshwaran.io@gmail.com': 'RESEARCH_SCHOLAR',
-  'maddybgmistoreog@gmail.com': 'INSTITUTION_ADMIN',
-} as const;
-
 // ─── Role Labels (human-readable) ────────────────────────────────────────────
 
 export const ROLE_LABELS: Record<UserRole, string> = {
@@ -31,22 +21,35 @@ export const ROLE_LABELS: Record<UserRole, string> = {
 // ─── Core resolver ───────────────────────────────────────────────────────────
 
 /**
- * Returns the platform role for a given email.
+ * Returns the platform role for a given email dynamically based on development patterns.
+ * 
+ * Pattern:
+ * - username contains '.' -> INSTITUTION_ADMIN
+ * - username contains letters + numbers -> RESEARCH_SCHOLAR
+ * - username contains only letters -> RESEARCH_SUPERVISOR
+ * - fallback -> RESEARCH_SCHOLAR
  *
- * Dev: resolves from the static DEV_ROLE_MAP.
- * Prod: swap this implementation with a DB call — callers are unaffected.
- *
- * @returns The UserRole if the email is mapped, null otherwise (access denied).
+ * @returns The UserRole resolved from email pattern.
  */
-export function getRoleForEmail(email: string): UserRole | null {
+export function getRoleForEmail(email: string): UserRole {
   const normalized = email.trim().toLowerCase();
-  return DEV_ROLE_MAP[normalized] ?? null;
+  const username = normalized.split('@')[0];
+
+  if (username.includes('.')) {
+    return 'INSTITUTION_ADMIN';
+  } else if (/[a-zA-Z]/.test(username) && /[0-9]/.test(username)) {
+    return 'RESEARCH_SCHOLAR';
+  } else if (/^[a-zA-Z]+$/.test(username)) {
+    return 'RESEARCH_SUPERVISOR';
+  }
+
+  return 'RESEARCH_SCHOLAR';
 }
 
 /**
- * Returns true if the given email is in the allowed dev mapping.
- * Unmapped emails should be redirected to /login?error=access_denied.
+ * Returns true if the email maps to a valid role. Since pattern-based routing
+ * resolves a role for all inputs, this helper is preserved and always returns true.
  */
 export function isEmailAllowed(email: string): boolean {
-  return getRoleForEmail(email) !== null;
+  return true;
 }

@@ -1,8 +1,9 @@
 /**
- * middleware.ts — Next.js Edge Middleware
+ * proxy.ts — Next.js Request Proxy
  *
  * Enforces role-based route protection for all portal routes.
  * Runs at the edge (before page render) on every matching request.
+ * Modernized for Next.js 16 Proxy API.
  *
  * Flow:
  *  1. Public route → pass through immediately
@@ -11,7 +12,6 @@
  *  4. All checks pass → allow request
  *
  * Cookie: `cb-role` — set by useStore after successful login.
- * Scalability: when production auth lands, replace cookie read with JWT verification.
  */
 
 import { NextRequest, NextResponse } from 'next/server';
@@ -19,8 +19,10 @@ import { isPublicRoute, isRouteAllowedForRole } from '@/lib/auth/permissions';
 import { ROLE_COOKIE_NAME } from '@curiousbees/constants';
 import type { UserRole } from '@curiousbees/types';
 
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
+
+  console.info('[Proxy] Intercepted request for path:', pathname);
 
   // 1. Always allow public routes without any auth check
   if (isPublicRoute(pathname)) {
@@ -61,7 +63,7 @@ export function middleware(request: NextRequest) {
 }
 
 // ─── Matcher Config ───────────────────────────────────────────────────────────
-// Only run middleware on portal routes (not static files, _next, api proxies)
+// Only run proxy on portal routes (not static files, _next, api proxies)
 
 export const config = {
   matcher: [

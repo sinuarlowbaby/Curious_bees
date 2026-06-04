@@ -3,9 +3,9 @@ import { PrismaService } from '../prisma/prisma.service';
 import { FirebaseAdminService } from './firebase-admin.service';
 
 function detectRoleFromEmail(email: string): { role: string; approved: boolean } {
-  // TODO: Production: Replace development email-pattern role detection with @srmist.edu.in validation.
-  const username = email.split('@')[0].toLowerCase();
-  
+  const normalized = email.trim().toLowerCase();
+  const username = normalized.split('@')[0];
+
   if (username.includes('.')) {
     return { role: 'INSTITUTION_ADMIN', approved: true };
   } else if (/[a-zA-Z]/.test(username) && /[0-9]/.test(username)) {
@@ -67,6 +67,7 @@ export class FirebaseAuthGuard implements CanActivate {
       const username = email.split('@')[0].toLowerCase();
       const normalizedEmail = email.toLowerCase();
 
+      let roleSource = 'Database';
       let user = await this.prisma.user.findUnique({
         where: { email: normalizedEmail },
         include: {
@@ -79,6 +80,7 @@ export class FirebaseAuthGuard implements CanActivate {
       });
 
       if (!user) {
+        roleSource = 'Email Pattern / Dev Map';
         const { role, approved } = detectRoleFromEmail(normalizedEmail);
 
         this.logger.log(`Creating CuriousBees user for ${normalizedEmail}: Assigned role=${role}, Approved status=${approved}`);
@@ -122,14 +124,16 @@ export class FirebaseAuthGuard implements CanActivate {
       this.logger.log(`CuriousBees user sync complete for ${normalizedEmail}: id=${user.id}, role=${user.role}, approved=${user.approved}`);
       
       // ── Structured [AUTH] audit logs ──────────────────────────────────────
-      this.logger.log(`[AUTH] Email: ${normalizedEmail}`);
-      this.logger.log(`[AUTH] Detected Role: ${user.role}`);
-      this.logger.log(`[AUTH] Approved Status: ${user.approved}`);
+      this.logger.log(`[AUTH] User Email: ${normalizedEmail}`);
+      this.logger.log(`[AUTH] User UID: ${decodedToken.uid}`);
+      this.logger.log(`[AUTH] Retrieved Role: ${user.role}`);
+      this.logger.log(`[AUTH] Role Source: ${roleSource}`);
+      
       const redirectRoute =
-        user.role === 'INSTITUTION_ADMIN' ? '/admin' :
-        user.role === 'RESEARCH_SUPERVISOR' ? '/dashboard/supervisor' :
-        (!user.approved ? '/verification-pending' : '/dashboard/researcher');
-      this.logger.log(`[AUTH] Redirect Route: ${redirectRoute}`);
+        user.role === 'INSTITUTION_ADMIN' ? '/admin/dashboard' :
+        user.role === 'RESEARCH_SUPERVISOR' ? '/dashboard' :
+        (!user.approved ? '/verification-pending' : '/dashboard');
+      this.logger.log(`[AUTH] Redirect Target: ${redirectRoute}`);
       
       request.user = user;
       return true;

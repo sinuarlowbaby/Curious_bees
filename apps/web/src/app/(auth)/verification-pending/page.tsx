@@ -39,9 +39,9 @@ export default function VerificationPendingPage() {
     const checkStatus = async () => {
       const user = await syncUserSession({ force: true });
       if (user && (user.approved || user.role === 'RESEARCH_SUPERVISOR' || user.role === 'INSTITUTION_ADMIN')) {
-        const route = user.role === 'RESEARCH_SUPERVISOR' ? '/dashboard/supervisor'
-          : user.role === 'INSTITUTION_ADMIN' ? '/admin'
-          : '/dashboard/researcher';
+        const route = user.role === 'RESEARCH_SUPERVISOR' ? '/dashboard'
+          : user.role === 'INSTITUTION_ADMIN' ? '/admin/dashboard'
+          : '/dashboard';
         router.replace(route);
       }
     };
