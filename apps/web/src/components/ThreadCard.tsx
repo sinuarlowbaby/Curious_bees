@@ -6,7 +6,7 @@ import { Thread } from '@curiousbees/types';
 import { MessageSquare, Calendar, ChevronRight } from 'lucide-react';
 import { motion } from 'framer-motion';
 import GlassCard from './GlassCard';
-import TagPill from './TagPill';
+import { TagPill } from '@curiousbees/ui';
 
 interface ThreadCardProps {
   thread: Thread;

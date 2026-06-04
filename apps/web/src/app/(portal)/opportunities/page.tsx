@@ -16,7 +16,7 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import GlassCard from '@/components/GlassCard';
-import TagPill from '@/components/TagPill';
+import { TagPill } from '@curiousbees/ui';
 import GlowButton from '@/components/GlowButton';
 import OpportunityCard from '@/components/OpportunityCard';
 

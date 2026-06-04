@@ -1,6 +1,4 @@
 /**
- * lib/auth/constants.ts
- *
  * Shared auth constants used across middleware, store, and helpers.
  * Isolates the cookie name from the middleware module to avoid import cycles.
  */

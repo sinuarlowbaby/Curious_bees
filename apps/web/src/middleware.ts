@@ -16,7 +16,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { isPublicRoute, isRouteAllowedForRole } from '@/lib/auth/permissions';
-import { ROLE_COOKIE_NAME } from '@/lib/auth/constants';
+import { ROLE_COOKIE_NAME } from '@curiousbees/constants';
 import type { UserRole } from '@curiousbees/types';
 
 export function middleware(request: NextRequest) {

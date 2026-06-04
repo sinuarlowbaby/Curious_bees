@@ -21,7 +21,7 @@ import {
 import { Event } from '@curiousbees/types';
 import { format } from 'date-fns';
 import GlassCard from './GlassCard';
-import TagPill from './TagPill';
+import { TagPill } from '@curiousbees/ui';
 import AIBadge from './AIBadge';
 import GlowButton from './GlowButton';
 import { motion, AnimatePresence } from 'framer-motion';

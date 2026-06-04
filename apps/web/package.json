@@ -9,8 +9,10 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@curiousbees/constants": "^1.0.0",
     "@curiousbees/shared-utils": "*",
     "@curiousbees/types": "*",
+    "@curiousbees/ui": "^1.0.0",
     "@fullcalendar/core": "^6.1.20",
     "@fullcalendar/daygrid": "^6.1.20",
     "@fullcalendar/interaction": "^6.1.20",

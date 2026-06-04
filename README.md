@@ -1,222 +1,116 @@
 # CuriousBees
 
-CuriousBees is an internal academic collaboration platform for SRM Institute of Science & Technology. It helps faculty and PhD scholars discover collaborators, discuss research ideas, publish opportunities, manage academic events, and use local AI pipelines for event extraction, semantic search, analytics, and Copilot-style assistance.
+CuriousBees is an AI-powered Academic Collaboration Platform designed for modern university research ecosystems. It facilitates seamless collaboration, progress tracking, and administrative oversight between Research Scholars, Supervisors, and Institutional Admins.
 
-## Project Snapshot
-
-This repository is an npm-workspaces monorepo with two apps and shared packages:
+## Architecture Diagram
 
 ```text
-.
-|-- apps/
-|   |-- web/          # Next.js App Router frontend
-|   `-- api/          # NestJS REST API and background workers
-|-- packages/
-|   |-- types/        # Shared TypeScript DTOs and app types
-|   `-- shared-utils/ # Shared utility helpers
-|-- supabase/         # Legacy/manual SQL bootstrap assets
-|-- docker-compose.yml
-`-- package.json
+    +-------------------+       +-------------------+       +-------------------+
+    |   User Browser    |       |   Mobile Native   |       |  External APIs    |
+    |  (Next.js App)    |<----->|  (Future Scope)   |       | (Semantic Search) |
+    +-------------------+       +-------------------+       +-------------------+
+             |                            |                           |
+             |  HTTPS / WSS (WebSockets)  |                           |
+             v                            v                           |
+    +---------------------------------------------------+             |
+    |                  CuriousBees API                  |<------------+
+    |             (NestJS + Prisma + BullMQ)            |
+    +---------------------------------------------------+
+             |                   |                  |
+             v                   v                  v
+    +----------------+  +----------------+  +-------------------+
+    |  PostgreSQL    |  |     Redis      |  |   Firebase Auth   |
+    |   (Supabase)   |  | (Message Queue)|  |       & FCM       |
+    +----------------+  +----------------+  +-------------------+
 ```
 
-## Stack
+## Folder Structure (Monorepo)
 
-### Frontend: `apps/web`
-
-- Next.js 15 App Router with React 19 RC and TypeScript
-- Tailwind CSS, Framer Motion, Lucide icons, Recharts, FullCalendar
-- Firebase client authentication with Google sign-in
-- Firebase Cloud Messaging for browser notifications
-- Supabase client for storage/public client-side Supabase operations
-- Zustand for client state
-
-### Backend: `apps/api`
-
-- NestJS 10 REST API
-- Prisma 5 with PostgreSQL and pgvector-backed embedding fields
-- Firebase Admin token verification and role/approval guards
-- BullMQ workers backed by Redis
-- Gmail API OAuth and unread email ingestion
-- Local Ollama AI services:
-  - `qwen2.5:7b` for event extraction and Copilot responses
-  - `nomic-embed-text` for 768-dimensional semantic embeddings
-- Analytics, clustering, observability, search, recommendations, notifications, and workspace modules
-
-## Core Workflows
-
-- Role-aware onboarding for faculty, PhD scholars, and admins
-- Scholar approval through supervisors
-- Researcher discovery by profile, department, and interests
-- Discussion threads with comments and tags
-- Research opportunities with collaboration requests
-- Shared workspaces with files, milestones, and announcements
-- Academic event calendar with review and publishing states
-- Gmail ingestion that queues unread emails for AI classification and event extraction
-- Semantic event search, related events, personalized recommendations, and trending topics
-- Analytics dashboards for event volume, departments, engagement, clusters, and queue/system health
-- Streaming Copilot chat over Server-Sent Events using retrieved event context
-- Firebase Cloud Messaging device registration and notification preferences
-
-## Prerequisites
-
-- Node.js 18.18 or newer
-- npm
-- PostgreSQL, either local or hosted through Supabase
-- Redis for BullMQ queues
-- Ollama for AI extraction, embeddings, semantic search, clustering, and Copilot features
-- Firebase project for client auth, Admin SDK verification, and FCM
-- Google OAuth credentials if Gmail ingestion is enabled
-
-The included `docker-compose.yml` starts a local PostgreSQL container only. Redis and Ollama must be started separately.
-
-## Environment Variables
-
-The API dynamically looks for `.env` in the current app, parent folders, and `apps/web/.env`. For clarity, keep backend/server secrets in a root `.env` or `apps/api/.env`, and frontend public values in `apps/web/.env.local`.
-
-### API / server
-
-```bash
-DATABASE_URL="postgresql://postgres:postgres@localhost:5432/srm_curiousbees_db"
-DIRECT_URL="postgresql://postgres:postgres@localhost:5432/srm_curiousbees_db"
-
-REDIS_HOST="localhost"
-REDIS_PORT="6379"
-PORT="4000"
-ALLOWED_ORIGINS="http://localhost:3000"
-
-FIREBASE_PROJECT_ID="..."
-FIREBASE_CLIENT_EMAIL="..."
-FIREBASE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n"
-
-GMAIL_CLIENT_ID="..."
-GMAIL_CLIENT_SECRET="..."
-GMAIL_REDIRECT_URI="http://localhost:4000/api/events/gmail/callback"
+```text
+/
+├── apps/
+│   ├── web/                # Next.js Frontend Application
+│   └── api/                # NestJS Backend API
+├── packages/
+│   ├── types/              # Shared TypeScript definitions
+│   ├── shared-utils/       # Shared utility functions
+│   ├── ui/                 # Shared React/Tailwind UI components
+│   ├── constants/          # Shared system constants
+│   └── config/             # Shared ESLint/Prettier configurations
+├── docs/                   # Extensive System Documentation
+│   ├── architecture/       # Architecture breakdowns
+│   ├── deployment/         # Deployment strategies (Vercel, Render)
+│   ├── database/           # Database schema & design
+│   ├── authentication/     # Auth flows
+│   └── workflows/          # Role-based workflows
+├── scripts/                # Utility and automation scripts
+└── .github/workflows/      # CI/CD pipelines
 ```
 
-`GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, and `GOOGLE_REDIRECT_URI` are also accepted as fallbacks for the Gmail OAuth variables.
+## Tech Stack
 
-### Web / public client
+**Frontend:**
+- Next.js (App Router)
+- React & Tailwind CSS
+- TypeScript
+- Firebase (Client Auth)
+- Zustand (State Management)
 
-```bash
-NEXT_PUBLIC_FIREBASE_API_KEY="..."
-NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN="..."
-NEXT_PUBLIC_FIREBASE_PROJECT_ID="..."
-NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET="..."
-NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID="..."
-NEXT_PUBLIC_FIREBASE_APP_ID="..."
-NEXT_PUBLIC_FIREBASE_VAPID_KEY="..."
+**Backend:**
+- NestJS
+- Prisma ORM
+- BullMQ (Job Queues)
+- Firebase Admin SDK
 
-NEXT_PUBLIC_SUPABASE_URL="..."
-NEXT_PUBLIC_SUPABASE_ANON_KEY="..."
-```
+**Infrastructure:**
+- Database: PostgreSQL (managed by Supabase)
+- Queues/Cache: Redis
+- Authentication: Firebase Google Auth
+- Push Notifications: Firebase Cloud Messaging (FCM)
+- Hosting: Vercel (Frontend), Render/Docker (Backend)
 
-Only `NEXT_PUBLIC_*` variables are exposed to the browser. Do not put service-role Supabase keys or Firebase Admin credentials in the web environment.
+## Core Flows
 
-## Local Development
+### Authentication Flow
+We use a secure hybrid authentication model:
+1. Client authenticates directly via Firebase Google SSO.
+2. Client sends the Firebase JWT to the NestJS Backend.
+3. Backend validates the JWT, syncs the user profile with Supabase, and returns role-based routing instructions.
+4. Edge middleware protects routes using role cookies.
 
-Install dependencies:
+### Role Flow
+- **RESEARCH_SCHOLAR**: Standard users who must be approved by a supervisor.
+- **RESEARCH_SUPERVISOR**: Faculty guides who manage scholars and approve requests.
+- **INSTITUTION_ADMIN**: Global administrators with analytical oversight.
 
-```bash
-npm install
-```
+## Development Commands
 
-Start local PostgreSQL:
-
-```bash
-npm run docker:up
-```
-
-Start Redis separately, for example:
-
-```bash
-redis-server
-```
-
-Start Ollama and pull the models used by the API:
-
-```bash
-ollama pull qwen2.5:7b
-ollama pull nomic-embed-text
-```
-
-Prepare the database:
-
-```bash
-npm run db:migrate
-npm run db:seed
-```
-
-Run both apps:
-
+Run the entire stack locally:
 ```bash
 npm run dev
 ```
+*(This concurrently starts both `apps/web` on port 3000 and `apps/api` on port 4000).*
 
-By default:
-
-- Web app: `http://localhost:3000`
-- API: `http://localhost:4000`
-- API routes: `http://localhost:4000/api/...`
-
-During local development, Firebase auth can be bypassed from the login page with the mock role selector. The API accepts `mock-bypass-token-*` only outside production.
-
-## Useful Scripts
-
+Manage Database:
 ```bash
-npm run dev          # Run web and API concurrently
-npm run build        # Build all workspaces with build scripts
-npm run lint         # Run workspace lint scripts where present
-npm run docker:up    # Start local PostgreSQL
-npm run docker:down  # Stop local PostgreSQL
-npm run db:migrate   # Run Prisma migrate dev in apps/api
-npm run db:seed      # Seed sample users, interests, threads, opportunities, and events
+npm run db:migrate  # Push schema changes
+npm run db:seed     # Seed initial data
 ```
 
-API-specific scripts:
+## Deployment Commands
 
+**Frontend (Vercel):**
 ```bash
-npm run dev --workspace=apps/api
-npm run build --workspace=apps/api
-npm run prisma:generate --workspace=apps/api
-npm run prisma:migrate --workspace=apps/api
-npm run prisma:seed --workspace=apps/api
+vercel deploy --prod
 ```
 
-Web-specific scripts:
-
+**Backend (Docker):**
 ```bash
-npm run dev --workspace=apps/web
-npm run build --workspace=apps/web
-npm run start --workspace=apps/web
+docker compose up -d --build
 ```
 
-## API Modules
+## Environment Setup
+Copy `.env.example` to `.env` in both `apps/web` and `apps/api` and populate the necessary Firebase, Supabase, and Redis credentials.
 
-Most API modules are protected by Firebase authentication. Several also require an approved faculty/admin account or an approved scholar account.
-
-| Module | Base path | Purpose |
-| --- | --- | --- |
-| Auth | `/api/auth` | Current authenticated user |
-| Users | `/api/users` | Profiles, collaborators, interests, approvals, roles, audit logs |
-| Threads | `/api/threads` | Research discussion threads |
-| Comments | `/api/comments` | Thread comments |
-| Opportunities | `/api/opportunities` | Research opportunities and collaboration requests |
-| Events | `/api/events` | Calendar events, review queue, status changes, related events |
-| Gmail ingestion | `/api/events/gmail` | Gmail OAuth, sync, mock email queueing |
-| Notifications | `/api/notifications` | FCM device registration and preferences |
-| Search | `/api/search` | Semantic search, recommendations, trending events |
-| Analytics | `/api/analytics` | Overview, trends, clusters, engagement, observability, CSV export |
-| Copilot | `/api/copilot` | Chat sessions and streaming SSE responses |
-| Workspaces | `/api/workspaces` | Workspace files, milestones, and announcements |
-
-## Database Notes
-
-The current backend data model lives in `apps/api/prisma/schema.prisma`. It includes users, roles, profiles, interests, threads, comments, opportunities, collaboration requests, events, notification logs, AI processing logs, embeddings, analytics, Copilot sessions, workspaces, and audit logs.
-
-If you use Supabase PostgreSQL, enable the `vector` extension before relying on embedding-backed features. The `supabase/schema.sql` file is an older manual bootstrap script and does not fully match the current Prisma schema.
-
-## Deployment Notes
-
-Both apps include Vercel configuration files. Before deploying the web app, update the API rewrite in `apps/web/next.config.js`; it currently routes `/api/*` to `http://localhost:4000` in all environments.
-
-Production deployments need real Firebase Admin credentials, Firebase web config, database URLs, Redis, and an available Ollama-compatible model host or replacement AI service. Keep the mock auth bypass disabled by running with `NODE_ENV=production`.
+## Contribution Guidelines
+Please see [CONTRIBUTING.md](./CONTRIBUTING.md) for detailed guidelines on how to contribute to this repository.
