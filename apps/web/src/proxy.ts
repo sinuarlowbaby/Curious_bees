@@ -24,6 +24,11 @@ export function proxy(request: NextRequest) {
 
   console.info('[Proxy] Intercepted request for path:', pathname);
 
+  // 0. Development override bypass
+  if (process.env.NEXT_PUBLIC_DEVELOPMENT_MODE === 'true' || process.env.DEVELOPMENT_MODE === 'true') {
+    return NextResponse.next();
+  }
+
   // 1. Always allow public routes without any auth check
   if (isPublicRoute(pathname)) {
     return NextResponse.next();

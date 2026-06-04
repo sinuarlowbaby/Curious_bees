@@ -32,6 +32,10 @@ export const DASHBOARD_ROUTES: Record<UserRole, string> = {
  * Defaults to '/login' for unauthenticated users.
  */
 export function getDashboardRoute(user?: { role: UserRole; approved?: boolean }): string {
+  if (process.env.NEXT_PUBLIC_DEVELOPMENT_MODE === 'true') {
+    if (!user) return '/dashboard';
+    return DASHBOARD_ROUTES[user.role] ?? '/dashboard';
+  }
   if (!user) return '/login';
   if (user.role === 'RESEARCH_SCHOLAR' && !user.approved) {
     return '/verification-pending';

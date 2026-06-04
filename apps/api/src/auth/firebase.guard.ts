@@ -21,6 +21,30 @@ export class FirebaseAuthGuard implements CanActivate {
       token = authHeader.substring(7);
     }
 
+    if (process.env.DEVELOPMENT_MODE === 'true') {
+      this.logger.warn('DEVELOPMENT_MODE is active. Bypassing Firebase authentication.');
+      
+      // Determine role from token if present, otherwise default to RESEARCH_SCHOLAR
+      let devRole = 'RESEARCH_SCHOLAR';
+      if (token.includes('admin')) devRole = 'INSTITUTION_ADMIN';
+      else if (token.includes('faculty') || token.includes('supervisor')) devRole = 'RESEARCH_SUPERVISOR';
+
+      request.user = {
+        id: 'dev-user',
+        name: 'Developer',
+        email: 'developer@local.dev',
+        role: devRole,
+        approved: true,
+        status: 'APPROVED',
+        department: 'Development',
+        firebaseUid: 'dev-uid',
+        emailVerified: new Date(),
+        interests: []
+      };
+      
+      return true;
+    }
+
     if (!token) {
       throw new UnauthorizedException('Authorization Bearer ID token is required.');
     }
@@ -30,14 +54,18 @@ export class FirebaseAuthGuard implements CanActivate {
 
       if (process.env.NODE_ENV !== 'production' && token.startsWith('mock-bypass-token-')) {
         this.logger.warn('Using local mock Firebase auth bypass token.');
+        const isAdmin = token.includes('admin');
         const isFaculty = token.includes('faculty');
+        // Default to scholar if neither admin nor faculty
         decodedToken = {
-          uid: isFaculty ? 'mock-bypass-uid-faculty' : token.includes('admin') ? 'mock-bypass-uid-admin' : 'mock-bypass-uid-scholar',
-          email: isFaculty ? 'faculty.mock@srmist.edu.in' : token.includes('admin') ? 'admin.mock@srmist.edu.in' : 'scholar.mock@srmist.edu.in',
-          name: isFaculty ? 'Dr. Priya (Mock Faculty)' : token.includes('admin') ? 'Admin User' : 'Karthik Kumar (Mock Scholar)',
-          picture: isFaculty 
-            ? 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150'
-            : 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150',
+          uid: isAdmin ? 'mock-bypass-uid-admin' : isFaculty ? 'mock-bypass-uid-faculty' : 'mock-bypass-uid-scholar',
+          email: isAdmin ? 'admin.mock@srmist.edu.in' : isFaculty ? 'faculty.mock@srmist.edu.in' : 'scholar.mock@srmist.edu.in',
+          name: isAdmin ? 'Admin User (Mock)' : isFaculty ? 'Dr. Priya (Mock Faculty)' : 'Karthik Kumar (Mock Scholar)',
+          picture: isAdmin
+            ? 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150'
+            : isFaculty 
+              ? 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150'
+              : 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150',
         };
       } else {
         this.logger.debug(`Received Firebase bearer token for verification. tokenLength=${token.length}`);
@@ -70,10 +98,16 @@ export class FirebaseAuthGuard implements CanActivate {
         
         const mainAdminEmail = process.env.MAIN_ADMIN_EMAIL || 'curiousbees@srmist.edu.in';
         const isMainAdmin = normalizedEmail === mainAdminEmail.toLowerCase();
+        const isMockAdmin = normalizedEmail === 'admin.mock@srmist.edu.in';
+        const isMockFaculty = normalizedEmail === 'faculty.mock@srmist.edu.in';
+        const isMockScholar = normalizedEmail === 'scholar.mock@srmist.edu.in';
+        const isMockUser = isMockAdmin || isMockFaculty || isMockScholar;
         
-        const role = isMainAdmin ? 'INSTITUTION_ADMIN' : 'RESEARCH_SCHOLAR';
-        const approved = isMainAdmin;
-        const status = isMainAdmin ? 'APPROVED' : 'ONBOARDING';
+        const role = (isMainAdmin || isMockAdmin) ? 'INSTITUTION_ADMIN' 
+          : isMockFaculty ? 'RESEARCH_SUPERVISOR' 
+          : 'RESEARCH_SCHOLAR';
+        const approved = isMainAdmin || isMockUser;
+        const status = (isMainAdmin || isMockUser) ? 'APPROVED' : 'ONBOARDING';
 
         this.logger.log(`Creating CuriousBees user for ${normalizedEmail}: Assigned role=${role}, status=${status}`);
         user = await this.prisma.user.create({
@@ -97,13 +131,25 @@ export class FirebaseAuthGuard implements CanActivate {
         });
       } else {
         this.logger.log(`Existing CuriousBees user found for ${normalizedEmail}; syncing profile fields.`);
+        
+        // For mock bypass users, also sync role/approved/status to match the bypass token
+        const isMockUser = normalizedEmail.endsWith('.mock@srmist.edu.in');
+        const mockUpdateData: any = {
+          name: decodedToken.name || user.name,
+          image: decodedToken.picture || user.image,
+          emailVerified: user.emailVerified || new Date(),
+        };
+        if (isMockUser) {
+          const isMockAdmin = normalizedEmail === 'admin.mock@srmist.edu.in';
+          const isMockFaculty = normalizedEmail === 'faculty.mock@srmist.edu.in';
+          mockUpdateData.role = isMockAdmin ? 'INSTITUTION_ADMIN' : isMockFaculty ? 'RESEARCH_SUPERVISOR' : 'RESEARCH_SCHOLAR';
+          mockUpdateData.approved = true;
+          mockUpdateData.status = 'APPROVED';
+        }
+
         user = await this.prisma.user.update({
           where: { id: user.id },
-          data: {
-            name: decodedToken.name || user.name,
-            image: decodedToken.picture || user.image,
-            emailVerified: user.emailVerified || new Date(),
-          },
+          data: mockUpdateData,
           include: {
             interests: {
               include: {

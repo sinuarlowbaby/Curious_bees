@@ -75,6 +75,9 @@ async function createApp(expressInstance?: express.Express) {
   app.enableCors({
     origin: (origin, callback) => {
       if (!origin) return callback(null, true);
+      if (process.env.DEVELOPMENT_MODE === 'true' && (origin.startsWith('http://localhost:') || origin.startsWith('http://127.0.0.1:'))) {
+        return callback(null, true);
+      }
       if (allowedOrigins.includes(origin) || origin.endsWith('.vercel.app')) {
         return callback(null, true);
       }

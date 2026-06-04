@@ -66,6 +66,17 @@ export function resetAuthPromise() {
  * Returns an empty object when there is no authenticated user (guest mode).
  */
 export async function getAuthHeaders(): Promise<Record<string, string>> {
+  if (process.env.NEXT_PUBLIC_DEVELOPMENT_MODE === 'true') {
+    if (typeof window !== 'undefined') {
+      const devRole = localStorage.getItem('dev_role') || 'RESEARCH_SCHOLAR';
+      const mockToken = `mock-bypass-token-${devRole === 'INSTITUTION_ADMIN' ? 'admin' : devRole === 'RESEARCH_SUPERVISOR' ? 'faculty' : 'scholar'}`;
+      localStorage.setItem('curiousbees-mock-token', mockToken);
+      console.info('[APIClient] DEVELOPMENT_MODE bypass: Using mock role token.', devRole);
+      return { Authorization: `Bearer ${mockToken}` };
+    }
+    return { Authorization: 'Bearer mock-bypass-token-scholar' };
+  }
+
   await waitForAuth();
   const user = auth.currentUser;
 
@@ -82,6 +93,15 @@ export async function getAuthHeaders(): Promise<Record<string, string>> {
       return { Authorization: `Bearer ${token}` };
     } catch (err) {
       console.warn('[APIClient] Token retrieval failed:', err);
+    }
+  }
+
+  // Dev bypass: check for mock token in localStorage
+  if (typeof window !== 'undefined') {
+    const mockToken = localStorage.getItem('curiousbees-mock-token');
+    if (mockToken) {
+      console.info('[APIClient] Using mock bypass token from localStorage.');
+      return { Authorization: `Bearer ${mockToken}` };
     }
   }
 

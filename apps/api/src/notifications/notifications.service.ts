@@ -92,7 +92,7 @@ export class NotificationsService {
         data: payload.url ? { url: payload.url } : {},
         webpush: { notification: { icon: '/logo.png', click_action: payload.url || '/' } }
       };
-      const response = await admin.messaging().sendEachForMulticast(message);
+      const response = await admin.messaging().sendMulticast(message);
       this.logger.log(`[FCM] Notification Sent: ${response.successCount} succeeded, ${response.failureCount} failed.`);
       // Cleanup expired tokens
       const expiredTokens: string[] = [];

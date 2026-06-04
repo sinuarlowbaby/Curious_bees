@@ -217,6 +217,33 @@ export const useStore = create<AppState>((set, get) => ({
   syncUserSession: async (options) => {
     console.info('[AuthStore] syncUserSession called with options:', options);
 
+    if (process.env.NEXT_PUBLIC_DEVELOPMENT_MODE === 'true') {
+      const devRole = (typeof window !== 'undefined' ? localStorage.getItem('dev_role') : null) || 'RESEARCH_SCHOLAR';
+      const mockUser = {
+        id: 'dev-user',
+        name: 'Developer',
+        email: 'developer@local.dev',
+        role: devRole as UserRole,
+        approved: true,
+        status: 'APPROVED',
+        department: 'Development',
+        firebaseUid: 'dev-uid',
+        emailVerified: new Date(),
+        interests: []
+      } as unknown as User;
+      
+      const route = getDashboardRoute(mockUser);
+      setCookie(ROLE_COOKIE_NAME, mockUser.role);
+      
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('dev_role', devRole);
+        localStorage.setItem('curiousbees-mock-token', `mock-bypass-token-${devRole === 'INSTITUTION_ADMIN' ? 'admin' : devRole === 'RESEARCH_SUPERVISOR' ? 'faculty' : 'scholar'}`);
+      }
+
+      set({ currentUser: mockUser, roleOverride: mockUser.role, dashboardRoute: route, isLoading: false });
+      return mockUser;
+    }
+
     // 1. Check if currentUser is already cached in Zustand (and bypass if force is true)
     if (!options?.force) {
       const cachedUser = get().currentUser;

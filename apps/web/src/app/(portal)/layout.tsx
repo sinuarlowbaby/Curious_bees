@@ -19,7 +19,7 @@ export default function PortalLayout({
 }) {
   const router = useRouter();
   const pathname = usePathname();
-  const { currentUser, fetchData, setTheme, syncUserSession, isLoading } = useStore();
+  const { currentUser, setCurrentUser, fetchData, setTheme, syncUserSession, isLoading } = useStore();
   const [authTimedOut, setAuthTimedOut] = useState(false);
 
   // Sync local storage theme on mount
@@ -43,55 +43,80 @@ export default function PortalLayout({
     }
   }, [currentUser, isLoading]);
 
-  // Client-side authentication guard:
   useEffect(() => {
     let active = true;
+    const isDevMode = process.env.NEXT_PUBLIC_DEVELOPMENT_MODE === 'true';
+
     const initAuth = async () => {
       console.info('[PortalLayout] Running initAuth...');
 
       let activeUser = currentUser;
-      if (!activeUser) {
-        console.info('[PortalLayout] No active currentUser cached. Invoking syncUserSession()...');
-        activeUser = await syncUserSession();
+      
+      if (isDevMode) {
+        console.warn('[PortalLayout] DEVELOPMENT_MODE active. Bypassing auth checks.');
+        const devRole = typeof window !== 'undefined' ? (localStorage.getItem('dev_role') || 'RESEARCH_SCHOLAR') : 'RESEARCH_SCHOLAR';
+        const mockDevUser = {
+          id: 'dev-user',
+          name: 'Developer',
+          email: 'developer@local.dev',
+          role: devRole,
+          approved: true,
+          status: 'APPROVED',
+          department: 'Development'
+        } as any;
+        
+        if (!currentUser || currentUser.id !== 'dev-user' || currentUser.role !== devRole) {
+           setCurrentUser(mockDevUser);
+           activeUser = mockDevUser;
+        }
       } else {
-        console.info('[PortalLayout] Using cached currentUser:', activeUser.email);
+        if (!activeUser) {
+          console.info('[PortalLayout] No active currentUser cached. Invoking syncUserSession()...');
+          activeUser = await syncUserSession();
+        } else {
+          console.info('[PortalLayout] Using cached currentUser:', activeUser.email);
+        }
       }
 
       if (!active) return;
 
-      if (!activeUser) {
-        console.warn('[PortalLayout] Unauthenticated access detected. Redirecting to /login.');
-        router.push('/login');
-        return;
-      }
+      if (!isDevMode) {
+        if (!activeUser) {
+          console.warn('[PortalLayout] Unauthenticated access detected. Redirecting to /login.');
+          router.push('/login');
+          return;
+        }
 
-      if (activeUser.status === 'ONBOARDING') {
-        console.warn('[PortalLayout] User has not completed onboarding. Redirecting to /onboarding.');
-        router.push('/onboarding');
-        return;
-      }
+        if (activeUser.status === 'ONBOARDING') {
+          console.warn('[PortalLayout] User has not completed onboarding. Redirecting to /onboarding.');
+          router.push('/onboarding');
+          return;
+        }
 
-      if (activeUser.role !== 'INSTITUTION_ADMIN' && (!activeUser.approved || activeUser.status !== 'APPROVED')) {
-        console.warn('[PortalLayout] User is pending approval. Redirecting to /verification-pending.');
-        router.push('/verification-pending');
-        return;
+        if (activeUser.role !== 'INSTITUTION_ADMIN' && (!activeUser.approved || activeUser.status !== 'APPROVED')) {
+          console.warn('[PortalLayout] User is pending approval. Redirecting to /verification-pending.');
+          router.push('/verification-pending');
+          return;
+        }
       }
 
       console.info('[PortalLayout] Authentication checks passed. Initializing data fetch...');
       fetchData(); // Trigger initial live API fetch
 
-      // Register device for FCM Push Notifications (dynamically loaded to bypass SSR constraints)
-      import('@/lib/fcm').then(async ({ requestFcmToken, sendTokenToBackend }) => {
-        try {
-          const token = await requestFcmToken();
-          if (token && active) {
-            console.info('[PortalLayout] Registering FCM token...');
-            await sendTokenToBackend(token);
+      if (!isDevMode) {
+        // Register device for FCM Push Notifications (dynamically loaded to bypass SSR constraints)
+        import('@/lib/fcm').then(async ({ requestFcmToken, sendTokenToBackend }) => {
+          try {
+            const token = await requestFcmToken();
+            if (token && active) {
+              console.info('[PortalLayout] Registering FCM token...');
+              await sendTokenToBackend(token);
+            }
+          } catch (err) {
+            console.error('[PortalLayout] FCM Registration hook failed:', err);
           }
-        } catch (err) {
-          console.error('[PortalLayout] FCM Registration hook failed:', err);
-        }
-      });
+        });
+      }
     };
 
     initAuth();
@@ -100,7 +125,7 @@ export default function PortalLayout({
     };
   }, [currentUser, router, fetchData, syncUserSession]);
 
-  if (isLoading || !currentUser) {
+  if ((isLoading || !currentUser) && process.env.NEXT_PUBLIC_DEVELOPMENT_MODE !== 'true') {
     return (
       <div className="min-h-screen bg-slate-50 flex items-center justify-center text-slate-500 font-sans">
         <div className="flex flex-col items-center space-y-4 p-6 text-center max-w-sm">
@@ -137,9 +162,11 @@ export default function PortalLayout({
     );
   }
 
+  const isDevMode = process.env.NEXT_PUBLIC_DEVELOPMENT_MODE === 'true';
+
   return (
     <QueryClientProvider client={queryClient}>
-      <div className="min-h-screen bg-background text-on-surface flex flex-col md:flex-row transition-colors duration-300">
+      <div className="min-h-screen bg-background text-on-surface flex flex-col md:flex-row transition-colors duration-300 relative">
         {/* Persistent Navigational Sidebar */}
         <Sidebar />
 
@@ -163,6 +190,27 @@ export default function PortalLayout({
             </AnimatePresence>
           </main>
         </div>
+        
+        {/* Development Mode Switcher */}
+        {isDevMode && (
+          <div className="fixed bottom-4 right-4 bg-slate-900 text-white p-4 rounded-xl shadow-2xl z-50 flex flex-col gap-2 border border-slate-700">
+            <div className="text-xs font-bold uppercase tracking-wider text-amber-400 mb-1">Dev Override Active</div>
+            <select 
+              className="bg-slate-800 text-white text-sm rounded p-2 border border-slate-600 outline-none"
+              value={currentUser?.role || 'RESEARCH_SCHOLAR'}
+              onChange={(e) => {
+                const role = e.target.value;
+                localStorage.setItem('dev_role', role);
+                localStorage.setItem('curiousbees-mock-token', `mock-bypass-token-${role === 'INSTITUTION_ADMIN' ? 'admin' : role === 'RESEARCH_SUPERVISOR' ? 'faculty' : 'scholar'}`);
+                window.location.href = role === 'INSTITUTION_ADMIN' ? '/admin/dashboard' : '/dashboard';
+              }}
+            >
+              <option value="RESEARCH_SCHOLAR">Scholar</option>
+              <option value="RESEARCH_SUPERVISOR">Supervisor</option>
+              <option value="INSTITUTION_ADMIN">Admin</option>
+            </select>
+          </div>
+        )}
       </div>
       <ToastContainer />
     </QueryClientProvider>

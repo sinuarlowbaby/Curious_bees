@@ -30,7 +30,7 @@ export default function LoginPage() {
   const { syncUserSession, currentUser, dashboardRoute } = useStore();
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [authLoading, setAuthLoading] = useState(false);
-  const [bypassRole, setBypassRole] = useState<'faculty' | 'scholar'>('faculty');
+  const [bypassRole, setBypassRole] = useState<'faculty' | 'scholar' | 'admin'>('scholar');
 
   // Show access denied if redirected with error param
   useEffect(() => {
@@ -119,9 +119,10 @@ export default function LoginPage() {
         localStorage.setItem('curiousbees-mock-token', mockToken);
       }
       
-      const syncedUser = await syncUserSession();
+      const syncedUser = await syncUserSession({ force: true });
       if (syncedUser) {
-        const route = syncedUser.role === 'INSTITUTION_ADMIN' ? '/admin' : '/dashboard';
+        const route = getDashboardRoute(syncedUser);
+        console.info('[AUTH Bypass] Role:', syncedUser.role, '→ Route:', route);
         router.push(route);
       } else {
         setErrorMsg('Local developer bypass failed to synchronize with backend database.');
@@ -257,7 +258,52 @@ export default function LoginPage() {
               )}
               <span>Continue with Google Workspace</span>
             </button>
-            {/* Sandbox Developer Bypass Removed */}
+
+            {/* Dev Bypass Divider */}
+            <div className="relative flex items-center py-1">
+              <div className="flex-grow border-t border-borderStroke/50"></div>
+              <span className="px-3 text-[10px] font-bold uppercase tracking-widest text-textSecondary/40 select-none">Dev Sandbox Bypass</span>
+              <div className="flex-grow border-t border-borderStroke/50"></div>
+            </div>
+
+            {/* Role Selector Cards */}
+            <div className="grid grid-cols-3 gap-2">
+              {([
+                { key: 'scholar' as const, label: 'Scholar', icon: <GraduationCap className="w-4 h-4" />, email: 'scholar.mock@srmist.edu.in', color: 'bg-blue-50 border-blue-200 hover:border-blue-400 text-blue-700' },
+                { key: 'faculty' as const, label: 'Supervisor', icon: <User className="w-4 h-4" />, email: 'faculty.mock@srmist.edu.in', color: 'bg-emerald-50 border-emerald-200 hover:border-emerald-400 text-emerald-700' },
+                { key: 'admin' as const, label: 'Admin', icon: <Shield className="w-4 h-4" />, email: 'admin.mock@srmist.edu.in', color: 'bg-amber-50 border-amber-200 hover:border-amber-400 text-amber-700' },
+              ]).map((role) => (
+                <button
+                  key={role.key}
+                  type="button"
+                  onClick={() => setBypassRole(role.key)}
+                  className={cn(
+                    'flex flex-col items-center gap-1.5 p-3 rounded-lg border text-center transition-all duration-200 cursor-pointer',
+                    bypassRole === role.key 
+                      ? `${role.color} ring-2 ring-offset-1 ring-current shadow-sm scale-[1.02]`
+                      : 'bg-white border-borderStroke/60 text-textSecondary hover:bg-slate-50'
+                  )}
+                >
+                  {role.icon}
+                  <span className="text-[11px] font-bold leading-tight">{role.label}</span>
+                </button>
+              ))}
+            </div>
+
+            {/* Bypass Login Button */}
+            <button
+              onClick={handleDeveloperBypass}
+              disabled={authLoading}
+              className="w-full flex items-center justify-center gap-2.5 bg-slate-900 hover:bg-slate-800 text-white transition-all duration-300 py-2.5 px-4 rounded-lg font-semibold text-[12.5px] shadow-sm disabled:opacity-50 disabled:pointer-events-none cursor-pointer border border-slate-700"
+            >
+              {authLoading ? (
+                <Loader2 className="w-4 h-4 animate-spin shrink-0" />
+              ) : (
+                <Terminal className="w-4 h-4 shrink-0" />
+              )}
+              <span>Enter as {bypassRole === 'scholar' ? 'Research Scholar' : bypassRole === 'faculty' ? 'Research Supervisor' : 'Institution Admin'}</span>
+              <ArrowRight className="w-3.5 h-3.5 ml-auto" />
+            </button>
           </div>
 
           {/* Footer Note */}
