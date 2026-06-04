@@ -37,7 +37,7 @@ export default function VerificationPendingPage() {
   // 1. Sync session on mount and poll periodically for approval status changes
   useEffect(() => {
     const checkStatus = async () => {
-      const user = await syncUserSession();
+      const user = await syncUserSession({ force: true });
       if (user && (user.approved || user.role === 'RESEARCH_SUPERVISOR' || user.role === 'INSTITUTION_ADMIN')) {
         const route = user.role === 'RESEARCH_SUPERVISOR' ? '/dashboard/supervisor'
           : user.role === 'INSTITUTION_ADMIN' ? '/admin'
@@ -89,7 +89,7 @@ export default function VerificationPendingPage() {
     setErrorMsg('');
     try {
       await requestSupervisor(selectedSupervisor);
-      await syncUserSession();
+      await syncUserSession({ force: true });
     } catch (e: any) {
       setErrorMsg(e.message || 'Failed to submit request.');
     } finally {

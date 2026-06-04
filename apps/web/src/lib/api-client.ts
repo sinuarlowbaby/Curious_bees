@@ -19,11 +19,28 @@ let authInitPromise: Promise<any> | null = null;
 
 function waitForAuth(): Promise<any> {
   if (authInitPromise) return authInitPromise;
-  authInitPromise = new Promise((resolve) => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      unsubscribe();
-      resolve(user);
-    });
+  console.info('[APIClient] Initializing Firebase auth state listener (with 5s timeout safety)...');
+  authInitPromise = new Promise((resolve, reject) => {
+    const timeout = setTimeout(() => {
+      console.warn('[APIClient] Firebase auth init timed out after 5s. Resolving with current state.');
+      resolve(auth.currentUser);
+    }, 5000);
+
+    const unsubscribe = onAuthStateChanged(
+      auth,
+      (user) => {
+        clearTimeout(timeout);
+        unsubscribe();
+        console.info('[APIClient] Firebase auth state ready. User:', user ? user.email : 'Guest');
+        resolve(user);
+      },
+      (error) => {
+        clearTimeout(timeout);
+        unsubscribe();
+        console.error('[APIClient] Firebase auth state error:', error);
+        reject(error);
+      }
+    );
   });
   return authInitPromise;
 }
@@ -33,6 +50,7 @@ function waitForAuth(): Promise<any> {
  * Exported for use by the store logout action.
  */
 export function resetAuthPromise() {
+  console.info('[APIClient] Resetting auth promise singleton.');
   authInitPromise = null;
 }
 
@@ -42,9 +60,8 @@ export function resetAuthPromise() {
  * Returns the Firebase Bearer token for the currently authenticated user.
  *
  * Resilience strategy:
- *   1. Try forceRefresh=true (gets a fresh token from Firebase servers)
- *   2. On failure, fall back to the cached token (avoids spurious logout on network blip)
- *   3. If both fail, return empty object (unauthenticated request)
+ *   1. Try forceRefresh=false (retrieves cached token, avoiding network delay)
+ *   2. If both fail, return empty object (unauthenticated request)
  *
  * Returns an empty object when there is no authenticated user (guest mode).
  */
@@ -54,8 +71,9 @@ export async function getAuthHeaders(): Promise<Record<string, string>> {
 
   if (user) {
     try {
-      // Try to get a fresh token
-      const token = await user.getIdToken(/* forceRefresh */ true);
+      console.debug('[APIClient] Fetching Firebase ID token (cached fallback allowed)...');
+      // Retrieve the token, only forcing refresh if the cached token is expired/expiring
+      const token = await user.getIdToken(/* forceRefresh */ false);
       console.debug('[APIClient] Attaching Firebase bearer token:', {
         uid: user.uid,
         email: user.email,
@@ -63,19 +81,11 @@ export async function getAuthHeaders(): Promise<Record<string, string>> {
       });
       return { Authorization: `Bearer ${token}` };
     } catch (err) {
-      console.warn('[APIClient] forceRefresh token failed, trying cached token:', err);
-      try {
-        // Fallback: use cached token (no force refresh)
-        const token = await user.getIdToken(false);
-        console.debug('[APIClient] Using cached Firebase token as fallback.');
-        return { Authorization: `Bearer ${token}` };
-      } catch (fallbackErr) {
-        console.warn('[APIClient] Cached token also failed:', fallbackErr);
-      }
+      console.warn('[APIClient] Token retrieval failed:', err);
     }
   }
 
-  console.warn('[APIClient] No auth token available — request will be unauthenticated.');
+  console.warn('[APIClient] No authenticated user — request will be unauthenticated.');
   return {};
 }
 
@@ -153,17 +163,43 @@ export async function apiFetch(
     contentType: mergedHeaders['Content-Type'],
   });
 
-  const res = await fetch(url, {
-    ...rest,
-    headers: mergedHeaders,
-  });
+  // Use AbortController for a default 8-second request timeout
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => {
+    console.warn(`[APIClient] Request to ${url} timed out after 8s. Aborting.`);
+    controller.abort();
+  }, 8000);
 
-  console.info('[APIClient] ←', res.status, url, {
-    ok: res.ok,
-    contentType: res.headers.get('content-type'),
-  });
+  // If a custom signal is provided, listen to aborts on it
+  if (rest.signal) {
+    if (rest.signal.aborted) {
+      controller.abort();
+    } else {
+      rest.signal.addEventListener('abort', () => controller.abort());
+    }
+  }
 
-  return res;
+  try {
+    const res = await fetch(url, {
+      ...rest,
+      headers: mergedHeaders,
+      signal: controller.signal,
+    });
+
+    console.info('[APIClient] ←', res.status, url, {
+      ok: res.ok,
+      contentType: res.headers.get('content-type'),
+    });
+
+    return res;
+  } catch (err: any) {
+    if (err.name === 'AbortError') {
+      throw new Error(`[APIClient] Request to ${path} timed out after 8s.`);
+    }
+    throw err;
+  } finally {
+    clearTimeout(timeoutId);
+  }
 }
 
 /**

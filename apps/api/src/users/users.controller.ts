@@ -75,6 +75,19 @@ export class UsersController {
     return this.usersService.getAllUsers(req.user.id);
   }
 
+  @Get('supervisors')
+  async getSupervisors() {
+    return this.usersService.getSupervisors();
+  }
+
+  @Get('my-scholars')
+  async getMyScholars(@Req() req: any) {
+    if (req.user.role !== 'RESEARCH_SUPERVISOR' && req.user.role !== 'INSTITUTION_ADMIN') {
+      throw new BadRequestException('Only supervisors can view their assigned scholars.');
+    }
+    return this.usersService.getMyScholars(req.user.id);
+  }
+
   @Put(':id/role')
   async updateUserRole(
     @Req() req: any,
@@ -85,6 +98,15 @@ export class UsersController {
       throw new BadRequestException('Invalid user role.');
     }
     return this.usersService.updateUserRole(req.user.id, targetUserId, role);
+  }
+
+  @Put(':id/suspend')
+  async suspendUser(
+    @Req() req: any,
+    @Param('id') targetUserId: string,
+    @Body('suspended') suspended: boolean
+  ) {
+    return this.usersService.suspendUser(req.user.id, targetUserId, suspended);
   }
 
   @Get('audit-logs')

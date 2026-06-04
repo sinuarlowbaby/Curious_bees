@@ -1,13 +1,5 @@
 'use client';
 
-/**
- * Sidebar.tsx — Role-aware navigation with mobile slide-in drawer.
- *
- * Desktop: 280px fixed left panel (unchanged)
- * Mobile:  Slide-in drawer triggered by Navbar hamburger via Zustand showMobileSidebar
- * Sections: Common nav + role-specific items + user mini-profile at bottom
- */
-
 import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -21,63 +13,34 @@ import {
   LogOut,
   Calendar as CalendarIcon,
   Users,
-  Cpu,
-  Search,
-  BarChart3,
-  Sparkles,
   FolderOpen,
   Shield,
   UserCog,
   X,
   ChevronRight,
+  BookOpen,
+  FileSpreadsheet,
+  Bell,
+  Building2,
+  BarChart3,
+  Settings,
+  GraduationCap
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import Logo from './Logo';
 import { RoleBadge } from './shared/role-badge';
-import type { UserRole } from '@curiousbees/types';
 
-// ─── Navigation Config ────────────────────────────────────────────────────────
+// ─── Nav Item Component ────────────────────────────────────────────────────────
 
-const COMMON_NAV = [
-  { name: 'Dashboard',      href: '/dashboard',    icon: LayoutDashboard },
-  { name: 'Research Feed',  href: '/threads',      icon: MessageSquare },
-  { name: 'Researchers',    href: '/researchers',  icon: Users },
-  { name: 'Opportunities',  href: '/opportunities', icon: Briefcase },
-  { name: 'Workspaces',     href: '/workspace',    icon: FolderOpen },
-  { name: 'Events',         href: '/events',       icon: CalendarIcon },
-];
-
-const TOOLS_NAV = [
-  { name: 'AI Search',      href: '/search',       icon: Search },
-  { name: 'AI Pipeline',    href: '/pipeline',     icon: Cpu },
-  { name: 'Analytics',      href: '/analytics',    icon: BarChart3 },
-  { name: 'Ask Copilot',    href: '/copilot',      icon: Sparkles },
-];
-
-const ROLE_NAV: Partial<Record<UserRole, { name: string; href: string; icon: React.ElementType }[]>> = {
-  RESEARCH_SUPERVISOR: [
-    { name: 'Scholar Management', href: '/dashboard', icon: UserCog },
-  ],
-  INSTITUTION_ADMIN: [
-    { name: 'Admin Panel', href: '/admin', icon: Shield },
-  ],
-};
-
-// ─── Nav Item ─────────────────────────────────────────────────────────────────
-
-function NavItem({
-  name,
-  href,
-  icon: Icon,
-  active,
-  onClick,
-}: {
+interface NavItemProps {
   name: string;
   href: string;
   icon: React.ElementType;
   active: boolean;
   onClick?: () => void;
-}) {
+}
+
+function NavItem({ name, href, icon: Icon, active, onClick }: NavItemProps) {
   return (
     <Link
       href={href}
@@ -117,10 +80,51 @@ function SidebarContent({ onClose }: { onClose?: () => void }) {
   const pathname = usePathname();
   const { currentUser, logout } = useStore();
   const role = currentUser?.role;
-  const roleSpecificNav = role ? ROLE_NAV[role] ?? [] : [];
 
-  const isActive = (href: string) =>
-    pathname === href || (href !== '/dashboard' && pathname.startsWith(href));
+  // Dynamically compute nav items based on role
+  let navItems = [
+    { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
+    { name: 'Research Feed', href: '/threads', icon: MessageSquare },
+    { name: 'Researchers', href: '/researchers', icon: Users },
+    { name: 'Opportunities', href: '/opportunities', icon: Briefcase },
+    { name: 'Workspaces', href: '/workspace', icon: FolderOpen },
+    { name: 'Events', href: '/events', icon: CalendarIcon },
+  ];
+
+  if (role === 'RESEARCH_SCHOLAR') {
+    navItems.push(
+      { name: 'Publications', href: '/publications', icon: BookOpen },
+      { name: 'Progress Reports', href: '/reports', icon: FileSpreadsheet },
+      { name: 'Notifications', href: '/notifications', icon: Bell }
+    );
+  } else if (role === 'RESEARCH_SUPERVISOR') {
+    navItems.push(
+      { name: 'Publications', href: '/publications', icon: BookOpen },
+      { name: 'Progress Reports', href: '/reports', icon: FileSpreadsheet },
+      { name: 'My Scholars', href: '/my-scholars', icon: GraduationCap },
+      { name: 'Notifications', href: '/notifications', icon: Bell }
+    );
+  } else if (role === 'INSTITUTION_ADMIN') {
+    navItems = [
+      { name: 'Dashboard', href: '/admin', icon: Shield },
+      { name: 'Researchers', href: '/researchers', icon: Users },
+      { name: 'Opportunities', href: '/opportunities', icon: Briefcase },
+      { name: 'Workspaces', href: '/workspace', icon: FolderOpen },
+      { name: 'Events', href: '/events', icon: CalendarIcon },
+      { name: 'Departments', href: '/admin/departments', icon: Building2 },
+      { name: 'User Management', href: '/admin/users', icon: UserCog },
+      { name: 'Analytics', href: '/admin/analytics', icon: BarChart3 },
+      { name: 'Settings', href: '/admin/settings', icon: Settings },
+      { name: 'Notifications', href: '/notifications', icon: Bell }
+    ];
+  }
+
+  const isActive = (href: string) => {
+    if (href === '/dashboard' || href === '/admin') {
+      return pathname === href;
+    }
+    return pathname.startsWith(href);
+  };
 
   return (
     <div className="flex flex-col h-full py-5">
@@ -139,11 +143,9 @@ function SidebarContent({ onClose }: { onClose?: () => void }) {
 
       {/* Navigation */}
       <nav className="flex-1 overflow-y-auto px-3 flex flex-col">
-
-        {/* Common */}
         <NavSection label="Navigation" />
         <div className="flex flex-col gap-0.5">
-          {COMMON_NAV.map((item) => (
+          {navItems.map((item) => (
             <NavItem
               key={item.href}
               {...item}
@@ -152,36 +154,6 @@ function SidebarContent({ onClose }: { onClose?: () => void }) {
             />
           ))}
         </div>
-
-        {/* Tools */}
-        <NavSection label="Tools" />
-        <div className="flex flex-col gap-0.5">
-          {TOOLS_NAV.map((item) => (
-            <NavItem
-              key={item.href}
-              {...item}
-              active={isActive(item.href)}
-              onClick={onClose}
-            />
-          ))}
-        </div>
-
-        {/* Role-specific */}
-        {roleSpecificNav.length > 0 && (
-          <>
-            <NavSection label="Management" />
-            <div className="flex flex-col gap-0.5">
-              {roleSpecificNav.map((item) => (
-                <NavItem
-                  key={item.href + item.name}
-                  {...item}
-                  active={isActive(item.href)}
-                  onClick={onClose}
-                />
-              ))}
-            </div>
-          </>
-        )}
       </nav>
 
       {/* User mini-profile */}

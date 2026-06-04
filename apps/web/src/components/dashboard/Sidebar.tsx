@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * Sidebar.tsx — Premium role-aware navigation with sliding hover backdrops.
+ * Sidebar.tsx — Premium role-aware navigation with dynamic layouts.
  */
 
 import React, { useState } from 'react';
@@ -17,42 +17,91 @@ import {
   LogOut,
   Calendar as CalendarIcon,
   Users,
-  Cpu,
-  Search,
-  BarChart3,
-  Sparkles,
   FolderOpen,
   Shield,
   UserCog,
   X,
   ChevronRight,
   ChevronDown,
+  BookOpen,
+  BarChart3,
+  Clock,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import Logo from './Logo';
 import { RoleBadge } from '../shared/role-badge';
 import type { UserRole } from '@curiousbees/types';
 
-// ─── Navigation Config ────────────────────────────────────────────────────────
+// ─── Sidebar Dynamic Navigation Config ────────────────────────────────────────
 
-const COMMON_NAV = [
-  { name: 'Dashboard',      href: '/dashboard',    icon: LayoutDashboard },
-  { name: 'Research Feed',  href: '/threads',      icon: MessageSquare },
-  { name: 'Researchers',    href: '/researchers',  icon: Users },
-  { name: 'Opportunities',  href: '/opportunities', icon: Briefcase },
-  { name: 'Workspaces',     href: '/workspace',    icon: FolderOpen },
-  { name: 'Events',         href: '/events',       icon: CalendarIcon },
-];
+interface SidebarItem {
+  name: string;
+  href: string;
+  icon: React.ElementType;
+}
 
+interface SidebarSection {
+  label: string;
+  items: SidebarItem[];
+}
 
+const getSidebarSections = (role: UserRole): SidebarSection[] => {
+  if (role === 'INSTITUTION_ADMIN') {
+    return [
+      {
+        label: 'Admin Console',
+        items: [
+          { name: 'Dashboard', href: '/admin', icon: LayoutDashboard },
+          { name: 'User Management', href: '/admin/users', icon: UserCog },
+          { name: 'Supervisors', href: '/admin/supervisors', icon: Shield },
+          { name: 'Departments', href: '/admin/departments', icon: FolderOpen },
+          { name: 'Platform Analytics', href: '/admin/analytics', icon: BarChart3 },
+          { name: 'System Settings', href: '/admin/settings', icon: Shield },
+          { name: 'Researchers Directory', href: '/researchers', icon: Users },
+          { name: 'Notifications Log', href: '/notifications', icon: MessageSquare },
+        ],
+      },
+    ];
+  }
 
-const ROLE_NAV: Partial<Record<UserRole, { name: string; href: string; icon: React.ElementType }[]>> = {
-  RESEARCH_SUPERVISOR: [
-    { name: 'Scholar Management', href: '/dashboard/supervisor', icon: UserCog },
-  ],
-  INSTITUTION_ADMIN: [
-    { name: 'Admin Panel', href: '/dashboard/admin', icon: Shield },
-  ],
+  const researchPortalSection = {
+    label: 'Research Portal',
+    items: [
+      { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
+      { name: 'Researchers', href: '/researchers', icon: Users },
+      { name: 'Opportunities', href: '/opportunities', icon: Briefcase },
+      { name: 'Workspaces', href: '/workspace', icon: FolderOpen },
+      { name: 'Research Feed', href: '/threads', icon: MessageSquare },
+      { name: 'Events', href: '/events', icon: CalendarIcon },
+    ],
+  };
+
+  if (role === 'RESEARCH_SUPERVISOR') {
+    return [
+      researchPortalSection,
+      {
+        label: 'Faculty Advisory',
+        items: [
+          { name: 'My Scholars', href: '/my-scholars', icon: UserCog },
+          { name: 'Approval Requests', href: '/approval-requests', icon: Clock },
+          { name: 'Publications Audit', href: '/publications', icon: BookOpen },
+          { name: 'Advisory Reports', href: '/reports', icon: BarChart3 },
+        ],
+      },
+    ];
+  }
+
+  // Scholar
+  return [
+    researchPortalSection,
+    {
+      label: 'Scholar Portfolio',
+      items: [
+        { name: 'My Publications', href: '/publications', icon: BookOpen },
+        { name: 'Progress Reports', href: '/reports', icon: BarChart3 },
+      ],
+    },
+  ];
 };
 
 // ─── Nav Item Component ────────────────────────────────────────────────────────
@@ -160,22 +209,23 @@ function SidebarContent({ onClose }: { onClose?: () => void }) {
   const [hoveredItem, setHoveredItem] = useState<string | null>(null);
   
   // Collapsible section states
-  const [sectionsOpen, setSectionsOpen] = useState({
-    navigation: true,
-    tools: true,
-    management: true,
+  const [sectionsOpen, setSectionsOpen] = useState<Record<string, boolean>>({
+    'Research Portal': true,
+    'Scholar Portfolio': true,
+    'Faculty Advisory': true,
+    'Admin Console': true,
   });
 
-  const toggleSection = (section: keyof typeof sectionsOpen) => {
-    setSectionsOpen((prev) => ({ ...prev, [section]: !prev[section] }));
+  const toggleSection = (label: string) => {
+    setSectionsOpen((prev) => ({ ...prev, [label]: !prev[label] }));
   };
 
-  const role = currentUser?.role;
-  const roleSpecificNav = role ? ROLE_NAV[role] ?? [] : [];
+  const role = currentUser?.role || 'RESEARCH_SCHOLAR';
+  const sections = getSidebarSections(role);
 
   const isActive = (href: string) => {
-    if (href === '/dashboard') {
-      return pathname === '/dashboard' || pathname === '/dashboard/supervisor' || pathname === '/dashboard/admin';
+    if (href === '/dashboard' || href === '/admin') {
+      return pathname === href;
     }
     return pathname === href || pathname.startsWith(href + '/');
   };
@@ -197,69 +247,39 @@ function SidebarContent({ onClose }: { onClose?: () => void }) {
 
       {/* Navigation */}
       <nav className="flex-1 overflow-y-auto px-3 flex flex-col gap-2">
-        {/* Common Section */}
-        <div>
-          <NavSection 
-            label="Workspace" 
-            isOpen={sectionsOpen.navigation} 
-            onToggle={() => toggleSection('navigation')} 
-          />
-          <AnimatePresence initial={false}>
-            {sectionsOpen.navigation && (
-              <motion.div
-                initial={{ height: 0, opacity: 0 }}
-                animate={{ height: 'auto', opacity: 1 }}
-                exit={{ height: 0, opacity: 0 }}
-                className="overflow-hidden flex flex-col gap-0.5 mt-1"
-              >
-                {COMMON_NAV.map((item) => (
-                  <NavItem
-                    key={item.href}
-                    {...item}
-                    active={isActive(item.href)}
-                    onClick={onClose}
-                    hoveredItem={hoveredItem}
-                    setHoveredItem={setHoveredItem}
-                  />
-                ))}
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
-
-
-
-        {/* Role-specific Section */}
-        {roleSpecificNav.length > 0 && (
-          <div>
-            <NavSection 
-              label="Management" 
-              isOpen={sectionsOpen.management} 
-              onToggle={() => toggleSection('management')} 
-            />
-            <AnimatePresence initial={false}>
-              {sectionsOpen.management && (
-                <motion.div
-                  initial={{ height: 0, opacity: 0 }}
-                  animate={{ height: 'auto', opacity: 1 }}
-                  exit={{ height: 0, opacity: 0 }}
-                  className="overflow-hidden flex flex-col gap-0.5 mt-1"
-                >
-                  {roleSpecificNav.map((item) => (
-                    <NavItem
-                      key={item.href + item.name}
-                      {...item}
-                      active={isActive(item.href)}
-                      onClick={onClose}
-                      hoveredItem={hoveredItem}
-                      setHoveredItem={setHoveredItem}
-                    />
-                  ))}
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
-        )}
+        {sections.map((section) => {
+          const isOpen = sectionsOpen[section.label] !== false;
+          return (
+            <div key={section.label}>
+              <NavSection 
+                label={section.label} 
+                isOpen={isOpen} 
+                onToggle={() => toggleSection(section.label)} 
+              />
+              <AnimatePresence initial={false}>
+                {isOpen && (
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: 'auto', opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    className="overflow-hidden flex flex-col gap-0.5 mt-1"
+                  >
+                    {section.items.map((item) => (
+                      <NavItem
+                        key={item.href + item.name}
+                        {...item}
+                        active={isActive(item.href)}
+                        onClick={onClose}
+                        hoveredItem={hoveredItem}
+                        setHoveredItem={setHoveredItem}
+                      />
+                    ))}
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+          );
+        })}
       </nav>
 
       {/* User mini-profile */}
@@ -374,4 +394,3 @@ export default function Sidebar() {
     </>
   );
 }
-

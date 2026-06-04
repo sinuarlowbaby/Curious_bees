@@ -33,7 +33,7 @@ export class UsersService {
       throw new BadRequestException(parsed.error.errors[0].message);
     }
 
-    const { name, role, department, bio, interests } = parsed.data;
+    const { name, role, department, departmentId, bio, interests } = parsed.data;
 
     // Update user base fields
     const updatedUser = await this.prisma.user.update({
@@ -42,6 +42,7 @@ export class UsersService {
         ...(name && { name }),
         ...(role && { role: role as any }),
         ...(department !== undefined && { department }),
+        ...(departmentId !== undefined && { departmentId }),
         ...(bio !== undefined && { bio })
       }
     });
@@ -253,5 +254,60 @@ export class UsersService {
       orderBy: { createdAt: 'desc' },
       take: 100
     });
+  }
+
+  async getSupervisors() {
+    return this.prisma.user.findMany({
+      where: { role: 'RESEARCH_SUPERVISOR' },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        department: true,
+        image: true,
+      },
+      orderBy: { name: 'asc' },
+    });
+  }
+
+  async getMyScholars(supervisorId: string) {
+    return this.prisma.user.findMany({
+      where: {
+        supervisorId,
+        role: 'RESEARCH_SCHOLAR',
+        approved: true,
+      },
+      include: {
+        interests: {
+          include: { interest: true },
+        },
+        publications: true,
+        submittedReports: true,
+      },
+      orderBy: { name: 'asc' },
+    });
+  }
+
+  async suspendUser(adminId: string, targetUserId: string, suspended: boolean) {
+    const admin = await this.prisma.user.findUnique({ where: { id: adminId } });
+    if (!admin || admin.role !== 'INSTITUTION_ADMIN') {
+      throw new ForbiddenException('Only administrators can suspend or unsuspend users.');
+    }
+
+    const updated = await this.prisma.user.update({
+      where: { id: targetUserId },
+      data: { suspended },
+    });
+
+    // Write audit log
+    await this.prisma.auditLog.create({
+      data: {
+        userId: adminId,
+        action: suspended ? 'SUSPEND_USER' : 'UNSUSPEND_USER',
+        details: `Admin ${suspended ? 'suspended' : 'unsuspended'} user ${updated.email}`,
+      },
+    });
+
+    return updated;
   }
 }

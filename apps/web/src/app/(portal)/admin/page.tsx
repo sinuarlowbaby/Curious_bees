@@ -221,65 +221,115 @@ export default function AdminPage() {
                 <Loader2 className="w-8 h-8 text-primary animate-spin" />
               </div>
             ) : (
-              <div className="cb-card overflow-hidden bg-white/90 backdrop-blur-md">
-                <div className="overflow-x-auto">
-                  <table className="w-full text-left border-collapse">
-                    <thead>
-                      <tr className="cb-table-header">
-                        <th className="p-3.5 pl-4">User</th>
-                        <th className="p-3.5">Department</th>
-                        <th className="p-3.5">Role</th>
-                        <th className="p-3.5">Status</th>
-                        <th className="p-3.5 pr-4 text-right">Moderation Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-100">
-                      {filteredUsers.map((user) => (
-                        <tr key={user.id} className="cb-table-row text-xs">
-                          <td className="p-3.5 pl-4 flex items-center space-x-2.5">
-                            <AvatarRing 
-                              src={user.image || undefined} 
-                              name={user.name || undefined}
-                              role={user.role}
-                              size="sm"
-                            />
-                            <div>
-                              <h4 className="font-bold text-slate-900 leading-snug">{user.name || 'Academic Member'}</h4>
-                              <p className="text-[10px] text-slate-400 mt-0.5">{user.email}</p>
-                            </div>
-                          </td>
-                          <td className="p-3.5 text-slate-500 font-semibold">{user.department || 'Not Configured'}</td>
-                          <td className="p-3.5 font-bold text-slate-800">{user.role}</td>
-                          <td className="p-3.5">
-                            {user.approved || user.role === 'RESEARCH_SUPERVISOR' || user.role === 'INSTITUTION_ADMIN' ? (
-                              <span className="cb-status-success text-[10px]">
-                                <CheckCircle className="w-3.5 h-3.5" />
-                                <span>Approved</span>
-                              </span>
-                            ) : (
-                              <span className="cb-status-warning text-[10px]">
-                                <XCircle className="w-3.5 h-3.5" />
-                                <span>Pending Approval</span>
-                              </span>
-                            )}
-                          </td>
-                          <td className="p-3.5 pr-4 text-right">
-                            <select
-                              value={user.role}
-                              onChange={(e) => handleRoleChange(user.id, e.target.value)}
-                              className="bg-white border border-slate-200 rounded px-2.5 py-1 text-[11px] font-bold text-slate-700 hover:border-slate-300 focus:border-primary outline-none cursor-pointer transition-colors"
-                            >
-                              <option value="RESEARCH_SCHOLAR">Scholar</option>
-                              <option value="RESEARCH_SUPERVISOR">Faculty PI</option>
-                              <option value="INSTITUTION_ADMIN">Admin</option>
-                            </select>
-                          </td>
+              <>
+                {/* Desktop View */}
+                <div className="hidden md:block cb-card overflow-hidden bg-white/90 backdrop-blur-md">
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-left border-collapse">
+                      <thead>
+                        <tr className="cb-table-header">
+                          <th className="p-3.5 pl-4">User</th>
+                          <th className="p-3.5">Department</th>
+                          <th className="p-3.5">Role</th>
+                          <th className="p-3.5">Status</th>
+                          <th className="p-3.5 pr-4 text-right">Moderation Actions</th>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                      </thead>
+                      <tbody className="divide-y divide-slate-100">
+                        {filteredUsers.map((user) => (
+                          <tr key={user.id} className="cb-table-row text-xs">
+                            <td className="p-3.5 pl-4 flex items-center space-x-2.5">
+                              <AvatarRing 
+                                src={user.image || undefined} 
+                                name={user.name || undefined}
+                                role={user.role}
+                                size="sm"
+                              />
+                              <div>
+                                <h4 className="font-bold text-slate-900 leading-snug">{user.name || 'Academic Member'}</h4>
+                                <p className="text-[10px] text-slate-400 mt-0.5">{user.email}</p>
+                              </div>
+                            </td>
+                            <td className="p-3.5 text-slate-500 font-semibold">{user.department || 'Not Configured'}</td>
+                            <td className="p-3.5 font-bold text-slate-800">{user.role}</td>
+                            <td className="p-3.5">
+                              {user.approved || user.role === 'RESEARCH_SUPERVISOR' || user.role === 'INSTITUTION_ADMIN' ? (
+                                <span className="cb-status-success text-[10px]">
+                                  <CheckCircle className="w-3.5 h-3.5" />
+                                  <span>Approved</span>
+                                </span>
+                              ) : (
+                                <span className="cb-status-warning text-[10px]">
+                                  <XCircle className="w-3.5 h-3.5" />
+                                  <span>Pending Approval</span>
+                                </span>
+                              )}
+                            </td>
+                            <td className="p-3.5 pr-4 text-right">
+                              <select
+                                value={user.role}
+                                onChange={(e) => handleRoleChange(user.id, e.target.value)}
+                                className="bg-white border border-slate-200 rounded px-2.5 py-1 text-[11px] font-bold text-slate-700 hover:border-slate-300 focus:border-primary outline-none cursor-pointer transition-colors"
+                              >
+                                <option value="RESEARCH_SCHOLAR">Scholar</option>
+                                <option value="RESEARCH_SUPERVISOR">Faculty PI</option>
+                                <option value="INSTITUTION_ADMIN">Admin</option>
+                              </select>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
                 </div>
-              </div>
+
+                {/* Mobile View */}
+                <div className="grid grid-cols-1 gap-4 md:hidden">
+                  {filteredUsers.map((user) => (
+                    <div key={user.id} className="cb-card p-5 bg-white/95 backdrop-blur-md space-y-4">
+                      <div className="flex items-center gap-3">
+                        <AvatarRing 
+                          src={user.image || undefined} 
+                          name={user.name || undefined}
+                          role={user.role}
+                          size="md"
+                        />
+                        <div>
+                          <h4 className="font-bold text-slate-900 leading-snug">{user.name || 'Academic Member'}</h4>
+                          <p className="text-[10px] text-slate-400 mt-0.5">{user.email}</p>
+                        </div>
+                      </div>
+
+                      <div className="border-t border-slate-100 pt-3 space-y-2 text-xs">
+                        <div className="flex justify-between">
+                          <span className="text-slate-450 font-semibold">Department:</span>
+                          <span className="font-bold text-slate-700">{user.department || 'Not Configured'}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-slate-450 font-semibold">Status:</span>
+                          {user.approved || user.role === 'RESEARCH_SUPERVISOR' || user.role === 'INSTITUTION_ADMIN' ? (
+                            <span className="text-emerald-700 font-bold">Approved</span>
+                          ) : (
+                            <span className="text-amber-700 font-bold">Pending Approval</span>
+                          )}
+                        </div>
+                        <div className="flex justify-between items-center pt-1">
+                          <span className="text-slate-450 font-semibold">Assign Role:</span>
+                          <select
+                            value={user.role}
+                            onChange={(e) => handleRoleChange(user.id, e.target.value)}
+                            className="bg-white border border-slate-200 rounded px-2.5 py-1 text-[11px] font-bold text-slate-700 outline-none cursor-pointer"
+                          >
+                            <option value="RESEARCH_SCHOLAR">Scholar</option>
+                            <option value="RESEARCH_SUPERVISOR">Faculty PI</option>
+                            <option value="INSTITUTION_ADMIN">Admin</option>
+                          </select>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </>
             )}
 
           </div>

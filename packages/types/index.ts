@@ -8,8 +8,11 @@ export interface User {
   image: string | null;
   role: UserRole;
   department: string | null;
+  departmentId: string | null;
+  departmentRef?: Department | null;
   bio: string | null;
   approved: boolean;
+  suspended: boolean;
   supervisorId: string | null;
   supervisorEmail: string | null;
   createdAt: Date | string;
@@ -19,6 +22,9 @@ export interface User {
   opportunities?: Opportunity[];
   supervisor?: User | null;
   scholars?: User[];
+  publications?: Publication[];
+  submittedReports?: Report[];
+  reviewedReports?: Report[];
 }
 
 export interface ResearchInterest {
@@ -188,5 +194,55 @@ export interface AuditLog {
   action: string;
   details: string | null;
   ipAddress: string | null;
+  createdAt: Date | string;
+}
+
+export interface Department {
+  id: string;
+  name: string;
+  code: string;
+  description: string | null;
+  createdAt: Date | string;
+  updatedAt: Date | string;
+  users?: User[];
+}
+
+export interface Publication {
+  id: string;
+  title: string;
+  authors: string;
+  doi: string | null;
+  publisher: string | null;
+  year: number;
+  status: string; // "DRAFT" | "SUBMITTED" | "PUBLISHED" | "UNDER_REVIEW"
+  userId: string;
+  user?: User;
+  createdAt: Date | string;
+  updatedAt: Date | string;
+}
+
+export interface Report {
+  id: string;
+  title: string;
+  description: string | null;
+  status: string; // "PENDING" | "APPROVED" | "REJECTED" | "NEEDS_INFO"
+  evidenceUrl: string | null;
+  feedback: string | null;
+  scholarId: string;
+  scholar?: User;
+  supervisorId: string;
+  supervisor?: User;
+  createdAt: Date | string;
+  updatedAt: Date | string;
+}
+
+export interface Notification {
+  id: string;
+  userId: string;
+  eventId: string | null;
+  title: string;
+  body: string;
+  sentStatus: boolean;
+  openedStatus: boolean;
   createdAt: Date | string;
 }

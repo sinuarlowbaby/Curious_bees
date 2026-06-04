@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { User, Thread, Comment, Opportunity, UserRole, Event, CollaborationRequest, Workspace, WorkspaceFile, WorkspaceMilestone, WorkspaceAnnouncement, AuditLog } from '@curiousbees/types';
+import { User, Thread, Comment, Opportunity, UserRole, Event, CollaborationRequest, Workspace, WorkspaceFile, WorkspaceMilestone, WorkspaceAnnouncement, AuditLog, Publication, Report, Department, Notification } from '@curiousbees/types';
 import { auth } from '@/lib/firebase';
 import { getDashboardRoute } from '@/lib/auth/route-protection';
 import { ROLE_COOKIE_NAME } from '@curiousbees/constants';
@@ -43,6 +43,14 @@ interface AppState {
   adminUsers: User[];
   adminAuditLogs: AuditLog[];
 
+  publications: Publication[];
+  reports: Report[];
+  departments: Department[];
+  supervisors: User[];
+  myScholars: User[];
+  notifications: Notification[];
+  toasts: { id: string; message: string; type: 'success' | 'error' | 'info' }[];
+
   // Setters & Actions
   setCurrentUser: (user: User | null) => void;
   setDashboardRoute: (route: string) => void;
@@ -53,7 +61,7 @@ interface AppState {
   setTheme: (theme: 'dark' | 'light') => void;
 
   // Live REST API Actions (Integrates Firebase Bearer JWT)
-  syncUserSession: (options?: { throwOnError?: boolean }) => Promise<User | null>;
+  syncUserSession: (options?: { throwOnError?: boolean; force?: boolean }) => Promise<User | null>;
   fetchData: () => Promise<void>;
   fetchCollaborators: (search?: string, department?: string) => Promise<User[]>;
   createThread: (title: string, content: string, tags: string[]) => Promise<Thread>;
@@ -90,6 +98,35 @@ interface AppState {
   fetchAdminUsers: () => Promise<User[]>;
   fetchAdminAuditLogs: () => Promise<AuditLog[]>;
   changeUserRole: (userId: string, role: UserRole) => Promise<User>;
+
+  // Publications
+  fetchPublications: (userId?: string) => Promise<Publication[]>;
+  createPublication: (data: { title: string; authors: string; doi?: string; publisher?: string; year: number; status: string }) => Promise<Publication>;
+  updatePublication: (id: string, data: { title?: string; authors?: string; doi?: string; publisher?: string; year?: number; status?: string }) => Promise<Publication>;
+  deletePublication: (id: string) => Promise<void>;
+
+  // Reports
+  fetchReports: () => Promise<Report[]>;
+  submitReport: (data: { title: string; description?: string; evidenceUrl?: string; supervisorId: string }) => Promise<Report>;
+  reviewReport: (id: string, status: string, feedback?: string) => Promise<Report>;
+
+  // Notifications
+  fetchNotifications: () => Promise<Notification[]>;
+
+  // Departments
+  fetchDepartments: () => Promise<Department[]>;
+  createDepartment: (data: { name: string; code: string; description?: string }) => Promise<Department>;
+  updateDepartment: (id: string, data: { name?: string; code?: string; description?: string }) => Promise<Department>;
+  deleteDepartment: (id: string) => Promise<void>;
+
+  // Role details / Supervisors / Scholars
+  fetchSupervisors: () => Promise<User[]>;
+  fetchMyScholars: () => Promise<User[]>;
+  suspendUserToggle: (userId: string, suspended: boolean) => Promise<User>;
+
+  // Toasts
+  addToast: (message: string, type?: 'success' | 'error' | 'info') => void;
+  removeToast: (id: string) => void;
 }
 
 // Auth header helper — delegates to centralized api-client
@@ -106,6 +143,8 @@ const deleteCookie = (name: string) => {
   if (typeof document === 'undefined') return;
   document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
 };
+
+let activeSyncPromise: Promise<User | null> | null = null;
 
 export const useStore = create<AppState>((set, get) => ({
   currentUser: null, // Default to null for strict live login checking
@@ -130,6 +169,14 @@ export const useStore = create<AppState>((set, get) => ({
   activeWorkspace: null,
   adminUsers: [],
   adminAuditLogs: [],
+
+  publications: [],
+  reports: [],
+  departments: [],
+  supervisors: [],
+  myScholars: [],
+  notifications: [],
+  toasts: [],
 
   setCurrentUser: (user) => {
     if (user) {
@@ -168,47 +215,81 @@ export const useStore = create<AppState>((set, get) => ({
 
   // 1. Sync User session from Firebase auth token with the backend
   syncUserSession: async (options) => {
-    set({ isLoading: true });
-    try {
-      const headers = await getBearerHeader();
-      if (Object.keys(headers).length === 0) {
-        deleteCookie(ROLE_COOKIE_NAME);
-        set({ currentUser: null });
-        if (options?.throwOnError) {
-          throw new Error('No Firebase ID token is available. Complete Google sign-in before syncing with the backend.');
-        }
-        return null;
+    console.info('[AuthStore] syncUserSession called with options:', options);
+
+    // 1. Check if currentUser is already cached in Zustand (and bypass if force is true)
+    if (!options?.force) {
+      const cachedUser = get().currentUser;
+      if (cachedUser) {
+        console.info('[AuthStore] Returning cached user from Zustand:', cachedUser.email);
+        return cachedUser;
       }
+    }
 
-      console.info('[Auth] Sending backend session sync request:', {
-        endpoint: `${API_URL}/api/auth/me`,
-        hasAuthorizationHeader: Boolean(headers.Authorization),
-      });
+    // 2. Check if a synchronization is already in progress
+    if (activeSyncPromise) {
+      console.info('[AuthStore] Reusing in-flight syncUserSession promise.');
+      return activeSyncPromise;
+    }
 
-      const res = await apiFetch('/api/auth/me');
-
-      console.info('[Auth] Backend session sync response:', {
-        status: res.status,
-        ok: res.ok,
-      });
-
-      if (res.ok) {
-        const data = await res.json();
-        if (data.success && data.user) {
-          const user: User = data.user;
-          console.info('[Auth] Backend session sync success:', {
-            id: user.id,
-            email: user.email,
-            role: user.role,
-            approved: user.approved,
-          });
-          const route = getDashboardRoute(user);
-          setCookie(ROLE_COOKIE_NAME, user.role);
-          set({ currentUser: user, roleOverride: user.role, dashboardRoute: route });
-          return user;
+    // 3. Initiate synchronization and cache the promise
+    activeSyncPromise = (async () => {
+      set({ isLoading: true });
+      try {
+        console.info('[AuthStore] Starting auth headers check...');
+        const headers = await getBearerHeader();
+        if (Object.keys(headers).length === 0) {
+          console.warn('[AuthStore] No auth headers returned, clearing session.');
+          deleteCookie(ROLE_COOKIE_NAME);
+          set({ currentUser: null });
+          if (options?.throwOnError) {
+            throw new Error('No Firebase ID token is available. Complete Google sign-in before syncing with the backend.');
+          }
+          return null;
         }
-        const errorMessage = 'Backend auth sync returned HTTP 200 without a user payload.';
-        console.error('[Auth] Backend session sync failed:', errorMessage);
+
+        console.info('[AuthStore] Sending backend session sync request...');
+        const res = await apiFetch('/api/auth/me');
+
+        console.info('[AuthStore] Backend session sync response:', {
+          status: res.status,
+          ok: res.ok,
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          if (data.success && data.user) {
+            const user: User = data.user;
+            console.info('[AuthStore] Session sync success:', {
+              id: user.id,
+              email: user.email,
+              role: user.role,
+              approved: user.approved,
+            });
+            const route = getDashboardRoute(user);
+            setCookie(ROLE_COOKIE_NAME, user.role);
+            set({ currentUser: user, roleOverride: user.role, dashboardRoute: route });
+            return user;
+          }
+          const errorMessage = 'Backend auth sync returned HTTP 200 without a user payload.';
+          console.error('[AuthStore] Error:', errorMessage);
+          if (typeof window !== 'undefined') {
+            localStorage.removeItem('curiousbees-mock-token');
+          }
+          deleteCookie(ROLE_COOKIE_NAME);
+          set({ currentUser: null });
+          if (options?.throwOnError) {
+            throw new Error(errorMessage);
+          }
+          return null;
+        }
+
+        const apiMessage = await readApiError(res);
+        const errorMessage = apiMessage
+          ? `Backend auth sync failed (${res.status}): ${apiMessage}`
+          : `Backend auth sync failed with HTTP ${res.status}.`;
+        console.error('[AuthStore] Error:', errorMessage);
+
         if (typeof window !== 'undefined') {
           localStorage.removeItem('curiousbees-mock-token');
         }
@@ -218,37 +299,25 @@ export const useStore = create<AppState>((set, get) => ({
           throw new Error(errorMessage);
         }
         return null;
+      } catch (e: any) {
+        if (typeof window !== 'undefined') {
+          localStorage.removeItem('curiousbees-mock-token');
+        }
+        deleteCookie(ROLE_COOKIE_NAME);
+        set({ currentUser: null });
+        console.error('[AuthStore] Exception during session sync:', e);
+        if (options?.throwOnError) {
+          throw e;
+        }
+        return null;
+      } finally {
+        set({ isLoading: false });
+        activeSyncPromise = null; // Clear promise cache when done
+        console.info('[AuthStore] syncUserSession complete, cleared promise cache.');
       }
+    })();
 
-      const apiMessage = await readApiError(res);
-      const errorMessage = apiMessage
-        ? `Backend auth sync failed (${res.status}): ${apiMessage}`
-        : `Backend auth sync failed with HTTP ${res.status}.`;
-      console.error('[Auth] Backend session sync failed:', errorMessage);
-
-      if (typeof window !== 'undefined') {
-        localStorage.removeItem('curiousbees-mock-token');
-      }
-      deleteCookie(ROLE_COOKIE_NAME);
-      set({ currentUser: null });
-      if (options?.throwOnError) {
-        throw new Error(errorMessage);
-      }
-      return null;
-    } catch (e: any) {
-      if (typeof window !== 'undefined') {
-        localStorage.removeItem('curiousbees-mock-token');
-      }
-      deleteCookie(ROLE_COOKIE_NAME);
-      set({ currentUser: null });
-      console.error('[Auth] Session sync exception:', e);
-      if (options?.throwOnError) {
-        throw e;
-      }
-      return null;
-    } finally {
-      set({ isLoading: false });
-    }
+    return activeSyncPromise;
   },
 
   // 2. Fetch live Threads and Opportunities concurrently
@@ -815,5 +884,291 @@ export const useStore = create<AppState>((set, get) => ({
     } finally {
       set({ isLoading: false });
     }
+  },
+
+  fetchPublications: async (userId?: string) => {
+    try {
+      const url = userId ? `/api/publications?userId=${userId}` : '/api/publications';
+      const res = await apiFetch(url);
+      if (res.ok) {
+        const data = await res.json();
+        set({ publications: data });
+        return data;
+      }
+      return [];
+    } catch (e) {
+      console.error(e);
+      return [];
+    }
+  },
+
+  createPublication: async (data) => {
+    set({ isLoading: true });
+    try {
+      const res = await apiFetch('/api/publications', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+      if (res.ok) {
+        const pub = await res.json();
+        set((state) => ({ publications: [pub, ...state.publications] }));
+        return pub;
+      }
+      throw new Error('Failed to create publication.');
+    } finally {
+      set({ isLoading: false });
+    }
+  },
+
+  updatePublication: async (id, data) => {
+    set({ isLoading: true });
+    try {
+      const res = await apiFetch(`/api/publications/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+      if (res.ok) {
+        const pub = await res.json();
+        set((state) => ({
+          publications: state.publications.map((p) => (p.id === id ? pub : p)),
+        }));
+        return pub;
+      }
+      throw new Error('Failed to update publication.');
+    } finally {
+      set({ isLoading: false });
+    }
+  },
+
+  deletePublication: async (id) => {
+    set({ isLoading: true });
+    try {
+      const res = await apiFetch(`/api/publications/${id}`, {
+        method: 'DELETE',
+      });
+      if (res.ok) {
+        set((state) => ({
+          publications: state.publications.filter((p) => p.id !== id),
+        }));
+        return;
+      }
+      throw new Error('Failed to delete publication.');
+    } finally {
+      set({ isLoading: false });
+    }
+  },
+
+  fetchReports: async () => {
+    try {
+      const res = await apiFetch('/api/reports');
+      if (res.ok) {
+        const data = await res.json();
+        set({ reports: data });
+        return data;
+      }
+      return [];
+    } catch (e) {
+      console.error(e);
+      return [];
+    }
+  },
+
+  submitReport: async (data) => {
+    set({ isLoading: true });
+    try {
+      const res = await apiFetch('/api/reports', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+      if (res.ok) {
+        const report = await res.json();
+        set((state) => ({ reports: [report, ...state.reports] }));
+        return report;
+      }
+      throw new Error('Failed to submit report.');
+    } finally {
+      set({ isLoading: false });
+    }
+  },
+
+  reviewReport: async (id, status, feedback) => {
+    set({ isLoading: true });
+    try {
+      const res = await apiFetch(`/api/reports/${id}/review`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status, feedback }),
+      });
+      if (res.ok) {
+        const report = await res.json();
+        set((state) => ({
+          reports: state.reports.map((r) => (r.id === id ? report : r)),
+        }));
+        return report;
+      }
+      throw new Error('Failed to review report.');
+    } finally {
+      set({ isLoading: false });
+    }
+  },
+
+  fetchDepartments: async () => {
+    try {
+      const res = await apiFetch('/api/departments');
+      if (res.ok) {
+        const data = await res.json();
+        set({ departments: data });
+        return data;
+      }
+      return [];
+    } catch (e) {
+      console.error(e);
+      return [];
+    }
+  },
+
+  createDepartment: async (data) => {
+    set({ isLoading: true });
+    try {
+      const res = await apiFetch('/api/departments', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+      if (res.ok) {
+        const dept = await res.json();
+        set((state) => ({ departments: [...state.departments, dept] }));
+        return dept;
+      }
+      throw new Error('Failed to create department.');
+    } finally {
+      set({ isLoading: false });
+    }
+  },
+
+  updateDepartment: async (id, data) => {
+    set({ isLoading: true });
+    try {
+      const res = await apiFetch(`/api/departments/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+      if (res.ok) {
+        const dept = await res.json();
+        set((state) => ({
+          departments: state.departments.map((d) => (d.id === id ? dept : d)),
+        }));
+        return dept;
+      }
+      throw new Error('Failed to update department.');
+    } finally {
+      set({ isLoading: false });
+    }
+  },
+
+  deleteDepartment: async (id) => {
+    set({ isLoading: true });
+    try {
+      const res = await apiFetch(`/api/departments/${id}`, {
+        method: 'DELETE',
+      });
+      if (res.ok) {
+        set((state) => ({
+          departments: state.departments.filter((d) => d.id !== id),
+        }));
+        return;
+      }
+      throw new Error('Failed to delete department.');
+    } finally {
+      set({ isLoading: false });
+    }
+  },
+
+  fetchSupervisors: async () => {
+    try {
+      const res = await apiFetch('/api/users/supervisors');
+      if (res.ok) {
+        const data = await res.json();
+        set({ supervisors: data });
+        return data;
+      }
+      return [];
+    } catch (e) {
+      console.error(e);
+      return [];
+    }
+  },
+
+  fetchMyScholars: async () => {
+    try {
+      const res = await apiFetch('/api/users/my-scholars');
+      if (res.ok) {
+        const data = await res.json();
+        set({ myScholars: data });
+        return data;
+      }
+      return [];
+    } catch (e) {
+      console.error(e);
+      return [];
+    }
+  },
+
+  fetchNotifications: async () => {
+    try {
+      const res = await apiFetch('/api/notifications');
+      if (res.ok) {
+        const data = await res.json();
+        set({ notifications: data });
+        return data;
+      }
+      return [];
+    } catch (e) {
+      console.error(e);
+      return [];
+    }
+  },
+
+  suspendUserToggle: async (userId: string, suspended: boolean) => {
+    set({ isLoading: true });
+    try {
+      const res = await apiFetch(`/api/users/${userId}/suspend`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ suspended }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        set((state) => ({
+          adminUsers: state.adminUsers.map((u) => (u.id === userId ? { ...u, suspended: data.suspended } : u)),
+        }));
+        return data;
+      }
+      throw new Error('Failed to suspend/unsuspend user.');
+    } finally {
+      set({ isLoading: false });
+    }
+  },
+
+  addToast: (message: string, type: 'success' | 'error' | 'info' = 'info') => {
+    const id = Math.random().toString(36).substring(2, 9);
+    set((state) => ({
+      toasts: [...state.toasts, { id, message, type }],
+    }));
+
+    // Auto dismiss after 4 seconds
+    setTimeout(() => {
+      get().removeToast(id);
+    }, 4000);
+  },
+
+  removeToast: (id: string) => {
+    set((state) => ({
+      toasts: state.toasts.filter((t) => t.id !== id),
+    }));
   }
 }));

@@ -13,6 +13,9 @@ import { EventsModule } from './events/events.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { WorkspacesModule } from './workspaces/workspaces.module';
 import { SupervisorsModule } from './supervisors/supervisors.module';
+import { DepartmentsModule } from './departments/departments.module';
+import { PublicationsModule } from './publications/publications.module';
+import { ReportsModule } from './reports/reports.module';
 
 @Module({
   imports: [
@@ -38,6 +41,9 @@ import { SupervisorsModule } from './supervisors/supervisors.module';
     NotificationsModule,
     WorkspacesModule,
     SupervisorsModule,
+    DepartmentsModule,
+    PublicationsModule,
+    ReportsModule,
   ],
   controllers: [AppController],
   providers: [],

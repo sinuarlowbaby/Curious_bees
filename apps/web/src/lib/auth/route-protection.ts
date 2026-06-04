@@ -19,8 +19,8 @@ import type { UserRole } from '@curiousbees/types';
  * conditionally renders the correct view based on currentUser.role.
  */
 export const DASHBOARD_ROUTES: Record<UserRole, string> = {
-  RESEARCH_SUPERVISOR: '/dashboard/supervisor',
-  RESEARCH_SCHOLAR: '/dashboard/researcher',
+  RESEARCH_SUPERVISOR: '/dashboard',
+  RESEARCH_SCHOLAR: '/dashboard',
   INSTITUTION_ADMIN: '/admin',
 };
 

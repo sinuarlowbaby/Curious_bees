@@ -75,12 +75,11 @@ export const UpdateProfileSchema = z.object({
     .min(2, 'Name must be at least 2 characters')
     .max(50, 'Name cannot exceed 50 characters')
     .optional(),
-  role: z.enum(['FACULTY', 'PHD_SCHOLAR'], {
-    errorMap: () => ({ message: 'Role must be either FACULTY or PHD_SCHOLAR' })
+  role: z.enum(['RESEARCH_SUPERVISOR', 'RESEARCH_SCHOLAR', 'INSTITUTION_ADMIN'], {
+    errorMap: () => ({ message: 'Invalid role selection' })
   }).optional(),
-  department: z.string().refine((val) => {
-    return !val || SRM_DEPARTMENTS.includes(val as any);
-  }, 'Please select a valid department').optional(),
+  department: z.string().optional(),
+  departmentId: z.string().optional(),
   bio: z
     .string()
     .max(250, 'Bio cannot exceed 250 characters')

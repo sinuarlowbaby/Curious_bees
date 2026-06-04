@@ -122,7 +122,7 @@ export default function Navbar() {
           {/* Breadcrumb Trail */}
           <nav className="hidden sm:flex items-center gap-1.5 text-[12px] font-semibold text-textSecondary min-w-0">
             {breadcrumbs.map((crumb, idx) => (
-              <React.Fragment key={crumb.href}>
+              <React.Fragment key={`${crumb.href}-${idx}`}>
                 {idx > 0 && <ChevronRight className="w-3.5 h-3.5 shrink-0 text-textSecondary/40" />}
                 <Link
                   href={crumb.href}

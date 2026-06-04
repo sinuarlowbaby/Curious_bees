@@ -17,6 +17,11 @@ export class NotificationsController {
     };
   }
 
+  @Get()
+  async getNotifications(@Req() req: any) {
+    return this.notificationsService.getNotifications(req.user.id);
+  }
+
   @Get('preferences')
   async getPreferences(@Req() req: any) {
     return await this.notificationsService.getPreferences(req.user.id);

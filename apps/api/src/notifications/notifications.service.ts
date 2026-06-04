@@ -42,6 +42,17 @@ export class NotificationsService {
   }
 
   /**
+   * Retrieves log of notifications dispatched to a user
+   */
+  async getNotifications(userId: string) {
+    return this.prisma.notification.findMany({
+      where: { userId },
+      orderBy: { createdAt: 'desc' },
+      take: 50
+    });
+  }
+
+  /**
    * Fetch User Preferences
    */
   async getPreferences(userId: string) {
