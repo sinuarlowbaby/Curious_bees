@@ -28,7 +28,7 @@ import {
   Clock,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import Logo from './Logo';
+import Logo from '../Logo';
 import { RoleBadge } from '../shared/role-badge';
 import type { UserRole } from '@curiousbees/types';
 

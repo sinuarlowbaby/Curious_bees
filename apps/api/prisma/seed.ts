@@ -11,8 +11,6 @@ async function main() {
   await prisma.thread.deleteMany({});
   await prisma.opportunity.deleteMany({});
   await prisma.researchInterest.deleteMany({});
-  await prisma.session.deleteMany({});
-  await prisma.account.deleteMany({});
   await prisma.user.deleteMany({});
 
   console.log('🧹 Database cleaned.');
