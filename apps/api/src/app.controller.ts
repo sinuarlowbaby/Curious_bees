@@ -52,16 +52,15 @@ export class AppController {
     }
 
     const isHealthy = databaseConnected && redisConnected;
+    const memory = process.memoryUsage();
 
     return {
       status: isHealthy ? 'healthy' : 'unhealthy',
-      api: true,
-      database: databaseConnected,
-      redis: redisConnected,
+      database: databaseConnected ? 'healthy' : 'unhealthy',
+      redis: redisConnected ? 'healthy' : 'unhealthy',
+      uptime: `${Math.round(process.uptime() * 100) / 100}s`,
+      memory: `${Math.round((memory.rss / 1024 / 1024) * 100) / 100} MB`,
       environment: process.env.NODE_ENV || 'development',
-      version: '1.0.0',
-      uptime: process.uptime(),
-      timestamp: new Date().toISOString(),
     };
   }
 

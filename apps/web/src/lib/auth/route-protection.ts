@@ -32,7 +32,8 @@ export const DASHBOARD_ROUTES: Record<UserRole, string> = {
  * Defaults to '/login' for unauthenticated users.
  */
 export function getDashboardRoute(user?: { role: UserRole; approved?: boolean }): string {
-  if (process.env.NEXT_PUBLIC_DEVELOPMENT_MODE === 'true') {
+  const isBypass = process.env.NEXT_PUBLIC_AUTH_MODE === 'bypass' || process.env.NEXT_PUBLIC_DEVELOPMENT_MODE === 'true';
+  if (isBypass) {
     if (!user) return '/dashboard';
     return DASHBOARD_ROUTES[user.role] ?? '/dashboard';
   }

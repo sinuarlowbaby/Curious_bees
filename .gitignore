@@ -1,70 +1,53 @@
-# ==========================================
-# CURIOUSBEES V2 — STANDARDIZED .GITIGNORE
-# ==========================================
+# ==============================================================================
+# CURIOUSBEES V2 — ENTERPRISE MONOREPO .GITIGNORE
+# ==============================================================================
 
-# 📦 1. Dependency Resolution Cache
+# 📦 Dependencies & Caches
 node_modules/
-.pnp
+.pnp/
 .pnp.js
 *.tsbuildinfo
+.npm/
+.yarn/
+.pnpm-store/
 
-# 🚀 2. Next.js Build Output
+# 🚀 Build & Compilation Outputs
+dist/
+build/
 .next/
 out/
-build/
-apps/web/tsconfig.tsbuildinfo
-
-# 📡 3. NestJS API Compile Target
-dist/
-apps/api/dist/
-apps/api/tsconfig.tsbuildinfo
 .nest-cli.json
+apps/web/tsconfig.tsbuildinfo
+apps/api/tsconfig.tsbuildinfo
 
-# 🗄️ 4. Prisma Database Client Artifacts
+# 🗄️ Database & Prisma Artifacts
 .prisma/
-# Note: Keep schema.prisma and seed.ts versioned, but ignore binary models
 *.db
 *.db-journal
-
-# ⚡ 5. Supabase Local Configuration Cache
 supabase/.temp/
 
-# 🔐 6. Environment Configurations & Secrets
-# Ignore all actual key-value files
+# 🔐 Environment Variables & Secrets
 .env
-.env.local
-.env.development
-.env.production
-.env.test
-.env.development.local
-.env.production.local
-.env.test.local
-.env.*.local
-
-# Do NOT ignore the example config templates
+.env.*
 !.env.example
-!apps/web/.env.example
-!apps/api/.env.example
 
-# 📑 7. Diagnostic Logs
+# 📑 System Diagnostics & Logs
 logs/
 *.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
+tmp/
+temp/
 
-# 🔬 8. Testing Outputs
+# 🔬 Testing Outputs
 coverage/
 .nyc_output/
 .jest/
 
-# 💻 9. IDE & Code Editor Files
-.vscode/*
-!.vscode/extensions.json
-!.vscode/launch.json
-!.vscode/settings.json
-!.vscode/tasks.json
+# 💻 IDEs & Code Editors
+.vscode/
 .idea/
 *.suo
 *.ntvs*
@@ -75,17 +58,18 @@ coverage/
 .project
 .settings/
 
-# 🌐 10. Platform Hosting Outputs
+# 🌐 Hosting & Deployments
 .vercel/
+.serverless/
+turbo/
 
-# 🍎 11. Operating System Metadata
+# 🍎 OS-Specific Files
 .DS_Store
 .DS_Store?
 ._*
 Thumbs.db
 ehthumbs.db
 
-# 🤖 12. Local AI Sandbox / IDE Agent Tools
+# 🤖 Development Agent Cache
 .gemini/
 .agents/
-!packages/

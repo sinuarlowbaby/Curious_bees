@@ -53,7 +53,7 @@ export default function PortalLayout({
 
   useEffect(() => {
     let active = true;
-    const isDevMode = process.env.NEXT_PUBLIC_DEVELOPMENT_MODE === 'true';
+    const isDevMode = process.env.NEXT_PUBLIC_AUTH_MODE === 'bypass' || process.env.NEXT_PUBLIC_DEVELOPMENT_MODE === 'true';
 
     const initAuth = async () => {
       console.info('[PortalLayout] Running initAuth...');
@@ -61,8 +61,9 @@ export default function PortalLayout({
       let activeUser = currentUser;
       
       if (isDevMode) {
-        console.warn('[PortalLayout] DEVELOPMENT_MODE active. Bypassing auth checks.');
-        const devRole = typeof window !== 'undefined' ? (localStorage.getItem('dev_role') || 'RESEARCH_SCHOLAR') : 'RESEARCH_SCHOLAR';
+        console.warn('[PortalLayout] Auth bypass active. Bypassing auth checks.');
+        const defaultDevRole = process.env.NEXT_PUBLIC_DEV_ROLE || 'RESEARCH_SCHOLAR';
+        const devRole = typeof window !== 'undefined' ? (localStorage.getItem('dev_role') || defaultDevRole) : defaultDevRole;
         const mockDevUser = {
           id: 'dev-user',
           name: 'Developer',
@@ -133,7 +134,8 @@ export default function PortalLayout({
     };
   }, [currentUser, router, fetchData, syncUserSession]);
 
-  if ((isLoading || !currentUser) && process.env.NEXT_PUBLIC_DEVELOPMENT_MODE !== 'true') {
+  const isDevModeGlobal = process.env.NEXT_PUBLIC_AUTH_MODE === 'bypass' || process.env.NEXT_PUBLIC_DEVELOPMENT_MODE === 'true';
+  if ((isLoading || !currentUser) && !isDevModeGlobal) {
     return (
       <div className="min-h-screen bg-slate-50 flex items-center justify-center text-slate-500 font-sans">
         <div className="flex flex-col items-center space-y-4 p-6 text-center max-w-sm">
@@ -170,7 +172,7 @@ export default function PortalLayout({
     );
   }
 
-  const isDevMode = process.env.NEXT_PUBLIC_DEVELOPMENT_MODE === 'true';
+  const isDevMode = process.env.NEXT_PUBLIC_AUTH_MODE === 'bypass' || process.env.NEXT_PUBLIC_DEVELOPMENT_MODE === 'true';
 
   return (
     <QueryClientProvider client={queryClient}>

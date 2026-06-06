@@ -31,7 +31,8 @@
     "db:setup": "npm run db:reset && npm run db:seed",
     "clean": "rimraf node_modules apps/*/node_modules packages/*/node_modules apps/*/.next apps/*/dist packages/*/dist",
     "reset": "npm run clean && npm install --legacy-peer-deps && npm run setup",
-    "health": "node scripts/check-health.js"
+    "team:reset": "npm run db:setup && npm run clean && npm install --legacy-peer-deps && npm run setup",
+    "health": "node scripts/health-check.js"
   },
   "devDependencies": {
     "concurrently": "^8.2.2",

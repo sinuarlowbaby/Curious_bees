@@ -66,15 +66,19 @@ export function resetAuthPromise() {
  * Returns an empty object when there is no authenticated user (guest mode).
  */
 export async function getAuthHeaders(): Promise<Record<string, string>> {
-  if (process.env.NEXT_PUBLIC_DEVELOPMENT_MODE === 'true') {
+  const isBypass = process.env.NEXT_PUBLIC_AUTH_MODE === 'bypass' || process.env.NEXT_PUBLIC_DEVELOPMENT_MODE === 'true';
+  if (isBypass) {
     if (typeof window !== 'undefined') {
-      const devRole = localStorage.getItem('dev_role') || 'RESEARCH_SCHOLAR';
+      const defaultRole = process.env.NEXT_PUBLIC_DEV_ROLE || 'RESEARCH_SCHOLAR';
+      const devRole = localStorage.getItem('dev_role') || defaultRole;
       const mockToken = `mock-bypass-token-${devRole === 'INSTITUTION_ADMIN' ? 'admin' : devRole === 'RESEARCH_SUPERVISOR' ? 'faculty' : 'scholar'}`;
       localStorage.setItem('curiousbees-mock-token', mockToken);
-      console.info('[APIClient] DEVELOPMENT_MODE bypass: Using mock role token.', devRole);
+      console.info('[APIClient] Auth bypass active: Using mock role token.', devRole);
       return { Authorization: `Bearer ${mockToken}` };
     }
-    return { Authorization: 'Bearer mock-bypass-token-scholar' };
+    const defaultRole = process.env.NEXT_PUBLIC_DEV_ROLE || 'RESEARCH_SCHOLAR';
+    const mockToken = `mock-bypass-token-${defaultRole === 'INSTITUTION_ADMIN' ? 'admin' : defaultRole === 'RESEARCH_SUPERVISOR' ? 'faculty' : 'scholar'}`;
+    return { Authorization: `Bearer ${mockToken}` };
   }
 
   await waitForAuth();

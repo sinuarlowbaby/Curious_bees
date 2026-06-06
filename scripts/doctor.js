@@ -17,11 +17,18 @@ const colors = {
   bold: '\x1b[1m'
 };
 
-const reportSuccess = (msg) => console.log(`  ${colors.green}✅ ${msg}${colors.reset}`);
-const reportWarning = (msg) => console.log(`  ${colors.yellow}⚠️  ${msg}${colors.reset}`);
-const reportError = (msg) => console.log(`  ${colors.red}❌ ${msg}${colors.reset}`);
+let hasErrors = false;
+let hasWarnings = false;
 
-let overallHealthy = true;
+const reportSuccess = (msg) => console.log(`  ${colors.green}✅ ${msg}${colors.reset}`);
+const reportWarning = (msg) => {
+  console.log(`  ${colors.yellow}⚠️  ${msg}${colors.reset}`);
+  hasWarnings = true;
+};
+const reportError = (msg) => {
+  console.log(`  ${colors.red}❌ ${msg}${colors.reset}`);
+  hasErrors = true;
+};
 
 // 1. Check Node.js and npm versions
 console.log(`${colors.bold}1. Runtime Engine Verification:${colors.reset}`);
@@ -36,7 +43,7 @@ if (nodeVer.startsWith('v22') || nodeVer.startsWith('v20') || nodeVer.startsWith
 console.log(`\n${colors.bold}2. Environment Variable Configuration:${colors.reset}`);
 if (!fs.existsSync(envPath)) {
   reportError('Root .env file is missing!');
-  console.log(`     -> Solution: Run 'cp .env.example .env' and add configuration values.`);
+  console.log(`     -> Solution: Run 'cp .env.example .env' and populate configuration values.`);
   process.exit(1);
 }
 reportSuccess('Root .env file is present.');
@@ -44,7 +51,7 @@ reportSuccess('Root .env file is present.');
 // Load env variables
 require('dotenv').config({ path: envPath });
 
-// Validate 4 critical env variables
+// Validate critical env variables
 const validateUrl = (key, isOptional = false) => {
   const value = process.env[key];
   if (!value) {
@@ -53,7 +60,6 @@ const validateUrl = (key, isOptional = false) => {
       return false;
     } else {
       reportError(`${key} is missing in root .env!`);
-      overallHealthy = false;
       return false;
     }
   }
@@ -67,7 +73,6 @@ const validateUrl = (key, isOptional = false) => {
       reportWarning(`${key} value "${value}" is not a valid URL (Optional)`);
     } else {
       reportError(`${key} value "${value}" is not a valid URL!`);
-      overallHealthy = false;
     }
     return false;
   }
@@ -77,6 +82,56 @@ const hasDb = validateUrl('DATABASE_URL');
 const hasDirect = validateUrl('DIRECT_URL');
 const hasPublicApi = validateUrl('NEXT_PUBLIC_API_URL');
 const hasRedisUrl = validateUrl('REDIS_URL', true);
+
+// Check Auth Mode & Dev Role Settings
+const authMode = process.env.AUTH_MODE || 'bypass';
+const pubAuthMode = process.env.NEXT_PUBLIC_AUTH_MODE || 'bypass';
+const devRole = process.env.DEV_ROLE || 'RESEARCH_SCHOLAR';
+const pubDevRole = process.env.NEXT_PUBLIC_DEV_ROLE || 'RESEARCH_SCHOLAR';
+
+const validRoles = ['RESEARCH_SCHOLAR', 'RESEARCH_SUPERVISOR', 'INSTITUTION_ADMIN'];
+
+console.log(`\n   --- Auth Mode & Bypass Checks ---`);
+reportSuccess(`Backend AUTH_MODE is configured as "${authMode}".`);
+reportSuccess(`Frontend NEXT_PUBLIC_AUTH_MODE is configured as "${pubAuthMode}".`);
+
+if (authMode !== pubAuthMode) {
+  reportError(`Backend AUTH_MODE (${authMode}) and Frontend NEXT_PUBLIC_AUTH_MODE (${pubAuthMode}) are out of sync!`);
+  console.log(`     -> Solution: Make sure both values match in the root .env file.`);
+} else {
+  reportSuccess('Backend and Frontend Auth Mode settings are synchronized.');
+}
+
+if (authMode === 'bypass' || process.env.DEVELOPMENT_MODE === 'true') {
+  reportWarning('Bypass active. Firebase SSO is disabled for developer testing.');
+  
+  if (!validRoles.includes(devRole)) {
+    reportError(`Invalid DEV_ROLE value: "${devRole}". Must be one of: ${validRoles.join(', ')}`);
+  } else {
+    reportSuccess(`Backend default DEV_ROLE is set to "${devRole}".`);
+  }
+
+  if (!validRoles.includes(pubDevRole)) {
+    reportError(`Invalid NEXT_PUBLIC_DEV_ROLE value: "${pubDevRole}". Must be one of: ${validRoles.join(', ')}`);
+  } else {
+    reportSuccess(`Frontend default NEXT_PUBLIC_DEV_ROLE is set to "${pubDevRole}".`);
+  }
+
+  if (devRole !== pubDevRole) {
+    reportWarning(`Backend DEV_ROLE (${devRole}) and Frontend NEXT_PUBLIC_DEV_ROLE (${pubDevRole}) do not match.`);
+    console.log(`     -> Note: This is okay, but may result in role discrepancies unless overridden by the frontend role-switcher.`);
+  }
+} else {
+  reportSuccess('Firebase SSO mode enabled. SSO credentials will be checked.');
+  // Validate Firebase credentials presence
+  const firebaseKeys = ['FIREBASE_PROJECT_ID', 'FIREBASE_CLIENT_EMAIL', 'FIREBASE_PRIVATE_KEY'];
+  const missingKeys = firebaseKeys.filter(k => !process.env[k]);
+  if (missingKeys.length > 0) {
+    reportError(`Missing Firebase Admin credentials: ${missingKeys.join(', ')}`);
+  } else {
+    reportSuccess('Firebase Admin credentials are present.');
+  }
+}
 
 // 3. Check Database Connections
 console.log(`\n${colors.bold}3. Database Connection Testing:${colors.reset}`);
@@ -106,15 +161,30 @@ if (hasDb) {
     } else {
       console.log('     -> Solution: Ensure your internet connection is active, and verify that your cloud database (Supabase) credentials in the root .env are correct.');
     }
-    overallHealthy = false;
   }
 } else {
   reportError('PostgreSQL test skipped due to missing DATABASE_URL config.');
-  overallHealthy = false;
 }
 
-// 4. Check Redis Connection (Optional)
-console.log(`\n${colors.bold}4. Redis Caching Connection Testing (Optional):${colors.reset}`);
+// 4. Check Shared Package Builds
+console.log(`\n${colors.bold}4. Shared Package Build Validation:${colors.reset}`);
+const packagesToCheck = [
+  { name: '@curiousbees/types', path: 'packages/types/dist/index.js' },
+  { name: '@curiousbees/shared-utils', path: 'packages/shared-utils/dist/index.js' },
+  { name: '@curiousbees/constants', path: 'packages/constants/dist/index.js' }
+];
+
+packagesToCheck.forEach((pkg) => {
+  const fullPath = path.join(rootDir, pkg.path);
+  if (fs.existsSync(fullPath)) {
+    reportSuccess(`${pkg.name} build files are compiled.`);
+  } else {
+    reportError(`${pkg.name} build files are missing! Run: npm run setup`);
+  }
+});
+
+// 5. Check Redis Connection (Optional)
+console.log(`\n${colors.bold}5. Redis Caching Connection Testing (Optional):${colors.reset}`);
 const redisTarget = process.env.REDIS_URL || (process.env.REDIS_HOST ? `redis://${process.env.REDIS_HOST}:${process.env.REDIS_PORT || 6379}` : null);
 
 if (redisTarget) {
@@ -163,13 +233,16 @@ if (redisTarget) {
 // Wait for Redis async check to settle briefly before printing summary
 setTimeout(() => {
   console.log(`\n==================================================`);
-  if (overallHealthy) {
-    console.log(` ${colors.green}${colors.bold}🩺 DOCTOR DIAGNOSTIC STATUS: HEALTHY${colors.reset}`);
-    console.log(' Your monorepo is fully configured and ready for production staging.');
+  if (hasErrors) {
+    console.log(` ${colors.red}${colors.bold}🩺 DOCTOR DIAGNOSTIC STATUS: FAILED${colors.reset}`);
+    console.log(' Critical issues found! Please fix the errors reported above before running dev.');
+  } else if (hasWarnings) {
+    console.log(` ${colors.yellow}${colors.bold}🩺 DOCTOR DIAGNOSTIC STATUS: WARNING${colors.reset}`);
+    console.log(' Connection warnings present, but core systems are standard.');
   } else {
-    console.log(` ${colors.red}${colors.bold}🩺 DOCTOR DIAGNOSTIC STATUS: DEGRADED / ISSUES FOUND${colors.reset}`);
-    console.log(' Please fix the error blocks logged above before starting development.');
+    console.log(` ${colors.green}${colors.bold}🩺 DOCTOR DIAGNOSTIC STATUS: HEALTHY${colors.reset}`);
+    console.log(' Your monorepo is fully configured and ready for development.');
   }
   console.log(`==================================================\n`);
-  process.exit(overallHealthy ? 0 : 1);
+  process.exit(hasErrors ? 1 : 0);
 }, 2500);

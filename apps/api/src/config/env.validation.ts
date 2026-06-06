@@ -6,6 +6,8 @@ export const envSchema = z.object({
     if (typeof val === 'string') return val.trim();
     return val;
   }, z.enum(['true', 'false']).default('false')),
+  AUTH_MODE: z.enum(['bypass', 'firebase']).default('bypass'),
+  DEV_ROLE: z.enum(['RESEARCH_SCHOLAR', 'RESEARCH_SUPERVISOR', 'INSTITUTION_ADMIN']).default('RESEARCH_SCHOLAR'),
   PORT: z.preprocess((val) => {
     if (typeof val === 'string') return parseInt(val, 10);
     return val;
@@ -25,12 +27,13 @@ export const envSchema = z.object({
   FIREBASE_CLIENT_EMAIL: z.string().optional(),
   FIREBASE_PRIVATE_KEY: z.string().optional(),
 }).refine((data) => {
-  if (data.DEVELOPMENT_MODE === 'false') {
+  const isBypass = data.AUTH_MODE === 'bypass' || data.DEVELOPMENT_MODE === 'true';
+  if (!isBypass) {
     return !!data.FIREBASE_PROJECT_ID && !!data.FIREBASE_CLIENT_EMAIL && !!data.FIREBASE_PRIVATE_KEY;
   }
   return true;
 }, {
-  message: 'Firebase Admin SDK credentials (FIREBASE_PROJECT_ID, FIREBASE_CLIENT_EMAIL, FIREBASE_PRIVATE_KEY) are required when DEVELOPMENT_MODE is false',
+  message: 'Firebase Admin SDK credentials (FIREBASE_PROJECT_ID, FIREBASE_CLIENT_EMAIL, FIREBASE_PRIVATE_KEY) are required when AUTH_MODE is firebase',
 });
 
 export type EnvConfig = z.infer<typeof envSchema>;

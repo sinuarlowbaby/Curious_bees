@@ -217,8 +217,10 @@ export const useStore = create<AppState>((set, get) => ({
   syncUserSession: async (options) => {
     console.info('[AuthStore] syncUserSession called with options:', options);
 
-    if (process.env.NEXT_PUBLIC_DEVELOPMENT_MODE === 'true') {
-      const devRole = (typeof window !== 'undefined' ? localStorage.getItem('dev_role') : null) || 'RESEARCH_SCHOLAR';
+    const isBypass = process.env.NEXT_PUBLIC_AUTH_MODE === 'bypass' || process.env.NEXT_PUBLIC_DEVELOPMENT_MODE === 'true';
+    if (isBypass) {
+      const defaultRole = process.env.NEXT_PUBLIC_DEV_ROLE || 'RESEARCH_SCHOLAR';
+      const devRole = (typeof window !== 'undefined' ? localStorage.getItem('dev_role') : null) || defaultRole;
       const mockUser = {
         id: 'dev-user',
         name: 'Developer',

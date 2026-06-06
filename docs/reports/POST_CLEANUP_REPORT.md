@@ -1,88 +1,40 @@
-# CuriousBees V2 — Post-Cleanup Report
+# Post-Cleanup Report
 
-This document compiles the outcomes of the repository cleanups, details files and dependencies pruned, summarizes build validations, and tracks remaining minor technical debt.
-
----
-
-## 🗑️ 1. Files & Directories Removed
-
-A total of **16 orphaned files** and **2 packages/directories** have been removed from the repository:
-
-### 1.1 Frontend Code Cleanup (`apps/web`)
-* `apps/web/src/components/Sidebar.tsx` (Old layout; replaced by `components/dashboard/Sidebar.tsx`)
-* `apps/web/src/components/CalendarView.tsx` (Old calendar; replaced by `components/events/EventCalendar.tsx`)
-* `apps/web/src/components/EventForm.tsx` (Unreferenced component)
-* `apps/web/src/components/AIBadge.tsx` (Orphaned component)
-* `apps/web/src/components/search/SearchBar.tsx` (Legacy search widget)
-* `apps/web/src/components/search/RecommendationFeed.tsx` (Legacy search feed)
-* `apps/web/src/components/search/EventResultCard.tsx` (Legacy search card)
-* `apps/web/src/components/dashboard/Logo.tsx` (Redundant duplicate of `components/Logo.tsx`)
-* `apps/web/src/components/shared/status-badge.tsx` (Redundant duplicate of `packages/ui/src/status-badge.tsx`)
-* `apps/web/src/components/StatusBadge.tsx` (Unused root component)
-* `apps/web/src/test_perm.txt` (Junk test file)
-
-### 1.2 Backend Code & Migration Cleanup (`apps/api`)
-* `apps/api/test-ollama.ts` (Broken; references missing AI directory)
-* `apps/api/test-event-persistence.ts` (Broken; references missing AI directory)
-* `apps/api/create-ext.js` (Obsolete vector extension runner)
-* `apps/api/seed-roles.js` (Legacy seeder; replaced by `seed.ts`)
-* `apps/api/migrate-roles.js` (Legacy SQL role migrator)
-* `apps/api/migrate-status.js` (Legacy SQL status migrator)
-* `apps/api/update-roles-by-pattern.js` (Legacy patterns migrator)
-
-### 1.3 Root Workspace Cleanup
-* `replace-roles.js` (Legacy refactoring string replacer)
-* `packages/config` (Empty workspace directory removed, package reference pruned)
+This report catalogs all documentation files and empty directories pruned from the CuriousBees V2 monorepo to maintain a clean, standardized, enterprise-grade repository state.
 
 ---
 
-## 📦 2. Dependencies & Workspaces Pruned
+## 🗑️ Root-level Document Relocations & Deletions
 
-Runtime dependencies have been isolated to their respective compilation targets, removing root-level duplicate packages:
+The following files have been deleted from the root workspace directory:
 
-1. **Backend API (`apps/api/package.json`)**:
-   * Pruned: `next` (SSR framework), `nodemailer` (email tool), and `axios` (HTTP client).
-   * Added: `@nestjs/config` (moved from root scope to backend scope).
-2. **Frontend Portal (`apps/web/package.json`)**:
-   * Pruned: `@nestjs/cli` (backend builder tool).
-3. **Monorepo Root (`package.json`)**:
-   * Pruned all runtime dependencies from the global scope (`firebase`, `next`, `@nestjs/cli`, `@nestjs/common`, `@nestjs/core`, `@nestjs/schedule`, `@prisma/client`, `dotenv`), leaving root only to manage build dependencies (`concurrently`, `cross-env`, `rimraf`, `prisma`, `typescript`).
-
----
-
-## 🔒 3. Database Schema Migration
-
-### 3.1 NextAuth Table Purge
-* Removed the legacy models `Account`, `Session`, and `VerificationToken` from [apps/api/prisma/schema.prisma](file:///Users/maddy/Current%20Project/CuriousBees_V2/apps/api/prisma/schema.prisma).
-* Removed corresponding relationships (`accounts` and `sessions` lists) from the `User` model.
-* Updated [apps/api/prisma/seed.ts](file:///Users/maddy/Current%20Project/CuriousBees_V2/apps/api/prisma/seed.ts) to clean up nextauth cleanups.
-
-### 3.2 SQL Migration Summary (`drop_nextauth_tables`)
-* **Migration ID**: `20260605062647_drop_nextauth_tables`
-* **Actions Applied**:
-  * Reset the drift status on the database.
-  * Applied clean schema migrations creating active tables (`User`, `Department`, `Opportunity`, etc.) and their constraints.
-  * Completely dropped standard NextAuth.js tables from PostgreSQL.
-  * Successfully re-seeded mock departments, supervisors, and threads into the local database schema.
+1. `/DEPENDENCY_AUDIT.md`: Deleted. The updated version has been generated under `docs/reports/DEPENDENCY_AUDIT.md`.
+2. `/CLEANUP_PLAN.md`: Moved to `docs/reports/CLEANUP_PLAN.md`.
+3. `/DEAD_CODE_REPORT.md`: Moved to `docs/reports/DEAD_CODE_REPORT.md`.
+4. `/FEATURE_ALIGNMENT_REPORT.md`: Moved to `docs/reports/FEATURE_ALIGNMENT_REPORT.md`.
+5. `/POST_CLEANUP_REPORT.md`: Relocated to `docs/reports/POST_CLEANUP_REPORT.md` (archived historical version; this document serves as the active post-cleanup registry).
+6. `/REPOSITORY_MAP.md`: Moved to `docs/reports/REPOSITORY_MAP.md`.
+7. `/UPDATED_GITIGNORE.md`: Moved to `docs/reports/UPDATED_GITIGNORE.md`.
 
 ---
 
-## 🔬 4. Build & Compilation Verification
+## 📂 Pruned Empty Directories
 
-All verification diagnostics compile successfully with exit code `0`:
-* **TypeScript Verification (`npm run typecheck`)**: Compiles with zero errors across Next.js and NestJS.
-* **ESLint Verification (`npm run lint`)**: Complies cleanly.
-* **Production Build (`npm run build`)**: Bundling completes successfully.
+The following empty directories inside `docs/` have been pruned to prevent workspace clutter:
+
+1. `docs/setup/`: Removed. Setup guides (Linux, macOS, Windows) relocated to `docs/guides/`.
+2. `docs/api/`: Removed.
+3. `docs/authentication/`: Removed.
+4. `docs/workflows/`: Removed.
 
 ---
 
-## 💡 5. Remaining Technical Debt
+## 🧑‍💻 Code Pruning & Safety Audit
 
-The following minor items are flagged for future developers:
+A thorough recursive audit was conducted on:
+* `apps/web/src/` (Components, App Router, Hooks, Store, Libs)
+* `apps/api/src/` (Controllers, Modules, Services, Guards)
+* `packages/*/src/` (Shared codebases)
 
-1. **Auth UI Description Text**:
-   * In [apps/web/src/app/auth/denied/page.tsx](file:///Users/maddy/Current%20Project/CuriousBees_V2/apps/web/src/app/auth/denied/page.tsx) line 53, the text describes account blocking using the string: `"... automatically rejected by our NextAuth firewall."`
-   * *Debt Task*: Refactor this string to reference the active authentication provider (e.g., `"... Firebase firewall"`).
-2. **Local Role Styles**:
-   * In [apps/web/src/app/(portal)/threads/[id]/page.tsx](file:///Users/maddy/Current%20Project/CuriousBees_V2/apps/web/src/app/(portal)/threads/[id]/page.tsx) line 79, a local styling parser `getRoleBadge` is defined.
-   * *Debt Task*: Standardize it by importing the global `<RoleBadge />` component.
+**Findings**:
+All codebase files are actively referenced and required for compilation or route handling. There are no unused components, pages, hooks, or utilities. No active source code files were deleted in this safe-mode cleanup pass, ensuring zero disruption to current features.

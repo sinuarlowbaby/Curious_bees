@@ -10,7 +10,8 @@ export class ApprovedGuard implements CanActivate {
       return false;
     }
 
-    if (process.env.DEVELOPMENT_MODE === 'true') {
+    const isBypass = process.env.AUTH_MODE === 'bypass' || process.env.DEVELOPMENT_MODE === 'true';
+    if (isBypass) {
       return true;
     }
 

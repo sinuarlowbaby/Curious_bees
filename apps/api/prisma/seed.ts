@@ -1,4 +1,9 @@
 import { PrismaClient, Role } from '@prisma/client';
+import * as dotenv from 'dotenv';
+import * as path from 'path';
+
+// Load root .env absolutely
+dotenv.config({ path: path.resolve(__dirname, '../../../.env') });
 
 const prisma = new PrismaClient();
 
@@ -21,6 +26,8 @@ async function main() {
   console.log('🌱 Starting database seeding...');
 
   // 1. Clean database
+  await prisma.report.deleteMany({});
+  await prisma.publication.deleteMany({});
   await prisma.workspaceAnnouncement.deleteMany({});
   await prisma.workspaceFile.deleteMany({});
   await prisma.workspaceMilestone.deleteMany({});
@@ -333,6 +340,58 @@ async function main() {
     }
   });
   console.log('✅ Seeded notification items and push subscription logs.');
+
+  // 11. Publications
+  await prisma.publication.create({
+    data: {
+      title: 'Parameter-Efficient Fine-Tuning of Vision-Language Models in Resource-Constrained Environments',
+      authors: 'Suresh Karthik, Anand Ramachandran',
+      doi: '10.1109/CVPR.2026.00123',
+      publisher: 'IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)',
+      year: 2026,
+      status: 'PUBLISHED',
+      userId: createdUsers['scholar.suresh@srmist.edu.in'].id
+    }
+  });
+
+  await prisma.publication.create({
+    data: {
+      title: 'Graph Neural Networks for Molecular Modeling in Computational Oncology',
+      authors: 'Divya Nambiar, Priya Subramanian',
+      doi: '10.1093/bioinformatics/btac789',
+      publisher: 'Bioinformatics (Oxford Academic)',
+      year: 2025,
+      status: 'PUBLISHED',
+      userId: createdUsers['scholar.divya@srmist.edu.in'].id
+    }
+  });
+  console.log('✅ Seeded publications for scholars.');
+
+  // 12. Reports
+  await prisma.report.create({
+    data: {
+      title: 'Monthly Research Progress Report - May 2026',
+      description: 'Progress on Parameter-Efficient Fine-Tuning (PEFT) methods for vision-language models. Completed benchmark runs on 4x H100 GPUs.',
+      status: 'APPROVED',
+      evidenceUrl: 'https://example.com/files/suresh_progress_report_may_2026.pdf',
+      feedback: 'Excellent progress on the PEFT comparisons. Focus next on scaling experiments.',
+      scholarId: createdUsers['scholar.suresh@srmist.edu.in'].id,
+      supervisorId: createdUsers['dr.anand@srmist.edu.in'].id
+    }
+  });
+
+  await prisma.report.create({
+    data: {
+      title: 'Bi-Annual Research Seminar Status',
+      description: 'Progress report regarding nano-carriers in bioinformatics. Prepared the slide deck for the upcoming department review.',
+      status: 'PENDING',
+      evidenceUrl: 'https://example.com/files/divya_biannual_report.pdf',
+      feedback: null,
+      scholarId: createdUsers['scholar.divya@srmist.edu.in'].id,
+      supervisorId: createdUsers['dr.priya@srmist.edu.in'].id
+    }
+  });
+  console.log('✅ Seeded research progress reports.');
 
   console.log('🌟 Seeding completed successfully!');
 }

@@ -21,11 +21,13 @@ export class FirebaseAuthGuard implements CanActivate {
       token = authHeader.substring(7);
     }
 
-    if (process.env.DEVELOPMENT_MODE === 'true') {
-      this.logger.warn('DEVELOPMENT_MODE is active. Bypassing Firebase authentication.');
+    const isBypass = process.env.AUTH_MODE === 'bypass' || process.env.DEVELOPMENT_MODE === 'true';
+    if (isBypass) {
+      this.logger.warn('Auth bypass active. Bypassing Firebase authentication.');
       
-      // Determine role from token if present, otherwise default to RESEARCH_SCHOLAR
-      let devRole = 'RESEARCH_SCHOLAR';
+      // Determine role from token if present, otherwise default to DEV_ROLE or RESEARCH_SCHOLAR
+      const defaultRole = process.env.DEV_ROLE || 'RESEARCH_SCHOLAR';
+      let devRole = defaultRole;
       if (token.includes('admin')) devRole = 'INSTITUTION_ADMIN';
       else if (token.includes('faculty') || token.includes('supervisor')) devRole = 'RESEARCH_SUPERVISOR';
 

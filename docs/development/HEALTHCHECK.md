@@ -23,13 +23,11 @@ Checks if backend microservices (Postgres & Redis) are responsive and returning 
 ```json
 {
   "status": "healthy",
-  "api": true,
-  "database": true,
-  "redis": true,
-  "environment": "production",
-  "version": "1.0.0",
-  "uptime": 124.582,
-  "timestamp": "2026-06-05T08:39:26.124Z"
+  "database": "healthy",
+  "redis": "healthy",
+  "uptime": "12.45s",
+  "memory": "94.25 MB",
+  "environment": "development"
 }
 ```
 
@@ -40,13 +38,11 @@ If either service experiences timeout or connectivity failure:
 ```json
 {
   "status": "unhealthy",
-  "api": true,
-  "database": false,
-  "redis": true,
-  "environment": "production",
-  "version": "1.0.0",
-  "uptime": 124.582,
-  "timestamp": "2026-06-05T08:39:26.124Z"
+  "database": "unhealthy",
+  "redis": "healthy",
+  "uptime": "12.45s",
+  "memory": "94.25 MB",
+  "environment": "development"
 }
 ```
 

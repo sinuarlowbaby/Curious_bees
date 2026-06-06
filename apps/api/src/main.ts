@@ -29,6 +29,7 @@ import { winstonOptions } from './config/winston.config';
 import helmet from 'helmet';
 import * as compression from 'compression';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
+import { HttpExceptionFilter } from './common/filters/http-exception.filter';
 
 // ─── Shared app bootstrap ────────────────────────────────────────────────────
 
@@ -83,6 +84,12 @@ async function createApp(expressInstance?: express.Express) {
     }),
   );
 
+  // Global Exception Filter
+  app.useGlobalFilters(new HttpExceptionFilter());
+
+  // Graceful Shutdown Hooks
+  app.enableShutdownHooks();
+
   // CORS — supports local dev + all Vercel preview/production deployments
   const configuredOrigins = [
     process.env.FRONTEND_URL,
@@ -102,7 +109,8 @@ async function createApp(expressInstance?: express.Express) {
   app.enableCors({
     origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
       if (!origin) return callback(null, true);
-      if (process.env.DEVELOPMENT_MODE === 'true' && (origin.startsWith('http://localhost:') || origin.startsWith('http://127.0.0.1:'))) {
+      const isBypass = process.env.AUTH_MODE === 'bypass' || process.env.DEVELOPMENT_MODE === 'true';
+      if (isBypass && (origin.startsWith('http://localhost:') || origin.startsWith('http://127.0.0.1:'))) {
         return callback(null, true);
       }
       if (allowedOrigins.includes(origin) || origin.endsWith('.vercel.app')) {
