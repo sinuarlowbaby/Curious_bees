@@ -16,6 +16,7 @@
     "doctor": "node scripts/doctor.js",
     "dev:web": "npm run dev --workspace=apps/web",
     "dev:api": "npm run dev --workspace=apps/api",
+    "dev:ai": "cd apps/ai-worker && uvicorn app.main:app --port 8000 --reload",
     "dev": "concurrently \"npm run dev:web\" \"npm run dev:api\"",
     "build:web": "npm run build --workspace=apps/web",
     "build:api": "npm run build --workspace=apps/api",

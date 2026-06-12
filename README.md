@@ -19,6 +19,7 @@
 CuriousBees employs a decoupled client-server monorepo architecture:
 * **Frontend**: Next.js 15+ (App Router), Tailwind CSS, Zustand, React Query.
 * **Backend API**: NestJS 11+, Prisma ORM, BullMQ.
+* **AI Worker**: FastAPI (Python), Langchain, Qdrant Vector DB, APScheduler (Email polling & Event Scheduling).
 * **Database**: PostgreSQL and Redis.
 * **Authentication**: Firebase Authentication (Google SSO) & Local Development Mode Bypass.
 
@@ -32,7 +33,8 @@ For a detailed breakdown of the internal systems, data flows, and relational sch
 curiousbees-monorepo/
 ├── apps/
 │   ├── web/                # Next.js Frontend Web Application (React)
-│   └── api/                # NestJS Backend REST API (Express wrapper)
+│   ├── api/                # NestJS Backend REST API (Express wrapper)
+│   └── ai-worker/          # FastAPI Python Background Worker (Semantic Search & Emails)
 ├── packages/
 │   ├── types/              # Shared TypeScript definitions
 │   ├── shared-utils/       # Shared utility functions (e.g. apiFetch)
@@ -78,7 +80,7 @@ npm run setup
 ```
 
 ### 5. Spin Up Infrastructure
-Launch the local PostgreSQL database and Redis queue server inside Docker:
+Launch the local PostgreSQL database, Redis queue server, and Qdrant Vector Database inside Docker:
 ```bash
 npm run docker:up
 ```
@@ -94,8 +96,13 @@ Start both the NestJS API and Next.js frontend concurrently:
 ```bash
 npm run dev
 ```
+Start the Python AI worker in a separate terminal:
+```bash
+npm run dev:ai
+```
 * **Frontend Web Application**: [http://localhost:3000](http://localhost:3000)
 * **Backend REST API**: [http://localhost:4000](http://localhost:4000)
+* **AI Worker API**: [http://localhost:8000/docs](http://localhost:8000/docs)
 * **Interactive API Documentation (Swagger)**: [http://localhost:4000/api/docs](http://localhost:4000/api/docs)
 * **API Health check Dashboard**: [http://localhost:4000/api/health](http://localhost:4000/api/health)
 
