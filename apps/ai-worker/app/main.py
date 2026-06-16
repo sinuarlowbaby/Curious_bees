@@ -66,7 +66,10 @@ async def lifespan(app:FastAPI):
             collection_name=QDRANT_COLLECTION_NAME,
         )
 
-        app.state.db_pool = await asyncpg.create_pool(os.environ.get("DATABASE_URL"))
+        db_url = os.environ.get("DATABASE_URL")
+        if db_url and "?schema=" in db_url:
+            db_url = db_url.split("?schema=")[0]
+        app.state.db_pool = await asyncpg.create_pool(db_url)
         app.state.sessions = {}
 
         # ── PostgreSQL Setup ──────────────────────────────────────────
