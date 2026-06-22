@@ -17,8 +17,8 @@ from event_scheduling.config import (
     EMAIL_PASSWORD,
     IMAP_SERVER,
 )
-from dispatcher import process_email
-from imap_client import fetch_unread_emails
+from event_scheduling.dispatcher import process_email
+from event_scheduling.imap_client import fetch_unread_emails
 
 
 def main() -> int:
