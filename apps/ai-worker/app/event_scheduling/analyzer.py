@@ -16,8 +16,8 @@ import re
 
 import dateutil.parser
 
-from config import DEADLINE_KEYWORDS, GLINER_LABELS, gliner_model
-from text_utils import (
+from event_scheduling.config import DEADLINE_KEYWORDS, GLINER_LABELS, gliner_model
+from event_scheduling.text_utils import (
     classify_email,
     dedupe,
     expand_date_ranges,

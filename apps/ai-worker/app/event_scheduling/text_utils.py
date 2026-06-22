@@ -11,7 +11,7 @@ import re
 
 import dateutil.parser
 
-from config import (
+from event_scheduling.config import (
     DASH_CHARS,
     DEADLINE_KEYWORDS,
     GREETING_RE,

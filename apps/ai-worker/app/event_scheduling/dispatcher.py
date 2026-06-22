@@ -14,10 +14,10 @@ that the original script's process loop produced.
 import json
 import re
 
-from analyzer import analyze_email
-from announcement_store import save_announcement
-from calendar_store import add_event, delete_event, find_matching_event, update_event
-from config import AUTHORIZED_SENDERS
+from event_scheduling.analyzer import analyze_email
+from event_scheduling.announcement_store import save_announcement
+from event_scheduling.calendar_store import add_event, delete_event, find_matching_event, update_event
+from event_scheduling.config import AUTHORIZED_SENDERS
 
 
 def process_email(sender: str, receiver: str, subject: str, body: str) -> None:

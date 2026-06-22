@@ -10,7 +10,7 @@ import datetime
 import re
 import sqlite3
 
-from config import DB_PATH
+from event_scheduling.config import DB_PATH
 
 
 def init_db() -> None:
