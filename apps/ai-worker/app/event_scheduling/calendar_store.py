@@ -5,7 +5,7 @@ All operations go through the SQLite database at ``config.DB_PATH``.
 """
 
 import sqlite3
-from config import DB_PATH, similarity_model
+from event_scheduling.config import DB_PATH, similarity_model
 from sentence_transformers import util
 
 

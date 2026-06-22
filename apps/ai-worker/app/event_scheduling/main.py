@@ -11,7 +11,7 @@ Run with: ``python main.py``
 
 import sys
 
-from config import (
+from event_scheduling.config import (
     DB_PATH,
     EMAIL_ADDRESS,
     EMAIL_PASSWORD,

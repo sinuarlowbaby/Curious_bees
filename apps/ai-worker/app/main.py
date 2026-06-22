@@ -31,11 +31,10 @@ logger = logging.getLogger(__name__)
 import sys
 from apscheduler.schedulers.background import BackgroundScheduler
 
-# Ensure event_scheduling directory is in path so absolute imports within it resolve correctly
+# Ensure the app directory is in path so imports within it resolve correctly
 _base_dir = os.path.dirname(os.path.abspath(__file__))
-_event_scheduling_path = os.path.join(_base_dir, "event_scheduling")
-if _event_scheduling_path not in sys.path:
-    sys.path.append(_event_scheduling_path)
+if _base_dir not in sys.path:
+    sys.path.insert(0, _base_dir)
 
 from event_scheduling.check_email import check_unread_emails
 
