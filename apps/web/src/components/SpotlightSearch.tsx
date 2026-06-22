@@ -4,8 +4,19 @@ import React, { useEffect, useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 import { useStore } from '@/store/useStore';
-import { Search, MessageSquare, Briefcase, Calendar, Users, CornerDownLeft } from 'lucide-react';
+import { Search, MessageSquare, Briefcase, Calendar, Users, CornerDownLeft, Sparkles, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { apiGet } from '@/lib/api-client';
+
+interface AISearchResult {
+  id: number;
+  title: string;
+  author: string;
+  tag: string;
+  abstract?: string;
+  date?: string;
+  score: number;
+}
 
 interface SearchResultItem {
   id: string;
@@ -24,10 +35,14 @@ export default function SpotlightSearch({ isOpen, onClose }: SpotlightSearchProp
   const router = useRouter();
   const inputRef = useRef<HTMLInputElement>(null);
   const { threads, opportunities, events, collaborators, fetchCollaborators } = useStore();
-  
+
   const [query, setQuery] = useState('');
   const [activeCategory, setActiveCategory] = useState<'ALL' | 'THREADS' | 'OPPORTUNITIES' | 'EVENTS' | 'RESEARCHERS'>('ALL');
   const [selectedIndex, setSelectedIndex] = useState(0);
+
+  // AI search state
+  const [aiResults, setAiResults] = useState<AISearchResult[]>([]);
+  const [isAiSearching, setIsAiSearching] = useState(false);
 
   // Focus input when modal opens
   useEffect(() => {
@@ -35,15 +50,39 @@ export default function SpotlightSearch({ isOpen, onClose }: SpotlightSearchProp
       setTimeout(() => inputRef.current?.focus(), 100);
       setQuery('');
       setSelectedIndex(0);
-      fetchCollaborators(); // Ensure collaborators are cached
+      setAiResults([]);
+      fetchCollaborators();
     }
   }, [isOpen, fetchCollaborators]);
+
+  // Debounced AI semantic search — fires 400ms after user stops typing
+  useEffect(() => {
+    if (query.trim().length < 3) {
+      setAiResults([]);
+      return;
+    }
+
+    const timer = setTimeout(async () => {
+      setIsAiSearching(true);
+      try {
+        const params = new URLSearchParams({ query: query.trim() });
+        const data = await apiGet<AISearchResult[]>(`/search?${params.toString()}`);
+        setAiResults(Array.isArray(data) ? data : []);
+      } catch (err) {
+        console.warn('[SpotlightSearch] AI search unavailable:', err);
+        setAiResults([]);
+      } finally {
+        setIsAiSearching(false);
+      }
+    }, 400);
+
+    return () => clearTimeout(timer);
+  }, [query]);
 
   // Aggregate and filter search items
   const getFilteredResults = (): SearchResultItem[] => {
     const list: SearchResultItem[] = [];
 
-    // 1. Threads
     threads.forEach((t) => {
       list.push({
         id: `t-${t.id}`,
@@ -54,7 +93,6 @@ export default function SpotlightSearch({ isOpen, onClose }: SpotlightSearchProp
       });
     });
 
-    // 2. Opportunities
     opportunities.forEach((o) => {
       list.push({
         id: `o-${o.id}`,
@@ -65,7 +103,6 @@ export default function SpotlightSearch({ isOpen, onClose }: SpotlightSearchProp
       });
     });
 
-    // 3. Events
     events.forEach((e) => {
       list.push({
         id: `e-${e.id}`,
@@ -76,7 +113,6 @@ export default function SpotlightSearch({ isOpen, onClose }: SpotlightSearchProp
       });
     });
 
-    // 4. Researchers
     collaborators.forEach((c) => {
       list.push({
         id: `c-${c.id}`,
@@ -87,7 +123,6 @@ export default function SpotlightSearch({ isOpen, onClose }: SpotlightSearchProp
       });
     });
 
-    // Filtering by category & query
     return list.filter((item) => {
       const matchCat =
         activeCategory === 'ALL' ||
@@ -113,9 +148,7 @@ export default function SpotlightSearch({ isOpen, onClose }: SpotlightSearchProp
         onClose();
         return;
       }
-
       if (!isOpen) return;
-
       if (e.key === 'ArrowDown') {
         e.preventDefault();
         setSelectedIndex((prev) => (prev + 1) % Math.max(results.length, 1));
@@ -130,7 +163,6 @@ export default function SpotlightSearch({ isOpen, onClose }: SpotlightSearchProp
         }
       }
     };
-
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isOpen, results, selectedIndex, onClose, router]);
@@ -169,7 +201,7 @@ export default function SpotlightSearch({ isOpen, onClose }: SpotlightSearchProp
               <input
                 ref={inputRef}
                 type="text"
-                placeholder="Search threads, events, workspaces, experts..."
+                placeholder="Search threads, events, research posts, experts..."
                 value={query}
                 onChange={(e) => {
                   setQuery(e.target.value);
@@ -177,6 +209,7 @@ export default function SpotlightSearch({ isOpen, onClose }: SpotlightSearchProp
                 }}
                 className="flex-1 bg-transparent border-none text-[13.5px] text-black placeholder-textSecondary/50 outline-none select-text"
               />
+              {isAiSearching && <Loader2 className="w-4 h-4 text-violet-400 animate-spin shrink-0" />}
               <span className="text-[9px] font-bold text-textSecondary/60 uppercase border border-borderStroke/70 bg-slate-50 px-2 py-0.5 rounded shadow-sm">
                 ESC
               </span>
@@ -187,10 +220,7 @@ export default function SpotlightSearch({ isOpen, onClose }: SpotlightSearchProp
               {(['ALL', 'THREADS', 'OPPORTUNITIES', 'EVENTS', 'RESEARCHERS'] as const).map((cat) => (
                 <button
                   key={cat}
-                  onClick={() => {
-                    setActiveCategory(cat);
-                    setSelectedIndex(0);
-                  }}
+                  onClick={() => { setActiveCategory(cat); setSelectedIndex(0); }}
                   className={cn(
                     'px-2.5 py-1 rounded text-[9px] font-bold uppercase tracking-wider transition-colors cursor-pointer',
                     activeCategory === cat
@@ -204,60 +234,110 @@ export default function SpotlightSearch({ isOpen, onClose }: SpotlightSearchProp
             </div>
 
             {/* Results Zone */}
-            <div className="max-h-[320px] overflow-y-auto p-2 space-y-0.5">
-              {results.length === 0 ? (
+            <div className="max-h-[420px] overflow-y-auto p-2 space-y-0.5">
+
+              {/* ── Local results (fast, in-memory filter) ─────────────────── */}
+              {results.length > 0 && (
+                <>
+                  <p className="px-2 pt-1 pb-0.5 text-[9px] font-bold uppercase tracking-widest text-textSecondary/50">Quick Results</p>
+                  {results.map((item, idx) => {
+                    const isSelected = idx === selectedIndex;
+                    return (
+                      <div
+                        key={item.id}
+                        onClick={() => { router.push(item.url); onClose(); }}
+                        onMouseEnter={() => setSelectedIndex(idx)}
+                        className={cn(
+                          'flex items-center justify-between px-3 py-2.5 rounded-lg cursor-pointer transition-all duration-150',
+                          isSelected ? 'bg-primary/5' : 'bg-transparent'
+                        )}
+                      >
+                        <div className="flex items-center gap-3 min-w-0">
+                          <div className={cn(
+                            'p-1.5 rounded shrink-0 border transition-all',
+                            isSelected ? 'bg-white border-primary/20 shadow-sm' : 'bg-slate-50 border-borderStroke/30'
+                          )}>
+                            {categoryIcons[item.category]}
+                          </div>
+                          <div className="min-w-0 text-left">
+                            <p className={cn('text-[13px] font-semibold leading-tight truncate transition-colors', isSelected ? 'text-primary' : 'text-black')}>
+                              {item.title}
+                            </p>
+                            {item.meta && (
+                              <p className="text-[10px] text-textSecondary/60 leading-normal truncate mt-0.5 font-medium">{item.meta}</p>
+                            )}
+                          </div>
+                        </div>
+                        {isSelected && (
+                          <div className="flex items-center gap-1 text-[9px] font-bold text-primary uppercase shrink-0">
+                            <span>Open</span>
+                            <CornerDownLeft className="w-3.5 h-3.5 text-primary" />
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </>
+              )}
+
+              {/* ── AI Semantic Search Results ──────────────────────────────── */}
+              {query.trim().length >= 3 && (
+                <div className="mt-2">
+                  <div className="flex items-center gap-1.5 px-2 pt-1 pb-1">
+                    <Sparkles className="w-3 h-3 text-violet-500" />
+                    <p className="text-[9px] font-bold uppercase tracking-widest text-violet-500">AI Semantic Search</p>
+                  </div>
+
+                  {isAiSearching && aiResults.length === 0 && (
+                    <div className="flex items-center justify-center py-6 gap-2 text-textSecondary/50">
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      <span className="text-[11px]">Searching research database...</span>
+                    </div>
+                  )}
+
+                  {!isAiSearching && aiResults.length === 0 && (
+                    <div className="py-5 text-center text-textSecondary/40">
+                      <p className="text-[11px]">No research posts matched your query</p>
+                    </div>
+                  )}
+
+                  {aiResults.map((item) => (
+                    <div
+                      key={`ai-${item.id}`}
+                      className="flex items-start justify-between px-3 py-2.5 rounded-lg transition-all duration-150 hover:bg-violet-50 group cursor-default"
+                    >
+                      <div className="flex items-start gap-3 min-w-0">
+                        <div className="p-1.5 rounded shrink-0 border bg-violet-50 border-violet-200 mt-0.5">
+                          <Sparkles className="w-3.5 h-3.5 text-violet-500" />
+                        </div>
+                        <div className="min-w-0 text-left">
+                          <p className="text-[13px] font-semibold leading-tight truncate text-slate-800 group-hover:text-violet-700 transition-colors">
+                            {item.title}
+                          </p>
+                          <p className="text-[10px] text-textSecondary/60 mt-0.5 font-medium">
+                            {item.author} · <span className="text-violet-400">{item.tag}</span>
+                            {item.date && ` · ${item.date}`}
+                          </p>
+                          {item.abstract && (
+                            <p className="text-[10px] text-textSecondary/50 mt-0.5 leading-relaxed line-clamp-2">{item.abstract}</p>
+                          )}
+                        </div>
+                      </div>
+                      <span className="text-[9px] font-bold text-violet-400 bg-violet-50 border border-violet-200 px-1.5 py-0.5 rounded shrink-0 ml-2 mt-0.5">
+                        {Math.round(item.score * 100)}%
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* ── Empty state ─────────────────────────────────────────────── */}
+              {results.length === 0 && aiResults.length === 0 && !isAiSearching && (
                 <div className="py-10 text-center text-textSecondary space-y-1.5">
                   <Search className="w-8 h-8 opacity-20 mx-auto text-textSecondary" />
                   <p className="text-[11px] font-bold uppercase tracking-wider text-textSecondary/80">No matching results found</p>
                   <p className="text-xs text-textSecondary/50">Try refining your search keyword queries</p>
                 </div>
-              ) : (
-                results.map((item, idx) => {
-                  const isSelected = idx === selectedIndex;
-                  return (
-                    <div
-                      key={item.id}
-                      onClick={() => {
-                        router.push(item.url);
-                        onClose();
-                      }}
-                      onMouseEnter={() => setSelectedIndex(idx)}
-                      className={cn(
-                        'flex items-center justify-between px-3 py-2.5 rounded-lg cursor-pointer transition-all duration-150 relative overflow-hidden',
-                        isSelected ? 'bg-primary/5' : 'bg-transparent'
-                      )}
-                    >
-                      <div className="flex items-center gap-3 min-w-0 z-10">
-                        <div className={cn(
-                          'p-1.5 rounded shrink-0 border transition-all',
-                          isSelected ? 'bg-white border-primary/20 shadow-sm' : 'bg-slate-50 border-borderStroke/30'
-                        )}>
-                          {categoryIcons[item.category]}
-                        </div>
-                        <div className="min-w-0 text-left">
-                          <p className={cn(
-                            'text-[13px] font-semibold leading-tight truncate transition-colors',
-                            isSelected ? 'text-primary' : 'text-black'
-                          )}>
-                            {item.title}
-                          </p>
-                          {item.meta && (
-                            <p className="text-[10px] text-textSecondary/60 leading-normal truncate mt-0.5 font-medium">
-                              {item.meta}
-                            </p>
-                          )}
-                        </div>
-                      </div>
-
-                      {isSelected && (
-                        <div className="flex items-center gap-1 text-[9px] font-bold text-primary uppercase shrink-0 z-10">
-                          <span>Open</span>
-                          <CornerDownLeft className="w-3.5 h-3.5 text-primary" />
-                        </div>
-                      )}
-                    </div>
-                  );
-                })
               )}
             </div>
 
@@ -267,7 +347,10 @@ export default function SpotlightSearch({ isOpen, onClose }: SpotlightSearchProp
                 <span>↑↓ navigate</span>
                 <span>⏎ select</span>
               </div>
-              <span className="font-semibold text-primary">CuriousBees Spotlight Search</span>
+              <div className="flex items-center gap-1.5">
+                <Sparkles className="w-3 h-3 text-violet-400" />
+                <span className="font-semibold text-primary">CuriousBees AI Search</span>
+              </div>
             </div>
           </motion.div>
         </div>

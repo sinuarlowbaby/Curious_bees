@@ -22,6 +22,7 @@ import { SupervisorsModule } from './supervisors/supervisors.module';
 import { DepartmentsModule } from './departments/departments.module';
 import { PublicationsModule } from './publications/publications.module';
 import { ReportsModule } from './reports/reports.module';
+import { SearchModule } from './search/search.module';
 
 @Module({
   imports: [
@@ -63,6 +64,7 @@ import { ReportsModule } from './reports/reports.module';
     DepartmentsModule,
     PublicationsModule,
     ReportsModule,
+    SearchModule,
   ],
   controllers: [AppController],
   providers: [
